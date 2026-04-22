@@ -39,7 +39,10 @@ def parse_dart_response(data: dict) -> list[CollectedItem]:
                 published_at=published,
                 company=row.get("corp_name", ""),
                 company_code=row.get("stock_code", ""),
-                extra={"corp_cls": row.get("corp_cls", "")},
+                extra={
+                    "corp_cls": row.get("corp_cls", ""),
+                    "corp_code": row.get("corp_code", ""),
+                },
             )
         )
     return items

@@ -32,6 +32,15 @@ CREATE TABLE IF NOT EXISTS glossary (
     updated_at       TEXT NOT NULL,
     PRIMARY KEY (term_id, lang)
 );
+
+CREATE TABLE IF NOT EXISTS tickers (
+    stock_code TEXT PRIMARY KEY,
+    corp_code  TEXT NOT NULL,
+    corp_name  TEXT NOT NULL,
+    market     TEXT,
+    updated_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_tickers_corp ON tickers(corp_code);
 """
 
 
