@@ -16,6 +16,9 @@ export function ScopeFilter({ lang }: { lang: Lang }) {
   const scope = parseScopeFromSearch(sp)
   const dict = t(lang)
 
+  // 종목 탭은 국내/해외를 레이아웃 자체로 분리하므로 필터 숨김 (DESIGN.md 5.13)
+  if (tab === 'picks') return null
+
   const options: Scope[] = ['all', 'domestic', 'foreign']
 
   return (

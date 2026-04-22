@@ -10,10 +10,10 @@ export function TabBar({ lang }: { lang: Lang }) {
   const currentTab = parseTabFromSearch(sp)
   const dict = t(lang)
 
-  // Week 2a: 2 tabs. Week 2b 에서 'picks' 추가.
   const tabs: { key: Tab; label: string }[] = [
     { key: 'current', label: dict['tab.current'] },
     { key: 'economy', label: dict['tab.economy'] },
+    { key: 'picks', label: dict['tab.picks'] },
   ]
 
   return (

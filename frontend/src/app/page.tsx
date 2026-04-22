@@ -17,6 +17,7 @@ import type { Briefing, NewsItem } from '@/lib/types'
 import { CurrentNewsCard } from '@/components/CurrentNewsCard'
 import { HeroCard } from '@/components/HeroCard'
 import { MarketIndices } from '@/components/MarketIndices'
+import { PicksGrid } from '@/components/PicksGrid'
 import { SignalCard } from '@/components/SignalCard'
 
 function HomeInner() {
@@ -72,6 +73,11 @@ function HomeInner() {
         {dict.loading}
       </p>
     )
+  }
+
+  if (tab === 'picks') {
+    const picks = briefing.tabs.picks ?? { domestic: [], foreign: [] }
+    return <PicksGrid picks={picks} dict={dict} />
   }
 
   if (tab === 'economy') {
