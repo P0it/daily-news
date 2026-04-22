@@ -22,6 +22,16 @@ CREATE TABLE IF NOT EXISTS llm_cache (
     model        TEXT NOT NULL,
     created_at   TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS glossary (
+    term_id          TEXT NOT NULL,
+    lang             TEXT NOT NULL DEFAULT 'ko',
+    short_label      TEXT NOT NULL,
+    explanation      TEXT NOT NULL,
+    signal_direction TEXT,
+    updated_at       TEXT NOT NULL,
+    PRIMARY KEY (term_id, lang)
+);
 """
 
 
