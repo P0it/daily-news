@@ -29,6 +29,7 @@ class Config:
     ollama_model: str
     public_briefings_dir: Path  # frontend/public/briefings (JSON export 경로)
     vercel_base_url: str        # 카톡 링크 베이스 URL
+    edgar_user_agent: str       # SEC EDGAR User-Agent (이름/이메일)
 
 
 def load_config(project_root: Path | None = None) -> Config:
@@ -67,4 +68,5 @@ def load_config(project_root: Path | None = None) -> Config:
         vercel_base_url=os.environ.get(
             "VERCEL_BASE_URL", "https://news-briefing.vercel.app"
         ),
+        edgar_user_agent=os.environ.get("EDGAR_USER_AGENT", ""),
     )

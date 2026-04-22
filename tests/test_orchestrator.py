@@ -25,6 +25,7 @@ def _cfg(tmp_path: Path) -> Config:
         ollama_model="",
         public_briefings_dir=public_briefings,
         vercel_base_url="https://news-briefing.vercel.app",
+        edgar_user_agent="",
     )
 
 

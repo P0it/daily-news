@@ -57,6 +57,7 @@ def test_config_dataclass_is_immutable(tmp_path) -> None:
         ollama_model="",
         public_briefings_dir=tmp_path / "public",
         vercel_base_url="https://example.com",
+        edgar_user_agent="",
     )
     with pytest.raises((AttributeError, Exception)):
         cfg.dart_api_key = "z"  # type: ignore[misc]

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Latest Filings - Form 8-K</title>
+  <entry>
+    <title>8-K - APPLE INC (0000320193)</title>
+    <link href="https://www.sec.gov/Archives/edgar/data/320193/000032019326000050/0000320193-26-000050-index.htm"/>
+    <id>urn:tag:sec.gov,2026:aapl-8k-20260421</id>
+    <updated>2026-04-21T16:30:00-04:00</updated>
+    <summary type="html">&lt;b&gt;Filed:&lt;/b&gt; 2026-04-21 Item 2.02</summary>
+    <category term="8-K" scheme="https://www.sec.gov/" label="form type"/>
+  </entry>
+</feed>
