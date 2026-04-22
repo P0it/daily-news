@@ -27,6 +27,8 @@ class Config:
     tokens_path: Path
     ollama_enabled: bool
     ollama_model: str
+    public_briefings_dir: Path  # frontend/public/briefings (JSON export 경로)
+    vercel_base_url: str        # 카톡 링크 베이스 URL
 
 
 def load_config(project_root: Path | None = None) -> Config:
@@ -44,8 +46,10 @@ def load_config(project_root: Path | None = None) -> Config:
 
     data_dir = root / "data"
     digests_dir = data_dir / "digests"
+    public_briefings_dir = root / "frontend" / "public" / "briefings"
     data_dir.mkdir(parents=True, exist_ok=True)
     digests_dir.mkdir(parents=True, exist_ok=True)
+    public_briefings_dir.mkdir(parents=True, exist_ok=True)
 
     return Config(
         dart_api_key=os.environ.get("DART_API_KEY", ""),
@@ -59,4 +63,8 @@ def load_config(project_root: Path | None = None) -> Config:
         tokens_path=root / ".kakao_tokens.json",
         ollama_enabled=os.environ.get("OLLAMA_ENABLED", "0") == "1",
         ollama_model=os.environ.get("OLLAMA_MODEL", "qwen2.5:14b"),
+        public_briefings_dir=public_briefings_dir,
+        vercel_base_url=os.environ.get(
+            "VERCEL_BASE_URL", "https://news-briefing.vercel.app"
+        ),
     )

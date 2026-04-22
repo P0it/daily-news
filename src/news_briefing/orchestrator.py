@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
+from news_briefing.analysis.glossary import detect_term, ensure_glossary_entry
 from news_briefing.analysis.llm import summarize
 from news_briefing.analysis.scoring import score_report
 from news_briefing.collectors.base import CollectedItem
@@ -13,6 +14,7 @@ from news_briefing.collectors.dart import fetch_dart_list
 from news_briefing.collectors.rss import fetch_all_rss
 from news_briefing.config import Config
 from news_briefing.delivery.digest import format_digest, write_digest
+from news_briefing.delivery.json_builder import build_briefing_json, write_briefing
 from news_briefing.delivery.kakao import (
     compose_text_template,
     load_tokens,
@@ -26,7 +28,6 @@ from news_briefing.storage.seen import is_seen, mark_seen
 log = logging.getLogger(__name__)
 
 MIN_SIGNAL_SCORE = 60  # SIGNALS.md 2.2
-KAKAO_FALLBACK_URL = "https://news-briefing.vercel.app/?tab=economy"  # Week 2 배포 후 유효
 
 
 @dataclass(frozen=True, slots=True)
@@ -35,10 +36,11 @@ class MorningResult:
     signal_count: int
     news_count: int
     digest_path: Path
+    briefing_json_path: Path
     sent_kakao: bool
 
 
-def _send_kakao(cfg: Config, text_title: str) -> bool:
+def _send_kakao(cfg: Config, text_title: str, link_url: str) -> bool:
     """내부 헬퍼. 테스트에서 mock patch 타겟."""
     tokens = load_tokens(cfg.tokens_path)
     if tokens is None:
@@ -47,7 +49,7 @@ def _send_kakao(cfg: Config, text_title: str) -> bool:
         )
         return False
 
-    payload = compose_text_template(text_title, KAKAO_FALLBACK_URL, "열기")
+    payload = compose_text_template(text_title, link_url, "열기")
     if send_text(tokens=tokens, rest_api_key=cfg.kakao_rest_api_key, payload=payload):
         return True
 
@@ -83,14 +85,28 @@ def run_morning(
                 new_items.append(item)
                 mark_seen(conn, item.source, item.ext_id)
 
-        # 3. 점수
-        scored = []
+        # 3. 점수 + glossary term 감지
+        scored: list[tuple[CollectedItem, int, str]] = []
+        term_ids_by_id: dict[str, str] = {}
+        glossary_map: dict[str, dict] = {}
         for it in new_items:
             if it.kind == "disclosure":
                 s, d = score_report(it.title)
                 scored.append((it, s, d))
 
-        # 4. 요약 (뉴스 중 상위 15건만, 비용 절약)
+                term_id = detect_term(it.title)
+                if term_id:
+                    term_ids_by_id[it.ext_id] = term_id
+                    if term_id not in glossary_map:
+                        entry = ensure_glossary_entry(conn, term_id, lang="ko")
+                        if entry:
+                            glossary_map[term_id] = {
+                                "shortLabel": entry.short_label,
+                                "explanation": entry.explanation,
+                                "direction": entry.signal_direction,
+                            }
+
+        # 4. 요약 (뉴스 중 상위 15건)
         fresh_news = [it for it in new_items if it.kind == "news"][:15]
         for it in fresh_news:
             _ = summarize(
@@ -100,13 +116,25 @@ def run_morning(
                 ollama_model=cfg.ollama_model,
             )
 
-        # 5. 디지스트 파일 작성 (항상)
+        # 5. 디지스트 텍스트 백업 (Week 1 그대로)
         text = format_digest(
             date=now, scored_signals=scored, news=fresh_news, min_score=MIN_SIGNAL_SCORE
         )
         digest_path = write_digest(digests_dir=cfg.digests_dir, date=now, text=text)
 
-        # 6. 카톡 전송 (dry-run 아닐 때)
+        # 6. Briefing JSON (Week 2a 신규)
+        briefing = build_briefing_json(
+            date=now,
+            scored_signals=scored,
+            economy_news=fresh_news,
+            glossary=glossary_map,
+            term_ids_by_id=term_ids_by_id,
+        )
+        briefing_json_path = write_briefing(
+            public_briefings_dir=cfg.public_briefings_dir, briefing=briefing
+        )
+
+        # 7. 카톡 전송 (dry-run 아닐 때)
         sent = False
         sig_above = sum(1 for _, s, _ in scored if s >= MIN_SIGNAL_SCORE)
         if not dry_run:
@@ -114,7 +142,10 @@ def run_morning(
                 f"데일리 브리핑 · {now.strftime('%m월 %d일')}\n"
                 f"공시 {sig_above}건 · 뉴스 {len(fresh_news)}건"
             )
-            sent = _send_kakao(cfg, title)
+            link_url = (
+                f"{cfg.vercel_base_url}/?date={now.strftime('%Y-%m-%d')}&tab=economy"
+            )
+            sent = _send_kakao(cfg, title, link_url)
         else:
             print(text)  # dry-run: stdout 에 전체 디지스트 출력
 
@@ -123,6 +154,7 @@ def run_morning(
             signal_count=sig_above,
             news_count=len(fresh_news),
             digest_path=digest_path,
+            briefing_json_path=briefing_json_path,
             sent_kakao=sent,
         )
     finally:
