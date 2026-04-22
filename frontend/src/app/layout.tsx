@@ -1,10 +1,25 @@
 import type { Metadata } from 'next'
 import { AppShell } from '@/components/AppShell'
+import { InstallPrompt } from '@/components/InstallPrompt'
+import { ServiceWorkerRegister } from '@/components/ServiceWorkerRegister'
 import './globals.css'
 
 export const metadata: Metadata = {
   title: '데일리 브리핑',
   description: '매일 아침 공시·뉴스 브리핑',
+  manifest: '/manifest.json',
+  appleWebApp: {
+    capable: true,
+    title: '브리핑',
+    statusBarStyle: 'default',
+  },
+  icons: {
+    icon: [
+      { url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icons/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: '/icons/apple-touch-icon.png',
+  },
 }
 
 export default function RootLayout({
@@ -30,6 +45,8 @@ export default function RootLayout({
       </head>
       <body>
         <AppShell>{children}</AppShell>
+        <InstallPrompt />
+        <ServiceWorkerRegister />
       </body>
     </html>
   )
