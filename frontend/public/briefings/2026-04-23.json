@@ -1,0 +1,37 @@
+{
+  "date": "2026-04-23",
+  "generatedAt": "2026-04-22T23:55:10.432663+00:00",
+  "version": 1,
+  "hero": null,
+  "tabs": {
+    "current": {
+      "politics": [],
+      "society": [],
+      "international": [],
+      "tech": []
+    },
+    "economy": {
+      "indices": [],
+      "signals": [],
+      "news": [
+        {
+          "id": "https://www.mk.co.kr/news/stock/12024862",
+          "source": "rss:mk",
+          "title": "“변동성에도 실적 모멘텀 유효”…DB손보, 목표가 26만원으로 하향",
+          "summary": "다올투자증권은 23일 DB손해보험에 대해 단기 실적 변동성을 반영해 목표주가를 기존 27만원에서 26만원으로 하향 조정했다. 다만, 실적 둔화 우려에도 안정적인 이익 흐름과 자본여..",
+          "url": "https://www.mk.co.kr/news/stock/12024862",
+          "thumbnail": null,
+          "time": "2026-04-22T23:54:44",
+          "scope": "domestic",
+          "glossaryTermId": null,
+          "curationScore": 0
+        }
+      ]
+    },
+    "picks": {
+      "domestic": [],
+      "foreign": []
+    }
+  },
+  "glossary": {}
+}
