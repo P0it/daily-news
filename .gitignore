@@ -1,0 +1,39 @@
+# Secrets (P3 원칙: 절대 커밋 금지)
+.env
+.env.local
+.kakao_tokens.json
+
+# Runtime data
+data/
+*.db
+*.db-journal
+*.log
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+dist/
+build/
+
+# Frontend (Week 2+)
+node_modules/
+.next/
+frontend/.next/
+frontend/out/
+frontend/node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp

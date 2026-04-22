@@ -1,0 +1,362 @@
+# 4주 개발 로드맵
+
+각 주차는 **실제로 동작하는 결과물**로 끝난다. 중간 상태에서 멈춰도 가치가 있도록 점진적 개선 구조를 택한다.
+
+## 전체 일정
+
+| 주차 | 테마 | 핵심 결과물 | Definition of Done |
+|------|------|------------|---------------------|
+| Week 1 | 수집·요약·전송 MVP | 매일 아침 카톡 브리핑 실행 | 카톡으로 DART 공시 + 뉴스 요약 수신 |
+| Week 2 | PWA 앱 셸 + 증권 탭 + 다크모드 | 설치 가능한 증권 브리핑 앱 | 홈 화면 설치, 다크모드, 증권 탭, 용어 주석 |
+| Week 3 | 시사 탭 + 차트·딥링크 + 시그널 고도화 | 시사 탭 추가, 차트 임베드, SEC EDGAR | 증권/시사 탭 전환, TradingView 차트, 딥링크 |
+| Week 4 | 테마·밸류체인 | 테마주 DB + 포지셔닝 생성 | 주간 테마 리포트 수신 |
+| Week 5 | RAG 분석 | 질문응답형 분석 엔진 | "X 테마 수혜 공통분모는?" 질문 가능 |
+
+---
+
+## Week 1: 수집·요약·전송 MVP
+
+### 목표
+
+DART 공시와 뉴스를 수집해서 LLM으로 요약하고 카카오톡으로 발송하는 end-to-end 파이프라인을 완성한다. 이 주차가 끝나면 매일 아침 카톡으로 브리핑이 오기 시작한다.
+
+### 작업 항목
+
+1. **프로젝트 구조 초기화**
+   - `docs/ARCHITECTURE.md`의 디렉토리 구조대로 생성
+   - `uv` 또는 `pip` + venv 로 의존성 관리
+   - `.env.example`, `.gitignore` 작성
+
+2. **DART 수집기**
+   - `opendart.fss.or.kr/api/list.json` 폴링
+   - 전체 시장 스캔 (특정 종목 필터 없음, 100개+ 자연스럽게 커버)
+   - SQLite `seen` 테이블로 중복 제거
+
+3. **RSS 수집기**
+   - 한국경제, 매경 RSS 우선 연결
+   - 해외는 BBC Business, FT Markets 시도 (죽어있으면 Week 2에 대체)
+
+4. **LLM 요약 모듈**
+   - Claude Code CLI subprocess wrapper
+   - Ollama fallback
+   - SQLite `llm_cache` 테이블로 중복 호출 방지
+
+5. **시그널 스코어링 v1**
+   - `SIGNALS.md`의 공시 유형별 가중치 리스트 기반
+   - 키워드 매칭 수준 (고도화는 Week 2)
+
+6. **카카오 OAuth & 전송**
+   - `kakao_auth.py` 1회 실행 스크립트
+   - `.kakao_tokens.json` 자동 저장
+   - access_token 만료 시 refresh_token 자동 갱신
+
+7. **메인 CLI**
+   - `python -m news_briefing morning` — 아침 브리핑 1회
+   - `python -m news_briefing morning --dry-run` — stdout 출력만
+
+8. **launchd 등록**
+   - `com.user.news-briefing.morning.plist` — 평일 06:00
+   - macOS sleep 후 깨어나도 실행 보장 (cron 대비 장점)
+
+### Definition of Done
+
+- [ ] 수동으로 `python -m news_briefing morning --dry-run` 실행 시 터미널에 브리핑 출력
+- [ ] `python -m news_briefing morning` 실행 시 실제 카톡 수신
+- [ ] 같은 공시를 두 번 실행해도 두 번 알림이 오지 않음 (dedup 동작)
+- [ ] launchd가 다음 날 자동 실행 성공
+- [ ] `data/digests/YYYY-MM-DD.txt` 에 백업 파일 존재
+
+### 의도적으로 Week 1에 하지 않는 것
+
+- 웹 페이지 생성 (카톡 본문에 텍스트만)
+- 용어 자동 해설
+- 썸네일 이미지
+- 시그널 점수 고도화
+
+---
+
+## Week 2: 해설·점수·웹
+
+### 목표
+
+알림을 "이해 가능한" 형태로 업그레이드한다. 용어 자동 주석, 반응형 PWA, 점수 고도화. **디자인 시스템 전면 적용, 다크 모드, 다국어 기본 지원.**
+
+### 작업 항목
+
+1. **디자인 시스템 구현 기반** (`docs/DESIGN.md` 기반)
+   - Pretendard Variable 폰트 로드 (CDN)
+   - Tailwind CSS + CSS variables 설정 (라이트·다크 모두)
+   - 색상 토큰, 타입 스케일, 간격 시스템 정의
+   - 공통 컴포넌트: SignalCard, HeroCard, CurrentNewsCard, TabBar, MarketIndices, GlossaryPopover
+   - `prefers-color-scheme` + 수동 토글 (localStorage 저장)
+   - `prefers-reduced-motion` 존중
+   - **토스 디자인 원칙 준수**: `CLAUDE.md` P2 참조 (뱃지·테두리 금지, dot+레이블만, one focused action)
+
+2. **PWA 기반 구축 (F16, F25, F26)**
+   - Next.js 15 (static export) 또는 정적 HTML — 복잡도 판단 후 선택
+   - `manifest.json` — 이름·아이콘(192·512px)·theme_color·display: standalone
+   - `service-worker.js` — 캐싱 전략 (`ARCHITECTURE.md` 6.5 참조)
+   - Vercel 배포 파이프라인 (GitHub push 자동 배포)
+   - 커스텀 도메인 연결 (선택)
+   - 백엔드가 `public/briefings/YYYY-MM-DD.json` 에 쓰도록 파이프라인 수정
+   - `beforeinstallprompt` 이벤트 → 커스텀 설치 배너 (`InstallPrompt` 컴포넌트)
+
+3. **탭 네비게이션 UI (F24)**
+   - Pill segmented 스타일 (`DESIGN.md` 5.9)
+   - **2-탭**: 시사 (default, 좌측) / 경제 (우측)
+   - URL 쿼리 동기화 (`?tab=current|economy&scope=all|domestic|foreign`)
+   - 국내/해외 필터 chip (text + underline, `DESIGN.md` 5.9.1)
+   - 탭별 스크롤 위치 기억
+   - 카톡 딥링크는 `?tab=economy` 강제 (아침 브리핑 핵심)
+   - 좌우 키보드 탭 전환
+
+4. **용어 주석 엔진 (Glossary Annotator)**
+   - `glossary` 테이블 스키마 구현 (`ARCHITECTURE.md` 5.3 참조)
+   - 공시 유형별로 처음 등장할 때 LLM이 해설 생성 → DB 캐시
+   - 알림 본문에 "💡 이게 왜 중요?" 섹션 자동 첨부
+   - 해설 템플릿과 생성 프롬프트는 `SIGNALS.md` 참조
+
+3. **시그널 스코어링 v2**
+   - 키워드 매칭 + **정량 변수** 반영
+     - 공시 금액 (자기주식 취득 10억 vs 1000억)
+     - 지분율 변화 (0.1% vs 5%)
+     - 시총 대비 비율
+   - 구체적 규칙은 `SIGNALS.md` 참조
+
+4. **반응형 웹 페이지 생성**
+   - Jinja2 템플릿 (`templates/briefing.html`)
+   - `DESIGN.md` 의 SignalCard 구조 적용 (점수별 컬러 스트립, 뱃지, 방향성)
+   - 섹션별 그룹 (🚨 Critical / ⚡ 주요 시그널 / 📊 국내 / 🌍 해외)
+   - 반응형: 모바일 1열, 태블릿 2열, 데스크탑 3열
+   - 정적 HTML 파일로 `data/web/YYYY-MM-DD.html` 생성
+   - 호스팅: 로컬 Python http.server 또는 GitHub Pages 자동 push (결정 필요)
+
+5. **다국어 지원 (i18n)**
+   - `delivery/i18n/ko.json`, `en.json` 사전 파일
+   - UI chrome (메뉴·버튼·섹션명·뱃지 레이블) 모두 i18n 처리
+   - 언어 토글 버튼 (헤더 우측 `KO / EN`)
+   - 영어 모드 시 요약·주석 lazy 생성 (DB 캐시)
+   - LLM 생성 언어별 캐시 키: `(content_hash, language)`
+
+6. **썸네일 추출**
+   - 뉴스 기사 OG 이미지 자동 추출 (`beautifulsoup4` + `requests`)
+   - 없으면 소스별 기본 이미지 사용
+
+7. **차트 임베드 & 딥링크 (F18, F19)**
+   - TradingView Embed Widget 통합 (카드 확장 시 아코디언)
+   - DART `corp_code` ↔ 종목코드 매핑 테이블 구축
+   - 딥링크 생성기: 토스증권, 증권플러스, 네이버증권
+
+8. **카톡 메시지 포맷 변경**
+   - Week 1: 본문에 모든 요약 나열
+   - Week 2: 헤드라인 5개 + "전체 보기" 웹 링크 (카톡 4KB 제한 우회)
+   - 카톡도 이모지 + 점수로 최소한의 시각적 계층 유지
+
+9. **SEC EDGAR 수집기 추가**
+   - 8-K (주요 사건), Form 4 (내부자 매매) RSS 피드
+   - 미국 개별 종목 관심사 기반 필터링
+   - 아침 배치에 포함되어 한국 시각 06:00 브리핑에 전일 미국장 마감 이벤트 반영
+
+### Definition of Done
+
+- [ ] 카톡 메시지에 용어 해설 포함 ("임원ㆍ주요주주 특정증권등 소유상황보고서 → 💡 내부자 매매: ...")
+- [ ] Vercel에 배포된 URL에서 앱이 정상 로드됨 (데스크탑 Chrome/Safari, 모바일 iOS Safari/Android Chrome)
+- [ ] **홈 화면에 설치 가능**, 설치 후 전체화면으로 실행됨 (데스크탑·모바일 각각 확인)
+- [ ] **오프라인 상태에서 마지막 브리핑 열람 가능**
+- [ ] 다크 모드·라이트 모드 모두 시각적 완성도 양호 (WCAG AA 대비 통과), 시스템 설정 자동 감지
+- [ ] KO ↔ EN 토글 시 UI·요약·주석 모두 전환
+- [ ] **탭 2개 (시사·경제) 전환 동작**, URL 쿼리 동기화 (`?tab=current|economy&scope=all|domestic|foreign`)
+- [ ] 카톡 딥링크 클릭 시 경제 탭으로 직접 열림
+- [ ] 시그널 점수가 금액·비율에 따라 차별화 (동일 유형 공시여도 규모 따라 점수 다름)
+- [ ] SEC EDGAR Form 4 공시가 아침 브리핑에 포함됨
+- [ ] 토스 디자인 원칙 5가지 준수 확인 (`DESIGN.md` 1절): chrome 없이 타이포그래피로 위계, conversational copy, numbers as heroes, one focused action, generous whitespace
+
+---
+
+## Week 3: 시사 뉴스 · 테마·밸류체인 · 차트
+
+### 목표
+
+단순 이벤트 알림에서 **테마 기반 분석**으로 확장하고, **시사 탭을 채운다**. 증권 탭에는 차트·딥링크를 얹어 실행 동선까지 완성.
+
+### 작업 항목
+
+1. **시사 뉴스 수집기 (F27~F30)**
+   - 정치 RSS: 연합뉴스 정치, 한겨레 정치, 경향 정치
+   - 사회 RSS: 연합뉴스 사회, 한겨레 사회
+   - 국제 RSS: 연합뉴스 국제, BBC World, Reuters World
+   - IT/과학 RSS: 디지털타임스, ZDNet Korea, 전자신문
+   - 각 소스 응답 파싱, 중복 제거, SQLite 저장
+   - 증권 수집기와 동일한 인프라 재사용 (`collectors/rss.py` 확장)
+
+2. **시사 큐레이션 로직 (F31)**
+   - 점수 공식: `소스 신뢰도 × 최신성 × LLM 중요도 판단`
+   - 소스 신뢰도: 고정 값 (수동 튜닝)
+   - 최신성: 최근 6시간 = 1.0, 12시간 = 0.5, 24시간 = 0.2
+   - LLM 중요도: "오늘의 주요 국내 이슈인지 1~10점 평가" 프롬프트
+   - 섹션별 top-N 선정 (정치 5, 사회 3, 국제 3, IT/과학 2)
+
+3. **시사 용어 주석 (F32)**
+   - 증권과 동일 메커니즘, 별도 `glossary` 레코드
+   - 예: "전원합의체가 뭐예요?", "국정감사가 뭐예요?"
+
+4. **차트 임베드 & 딥링크 (F18, F19)**
+   - TradingView Embed Widget 통합 (카드 확장 시 아코디언)
+   - DART `corp_code` ↔ 종목코드 매핑 테이블 구축
+   - 딥링크 생성기: 토스증권 (`supertoss://stock/{code}`), 증권플러스, 네이버증권
+
+5. **테마주 DB 구축**
+   - 인포스탁(`infostock.co.kr`) 테마 페이지 크롤링
+     - robots.txt 준수, 폴링 간격 5초+
+     - 하루 1회 배치 업데이트
+   - 한경 테마 페이지 교차 검증
+   - `themes`, `value_layers`, `companies_in_layer` 테이블 채우기 (`ARCHITECTURE.md` 5.4)
+
+6. **밸류체인 자동 분해**
+   - 테마가 새로 감지되면 (뉴스 빈도 급증 기반) LLM에게:
+     - "이 테마의 밸류체인 공통분모 섹터 3~5개를 한국 상장 관점에서 나열해줘"
+   - 각 섹터와 기존 테마주 리스트를 매핑
+   - 사람 검수 가능한 포맷으로 DB 저장 (`value_layers`)
+
+7. **기업 포지셔닝 생성**
+   - 각 상장사가 해당 레이어에서 어떤 포지션을 갖는지 LLM이 1~2줄 작성
+   - 최근 공시·뉴스를 RAG 컨텍스트로 제공
+   - 예: "에스피지: 하모닉 감속기 국내 3위, 2024년 로봇용 매출 40% 성장"
+
+8. **트렌드 감지 로직**
+   - RSS·공시에서 테마 키워드 등장 빈도 추적 (일간 대비 주간 이동평균)
+   - 임계값 초과 시 "신규 주목 테마" 표시
+
+9. **주간 리포트 템플릿**
+   - 일요일 저녁 자동 생성 → 월요일 아침 카톡 링크
+   - 이번 주 주목 테마 3개 + 각 테마의 밸류체인 시각화 + 상장사 리스트
+
+### Definition of Done
+
+- [ ] 시사 탭에 정치·사회·국제·IT 섹션이 채워짐, 섹션별 카드 표시
+- [ ] 시사 기사 탭 시 용어 주석 팝오버 동작
+- [ ] TradingView 차트가 경제 탭 카드에서 펼쳐짐
+- [ ] 증권사 딥링크 3개 동작 확인 (iOS/Android 각각)
+- [ ] `themes` 테이블에 최소 30개 테마, 각 테마당 5+ 기업 매핑
+- [ ] 테마 쿼리 시 공통분모 섹터와 기업이 `positioning` 문장과 함께 반환됨
+- [ ] 주간 리포트 HTML이 일요일 23:00에 자동 생성
+- [ ] 트렌드 감지가 실제로 뜨는 테마를 포착하는지 수동 검증 (최소 2주 관찰)
+
+---
+
+## Week 4: RAG 분석
+
+### 목표
+
+수집한 모든 뉴스·공시·테마 DB를 **RAG 컨텍스트**로 묶어 자유 질의응답을 가능하게 한다. 주간 리포트 품질 향상.
+
+### 작업 항목
+
+1. **벡터 DB 구축**
+   - 선택지: Chroma (로컬, 간단), LanceDB (임베디드, 성능), Qdrant (local docker)
+   - 권장: Chroma (Week 4 스코프엔 충분)
+   - 임베딩: OpenAI `text-embedding-3-small` 또는 로컬 `bge-m3`
+
+2. **문서 인덱싱 파이프라인**
+   - 매일 신규 뉴스·공시를 청킹해서 임베딩 → 벡터 DB
+   - 메타데이터: 일자, 소스, 섹터, 관련 종목
+
+3. **RAG 질의 엔진**
+   - CLI 인터페이스 또는 웹 검색창
+   - 쿼리 예: "최근 로봇 테마에서 자기주식 매수 공시 있었나?"
+   - 프로세스:
+     1. 쿼리 → 관련 문서 top-k 검색
+     2. Claude에게 컨텍스트 + 쿼리 전달
+     3. 출처 링크 포함 답변 생성
+
+4. **테마 배너 UI (경제 탭 상단)**
+   - 경제 탭 최상단에 "이번 주 주목 테마" 배너 추가
+   - 배너 구조: 테마명 3개 + "자세히" 링크
+   - 탭(click) 시 주간 리포트 페이지로 이동 (`/report/YYYY-Www`)
+   - Week 3까지 테마 기능이 백엔드·DB 완성이었고, 이 주차에 UI 노출
+   - 사용자에게는 "새 기능이 추가됐어요" 온보딩 토스트 1회 표시
+
+5. **주간 리포트 고도화**
+   - 단순 나열 → LLM이 "이번 주 핵심 흐름" 에세이형 요약 생성
+   - 정량 데이터 (지수 변동, 외국인 수급) 자동 삽입
+   - 지난주 리포트와 비교 섹션
+   - 일요일 저녁 카톡에 **별도 URL 전송** (`https://.../report/2026-W17`)
+
+6. **쿼리 히스토리 & 피드백**
+   - 자주 묻는 질문 즐겨찾기
+   - 답변에 "이 출처가 도움됐는가" 피드백 수집 → RAG 튜닝 힌트
+
+### Definition of Done
+
+- [ ] 자유 질의에 평균 10초 이내 응답 + 출처 링크 2개+
+- [ ] 주간 리포트가 단순 나열이 아닌 해설·흐름 형태
+- [ ] **경제 탭 상단 "이번 주 주목 테마" 배너 정상 노출, 주간 리포트 페이지로 이동**
+- [ ] **일요일 23:00에 카톡으로 주간 리포트 URL 별도 전송**
+- [ ] 지난 1개월 기사 대상 유의미한 RAG 검색 품질 (수동 평가 5문항 기준)
+
+---
+
+## 주차별 리스크와 완화책
+
+| 리스크 | 해당 주차 | 완화책 |
+|--------|-----------|---------|
+| RSS 피드가 폐쇄됨 (FT, Reuters 등 일부) | Week 1 | 대체 피드 목록 준비, NewsAPI 유료 티어 검토 |
+| Max 플랜 할당량 소진 | Week 2~4 | Ollama 자동 fallback, 배치 시간 분산 |
+| 인포스탁 크롤링 차단 | Week 3 | 폴링 속도 낮춤 (하루 1회), 한경·네이버 테마 페이지로 대체 |
+| 카톡 4KB 제한으로 내용 잘림 | Week 2 | 웹 링크 방식으로 해결 (Week 2에 진행) |
+| launchd가 sleep 상태에서 못 깨움 | Week 1~2 | `pmset` 설정 조정, 실패 시 다음 주기에서 catch-up |
+| 맥이 꺼진 기간 (해외 여행 등) | 상시 | 선택 작업 "여행 모드" 참고 (아래) |
+| 테마 분석 LLM 할루시네이션 | Week 3~4 | 인포스탁 DB 교차검증, "확인 필요" 태그 |
+
+## 선택 작업: 여행 모드 준비 (Week 2 이후 아무 때나)
+
+맥 꺼진 기간 동안 GitHub Actions + Supabase + Anthropic API 키 조합으로 임시 전환 가능하게 하는 사전 준비. **해외 여행 예정이 있다면 출국 1~2주 전에 해두면 좋음.**
+
+### 작업
+
+1. **Anthropic API 키 발급**
+   - https://console.anthropic.com 에서 API 키 생성
+   - 월 $30 sp 지출 cap 설정 (안전장치)
+   - 평소엔 미사용, 여행 시에만 활성화
+
+2. **Supabase 프로젝트 생성 (무료 티어)**
+   - `briefing` 프로젝트 생성, region `ap-northeast-2` (서울)
+   - `seen`, `llm_cache`, `glossary` 테이블 SQLite 스키마와 동일하게 구성
+   - `SUPABASE_URL` · `SUPABASE_SERVICE_KEY` 를 GitHub Secrets에 저장
+
+3. **GitHub Actions workflow 파일**
+   - `.github/workflows/morning.yml` 작성 (평소 disabled)
+   - cron 트리거 `0 21 * * *` (KST 06:00 = UTC 21:00, 실제 도착은 06:15~06:40)
+   - Secrets: `ANTHROPIC_API_KEY`, `SUPABASE_URL`, `SUPABASE_SERVICE_KEY`, `KAKAO_ACCESS_TOKEN`, `KAKAO_REFRESH_TOKEN`, `VERCEL_TOKEN`
+   - 실행 내용: checkout → Python setup → `pip install` → `python -m news_briefing morning --cloud`
+
+4. **`--cloud` 플래그 분기 로직 (`cli.py`)**
+   - 로컬: SQLite + Claude CLI
+   - 클라우드: Supabase + Anthropic API
+   - 환경 변수 `USE_ANTHROPIC_API=1` 또는 CLI 플래그로 분기
+
+5. **DB 동기화 헬퍼**
+   - `scripts/export-to-supabase.py` — 로컬 SQLite → Supabase
+   - `scripts/import-from-supabase.py` — Supabase → 로컬 SQLite
+   - 실행 시간 수 분 이내 (개인 사용 규모)
+
+6. **여행 모드 체크리스트**
+   - `scripts/travel-mode.md` 에 출국 전·귀국 후 순서 문서화
+   - 출국 전: launchd unload → DB export → GitHub Actions enable
+   - 귀국 후: GitHub Actions disable → DB import → launchd load
+
+### Definition of Done
+
+- [ ] GitHub Actions workflow `workflow_dispatch` 로 수동 실행 시 정상 동작
+- [ ] Supabase에 하루 브리핑 결과가 저장됨
+- [ ] Anthropic API 키 spend cap 설정 확인
+- [ ] 체크리스트대로 모의 전환 (로컬 → 클라우드 → 로컬) 1회 성공
+
+---
+
+## 진행 원칙
+
+1. **각 주차 DoD를 만족한 후에만 다음 주차 시작.** 미완료 상태로 다음 기능 쌓지 않는다
+2. **매일 직접 써본다.** 시스템에 피드백 주면서 개선
+3. **문서 업데이트는 코드 커밋과 함께.** `docs/` 변경 없이 기능 추가·변경 금지
+4. **의도적 Non-goals 목록** (`PRD.md` 2.4) **은 절대 추가 금지.** 기능 욕심이 생기면 원칙 재확인
