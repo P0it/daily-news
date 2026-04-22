@@ -26,7 +26,9 @@ def _cmd_morning(args: argparse.Namespace) -> int:
     result = run_morning(cfg, dry_run=args.dry_run)
     print(
         f"\n완료: 신규 {result.new_items}건, 시그널 {result.signal_count}, "
-        f"뉴스 {result.news_count}, 전송={'OK' if result.sent_kakao else 'SKIP'}"
+        f"뉴스 {result.news_count}, "
+        f"Pick 국내 {result.picks_domestic}/해외 {result.picks_foreign}, "
+        f"전송={'OK' if result.sent_kakao else 'SKIP'}"
     )
     print(f"백업: {result.digest_path}")
     return 0

@@ -10,6 +10,7 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
+from news_briefing.analysis.picks import PicksResult
 from news_briefing.collectors.base import CollectedItem
 
 SCHEMA_VERSION = 1
@@ -61,6 +62,7 @@ def build_briefing_json(
     economy_news: list[CollectedItem],
     glossary: dict[str, dict] | None = None,
     term_ids_by_id: dict[str, str] | None = None,
+    picks: PicksResult | None = None,
 ) -> dict:
     filtered_for_economy = [
         s for s in scored_signals if s[1] >= ECONOMY_SIGNAL_THRESHOLD
@@ -72,6 +74,15 @@ def build_briefing_json(
         it, score, direction = filtered_for_economy[0]
         hero = _signal_to_dict(it, score, direction, term_ids_by_id)
         filtered_for_economy = filtered_for_economy[1:]
+
+    picks_tab: dict[str, list[dict]] = {"domestic": [], "foreign": []}
+    if picks:
+        picks_tab["domestic"] = [
+            _signal_to_dict(it, s, d, term_ids_by_id) for it, s, d in picks.domestic
+        ]
+        picks_tab["foreign"] = [
+            _signal_to_dict(it, s, d, term_ids_by_id) for it, s, d in picks.foreign
+        ]
 
     return {
         "date": date.strftime("%Y-%m-%d"),
@@ -93,6 +104,7 @@ def build_briefing_json(
                 ],
                 "news": [_news_to_dict(n) for n in economy_news],
             },
+            "picks": picks_tab,
         },
         "glossary": glossary or {},
     }

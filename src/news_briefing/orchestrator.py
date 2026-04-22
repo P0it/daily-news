@@ -8,9 +8,11 @@ from pathlib import Path
 
 from news_briefing.analysis.glossary import detect_term, ensure_glossary_entry
 from news_briefing.analysis.llm import summarize
-from news_briefing.analysis.scoring import score_report
+from news_briefing.analysis.picks import select_picks
+from news_briefing.analysis.scoring import score_edgar, score_report
 from news_briefing.collectors.base import CollectedItem
 from news_briefing.collectors.dart import fetch_dart_list
+from news_briefing.collectors.edgar import fetch_all_edgar
 from news_briefing.collectors.rss import fetch_all_rss
 from news_briefing.config import Config
 from news_briefing.delivery.digest import format_digest, write_digest
@@ -24,6 +26,7 @@ from news_briefing.delivery.kakao import (
 )
 from news_briefing.storage.db import connect
 from news_briefing.storage.seen import is_seen, mark_seen
+from news_briefing.storage.tickers import TickerRow, upsert_ticker
 
 log = logging.getLogger(__name__)
 
@@ -35,6 +38,8 @@ class MorningResult:
     new_items: int
     signal_count: int
     news_count: int
+    picks_domestic: int
+    picks_foreign: int
     digest_path: Path
     briefing_json_path: Path
     sent_kakao: bool
@@ -72,28 +77,51 @@ def run_morning(
 
     conn = connect(cfg.db_path)
     try:
-        # 1. 수집
+        # 1. 수집 (DART + RSS + EDGAR)
         date_key = now.strftime("%Y%m%d")
         disclosures = fetch_dart_list(cfg.dart_api_key, date_key)
         news = fetch_all_rss()
-        all_items = disclosures + news
+        edgar_items = fetch_all_edgar(cfg.edgar_user_agent) if cfg.edgar_user_agent else []
+        all_items = disclosures + news + edgar_items
 
-        # 2. 중복 제거
+        # 2. 중복 제거 + DART tickers 매핑 자동 수집
         new_items: list[CollectedItem] = []
         for item in all_items:
             if not is_seen(conn, item.source, item.ext_id):
                 new_items.append(item)
                 mark_seen(conn, item.source, item.ext_id)
+                # DART stock_code + corp_code 가 있으면 tickers 테이블에 upsert
+                if item.source == "dart" and item.company_code:
+                    corp_code = (item.extra or {}).get("corp_code", "")
+                    if corp_code:
+                        upsert_ticker(
+                            conn,
+                            TickerRow(
+                                stock_code=item.company_code,
+                                corp_code=corp_code,
+                                corp_name=item.company or "",
+                                market=None,
+                            ),
+                        )
 
-        # 3. 점수 + glossary term 감지
+        # 3. 점수 + glossary term 감지 (DART + EDGAR 분기)
         scored: list[tuple[CollectedItem, int, str]] = []
         term_ids_by_id: dict[str, str] = {}
         glossary_map: dict[str, dict] = {}
         for it in new_items:
-            if it.kind == "disclosure":
-                s, d = score_report(it.title)
-                scored.append((it, s, d))
+            if it.kind != "disclosure":
+                continue
 
+            if it.source == "edgar":
+                form_type = (it.extra or {}).get("form_type", "")
+                items_str = (it.extra or {}).get("items", "")
+                s, d = score_edgar(form_type=form_type, items=items_str)
+            else:
+                s, d = score_report(it.title)
+            scored.append((it, s, d))
+
+            # glossary 는 국내 공시만 (EDGAR 해설은 Week 3+ 로 이관)
+            if it.source == "dart":
                 term_id = detect_term(it.title)
                 if term_id:
                     term_ids_by_id[it.ext_id] = term_id
@@ -122,19 +150,23 @@ def run_morning(
         )
         digest_path = write_digest(digests_dir=cfg.digests_dir, date=now, text=text)
 
-        # 6. Briefing JSON (Week 2a 신규)
+        # 6. Today's Pick 선별 (DECISIONS #12, Week 2b)
+        picks = select_picks(scored, n_per_side=6)
+
+        # 7. Briefing JSON
         briefing = build_briefing_json(
             date=now,
             scored_signals=scored,
             economy_news=fresh_news,
             glossary=glossary_map,
             term_ids_by_id=term_ids_by_id,
+            picks=picks,
         )
         briefing_json_path = write_briefing(
             public_briefings_dir=cfg.public_briefings_dir, briefing=briefing
         )
 
-        # 7. 카톡 전송 (dry-run 아닐 때)
+        # 8. 카톡 전송 (dry-run 아닐 때)
         sent = False
         sig_above = sum(1 for _, s, _ in scored if s >= MIN_SIGNAL_SCORE)
         if not dry_run:
@@ -153,6 +185,8 @@ def run_morning(
             new_items=len(new_items),
             signal_count=sig_above,
             news_count=len(fresh_news),
+            picks_domestic=len(picks.domestic),
+            picks_foreign=len(picks.foreign),
             digest_path=digest_path,
             briefing_json_path=briefing_json_path,
             sent_kakao=sent,
