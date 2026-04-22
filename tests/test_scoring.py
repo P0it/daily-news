@@ -39,6 +39,9 @@ def test_score_report_matches_signals_table(
 
 
 def test_scoring_is_priority_ordered() -> None:
-    """주요사항보고서(자기주식취득결정) 는 주요사항보고(85)로 매칭되어야 함 (자기주식취득 80 보다 우선)."""
+    """주요사항보고서(자기주식취득결정) 는 주요사항보고(85)로 매칭되어야 함.
+
+    자기주식취득(80) 보다 우선순위가 높아서.
+    """
     score, _ = score_report("주요사항보고서(자기주식취득결정)")
     assert score == 85

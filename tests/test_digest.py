@@ -7,7 +7,9 @@ from news_briefing.collectors.base import CollectedItem
 from news_briefing.delivery.digest import format_digest, write_digest
 
 
-def _item(title: str, score: int = 80, direction: str = "positive") -> tuple[CollectedItem, int, str]:
+def _item(
+    title: str, score: int = 80, direction: str = "positive"
+) -> tuple[CollectedItem, int, str]:
     it = CollectedItem(
         source="dart",
         ext_id="x",

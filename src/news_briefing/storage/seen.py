@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import sqlite3
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 
 def is_seen(conn: sqlite3.Connection, source: str, ext_id: str) -> bool:
@@ -13,7 +13,7 @@ def is_seen(conn: sqlite3.Connection, source: str, ext_id: str) -> bool:
 
 
 def mark_seen(conn: sqlite3.Connection, source: str, ext_id: str) -> None:
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
     conn.execute(
         "INSERT OR IGNORE INTO seen(source, ext_id, seen_at) VALUES (?, ?, ?)",
         (source, ext_id, now),

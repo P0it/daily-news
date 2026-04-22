@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import sqlite3
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 
 def hash_content(task: str, input_text: str) -> str:
@@ -26,7 +26,7 @@ def cache_put(
     conn: sqlite3.Connection, task: str, input_text: str, output: str, model: str
 ) -> None:
     key = hash_content(task, input_text)
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
     conn.execute(
         "INSERT OR REPLACE INTO llm_cache(content_hash, task, output, model, created_at) "
         "VALUES (?, ?, ?, ?, ?)",

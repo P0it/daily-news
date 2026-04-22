@@ -41,7 +41,7 @@ class _CallbackHandler(BaseHTTPRequestHandler):
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.end_headers()
             self.wfile.write(
-                "<h1>인증 완료</h1><p>이 창을 닫고 터미널로 돌아가세요.</p>".encode("utf-8")
+                "<h1>인증 완료</h1><p>이 창을 닫고 터미널로 돌아가세요.</p>".encode()
             )
         else:
             self.send_response(404)
