@@ -7,10 +7,10 @@
 | 주차 | 테마 | 핵심 결과물 | Definition of Done |
 |------|------|------------|---------------------|
 | Week 1 | 수집·요약·전송 MVP | 매일 아침 카톡 브리핑 실행 | 카톡으로 DART 공시 + 뉴스 요약 수신 |
-| Week 2 | PWA 앱 셸 + 증권 탭 + 다크모드 | 설치 가능한 증권 브리핑 앱 | 홈 화면 설치, 다크모드, 증권 탭, 용어 주석 |
-| Week 3 | 시사 탭 + 차트·딥링크 + 시그널 고도화 | 시사 탭 추가, 차트 임베드, SEC EDGAR | 증권/시사 탭 전환, TradingView 차트, 딥링크 |
-| Week 4 | 테마·밸류체인 | 테마주 DB + 포지셔닝 생성 | 주간 테마 리포트 수신 |
-| Week 5 | RAG 분석 | 질문응답형 분석 엔진 | "X 테마 수혜 공통분모는?" 질문 가능 |
+| Week 2a | PWA 기반 + 시사/경제 2탭 + 해설 | 설치 가능한 브리핑 앱 | 홈 화면 설치, 다크모드, 2탭, 용어 주석, 시그널 v2 |
+| Week 2b | 종목 탭 (Today's Pick) + 차트·딥링크 | 종목 스캔 뷰 + SEC EDGAR | 3탭 전환, 국내/해외 그리드, TradingView 아코디언, 증권사 딥링크 |
+| Week 3 | 시사 뉴스 수집 + 테마·밸류체인 | 시사 탭 채우기, 테마주 DB | 정치·사회·국제·IT 카드 표시, 최소 30개 테마 매핑 |
+| Week 4 | RAG 분석 + 주간 리포트 고도화 | 질문응답형 분석 엔진 | 자유 질의 응답, 경제 탭 테마 배너, 주간 리포트 에세이 |
 
 ---
 
@@ -75,101 +75,191 @@ DART 공시와 뉴스를 수집해서 LLM으로 요약하고 카카오톡으로 
 
 ---
 
-## Week 2: 해설·점수·웹
+## Week 2a: PWA 기반 + 시사/경제 2탭 + 해설
 
 ### 목표
 
-알림을 "이해 가능한" 형태로 업그레이드한다. 용어 자동 주석, 반응형 PWA, 점수 고도화. **디자인 시스템 전면 적용, 다크 모드, 다국어 기본 지원.**
+알림을 "이해 가능한" 형태로 업그레이드한다. 용어 자동 주석, 설치 가능한 PWA, 시그널 점수 고도화. **디자인 시스템 전면 적용, 다크 모드, 다국어 기본 지원.** 종목 탭은 Week 2b 로 분리.
 
 ### 작업 항목
 
-1. **디자인 시스템 구현 기반** (`docs/DESIGN.md` 기반)
-   - Pretendard Variable 폰트 로드 (CDN)
-   - Tailwind CSS + CSS variables 설정 (라이트·다크 모두)
-   - 색상 토큰, 타입 스케일, 간격 시스템 정의
-   - 공통 컴포넌트: SignalCard, HeroCard, CurrentNewsCard, TabBar, MarketIndices, GlossaryPopover
-   - `prefers-color-scheme` + 수동 토글 (localStorage 저장)
-   - `prefers-reduced-motion` 존중
-   - **토스 디자인 원칙 준수**: `CLAUDE.md` P2 참조 (뱃지·테두리 금지, dot+레이블만, one focused action)
+1. **Next.js 15 static export + Tailwind 초기화** (F16, F25, F26)
+   - `frontend/` 디렉토리에 Next.js 15 + TypeScript + Tailwind 프로젝트 부트스트랩
+   - Pretendard Variable 폰트 (CDN)
+   - Tailwind 설정: DESIGN.md 색상 토큰, 타입 스케일, radius, 폰트 패밀리
+   - CSS variables: 라이트·다크 모두 정의 (`DESIGN.md` 8.3)
+   - `prefers-reduced-motion` 글로벌 respect
 
-2. **PWA 기반 구축 (F16, F25, F26)**
-   - Next.js 15 (static export) 또는 정적 HTML — 복잡도 판단 후 선택
-   - `manifest.json` — 이름·아이콘(192·512px)·theme_color·display: standalone
-   - `service-worker.js` — 캐싱 전략 (`ARCHITECTURE.md` 6.5 참조)
-   - Vercel 배포 파이프라인 (GitHub push 자동 배포)
-   - 커스텀 도메인 연결 (선택)
-   - 백엔드가 `public/briefings/YYYY-MM-DD.json` 에 쓰도록 파이프라인 수정
-   - `beforeinstallprompt` 이벤트 → 커스텀 설치 배너 (`InstallPrompt` 컴포넌트)
+2. **PWA manifest + service worker**
+   - `public/manifest.json` — 이름·아이콘(192/512px)·theme_color·display: standalone
+   - 커스텀 service worker: 앱 셸 cache-first, 브리핑 JSON network-first + cache fallback (`ARCHITECTURE.md` 6.5)
+   - `InstallPrompt` 컴포넌트: `beforeinstallprompt` 이벤트 캐치 → 커스텀 배너
+   - iOS Safari 대체 안내 텍스트
 
-3. **탭 네비게이션 UI (F24)**
+3. **Vercel 배포 파이프라인**
+   - GitHub 저장소 연결 → `main` push 자동 배포
+   - 빌드 명령: `next build && next export` (out/ 디렉토리)
+   - 환경 변수 (없음 — 순수 정적)
+   - HTTPS 확인 (PWA 필수)
+
+4. **JSON export 파이프라인 (백엔드 → 프론트엔드)**
+   - `src/news_briefing/delivery/json_builder.py` — briefing JSON 생성
+   - 스키마: `ARCHITECTURE.md` 6.4 `Briefing` 인터페이스 준수 (단, Week 2a 는 `hero`, `tabs.current`, `tabs.economy` 만; `tabs.picks` 는 Week 2b)
+   - `frontend/public/briefings/YYYY-MM-DD.json` 에 기록
+   - `briefings/index.json` 에 날짜 목록 유지
+
+5. **탭 네비게이션 UI (F24, 2탭 임시)**
    - Pill segmented 스타일 (`DESIGN.md` 5.9)
-   - **2-탭**: 시사 (default, 좌측) / 경제 (우측)
+   - **Week 2a 는 2탭**: 시사 (default, 좌측) / 경제 (우측). Week 2b 에서 종목 탭 추가.
    - URL 쿼리 동기화 (`?tab=current|economy&scope=all|domestic|foreign`)
    - 국내/해외 필터 chip (text + underline, `DESIGN.md` 5.9.1)
-   - 탭별 스크롤 위치 기억
-   - 카톡 딥링크는 `?tab=economy` 강제 (아침 브리핑 핵심)
+   - 탭별 스크롤 위치 기억 (localStorage)
+   - 카톡 딥링크는 `?tab=economy` 강제
    - 좌우 키보드 탭 전환
 
-4. **용어 주석 엔진 (Glossary Annotator)**
-   - `glossary` 테이블 스키마 구현 (`ARCHITECTURE.md` 5.3 참조)
-   - 공시 유형별로 처음 등장할 때 LLM이 해설 생성 → DB 캐시
-   - 알림 본문에 "💡 이게 왜 중요?" 섹션 자동 첨부
-   - 해설 템플릿과 생성 프롬프트는 `SIGNALS.md` 참조
+6. **공통 컴포넌트 구현**
+   - `SignalCard`, `HeroCard`, `CurrentNewsCard`, `MarketIndices`, `GlossaryPopover`
+   - `DESIGN.md` 5.1–5.10 기준. chrome 없음, dot + 레이블만, one focused action
 
-3. **시그널 스코어링 v2**
+7. **다크 모드**
+   - `prefers-color-scheme` 자동 감지 + 수동 토글 (localStorage)
+   - CSS variables 로 light/dark 전환
+   - WCAG AA 대비 검증
+
+8. **용어 주석 엔진 (Glossary Annotator)**
+   - `glossary` 테이블 스키마 구현 (`ARCHITECTURE.md` 5.3)
+   - 공시 유형별로 처음 등장할 때 LLM (claude CLI) 이 해설 생성 → DB 캐시
+   - JSON export 에 `glossaryTermId` 연결
+   - UI: inset 해설 박스 (히어로 카드는 기본 펼침, 일반 카드는 chip+탭 확장). 첫 방문 3건 자동 펼침. "알겠어요" localStorage. (`DESIGN.md` 5.7)
+   - 해설 템플릿과 생성 프롬프트는 `SIGNALS.md` 3절
+
+9. **시그널 스코어링 v2**
    - 키워드 매칭 + **정량 변수** 반영
      - 공시 금액 (자기주식 취득 10억 vs 1000억)
      - 지분율 변화 (0.1% vs 5%)
-     - 시총 대비 비율
-   - 구체적 규칙은 `SIGNALS.md` 참조
+     - 거래 유형 (매수/매도 구분)
+   - 구체적 규칙은 `SIGNALS.md` 2.3
+   - Week 1 의 `score_report` 시그니처 유지, 내부만 개선
 
-4. **반응형 웹 페이지 생성**
-   - Jinja2 템플릿 (`templates/briefing.html`)
-   - `DESIGN.md` 의 SignalCard 구조 적용 (점수별 컬러 스트립, 뱃지, 방향성)
-   - 섹션별 그룹 (🚨 Critical / ⚡ 주요 시그널 / 📊 국내 / 🌍 해외)
-   - 반응형: 모바일 1열, 태블릿 2열, 데스크탑 3열
-   - 정적 HTML 파일로 `data/web/YYYY-MM-DD.html` 생성
-   - 호스팅: 로컬 Python http.server 또는 GitHub Pages 자동 push (결정 필요)
+10. **다국어 지원 (i18n)**
+    - `frontend/src/lib/i18n/ko.json`, `en.json` UI 사전
+    - 언어 토글 버튼 (헤더 우측 `KO / EN`, localStorage 저장)
+    - 영어 요약·주석 lazy 생성 (DB 캐시 키 `(content_hash, lang)`)
 
-5. **다국어 지원 (i18n)**
-   - `delivery/i18n/ko.json`, `en.json` 사전 파일
-   - UI chrome (메뉴·버튼·섹션명·뱃지 레이블) 모두 i18n 처리
-   - 언어 토글 버튼 (헤더 우측 `KO / EN`)
-   - 영어 모드 시 요약·주석 lazy 생성 (DB 캐시)
-   - LLM 생성 언어별 캐시 키: `(content_hash, language)`
+11. **카톡 메시지 포맷 변경**
+    - Week 1: 본문에 모든 요약 나열
+    - Week 2a: text 템플릿 "데일리 브리핑 · N월 N일\n공시 X건 · 시사 Y건" + "열기" 버튼 (Vercel URL, `?tab=economy` 강제). `DECISIONS.md` #10
+    - 긴급 (점수 85+) 은 종목명 + 한 줄 + 공시 원문 버튼 (DART URL 직결)
 
-6. **썸네일 추출**
-   - 뉴스 기사 OG 이미지 자동 추출 (`beautifulsoup4` + `requests`)
-   - 없으면 소스별 기본 이미지 사용
+### Definition of Done (Week 2a)
 
-7. **차트 임베드 & 딥링크 (F18, F19)**
-   - TradingView Embed Widget 통합 (카드 확장 시 아코디언)
-   - DART `corp_code` ↔ 종목코드 매핑 테이블 구축
-   - 딥링크 생성기: 토스증권, 증권플러스, 네이버증권
-
-8. **카톡 메시지 포맷 변경**
-   - Week 1: 본문에 모든 요약 나열
-   - Week 2: 헤드라인 5개 + "전체 보기" 웹 링크 (카톡 4KB 제한 우회)
-   - 카톡도 이모지 + 점수로 최소한의 시각적 계층 유지
-
-9. **SEC EDGAR 수집기 추가**
-   - 8-K (주요 사건), Form 4 (내부자 매매) RSS 피드
-   - 미국 개별 종목 관심사 기반 필터링
-   - 아침 배치에 포함되어 한국 시각 06:00 브리핑에 전일 미국장 마감 이벤트 반영
-
-### Definition of Done
-
-- [ ] 카톡 메시지에 용어 해설 포함 ("임원ㆍ주요주주 특정증권등 소유상황보고서 → 💡 내부자 매매: ...")
-- [ ] Vercel에 배포된 URL에서 앱이 정상 로드됨 (데스크탑 Chrome/Safari, 모바일 iOS Safari/Android Chrome)
-- [ ] **홈 화면에 설치 가능**, 설치 후 전체화면으로 실행됨 (데스크탑·모바일 각각 확인)
+- [ ] `frontend/` 에서 `npm run dev` 실행 시 로컬 앱 로드됨 (Next.js 15 + Tailwind + 디자인 시스템 적용)
+- [ ] Vercel 배포된 URL 접속 시 앱 로드 (데스크탑 Chrome/Safari, 모바일 iOS Safari/Android Chrome)
+- [ ] **홈 화면 설치 가능**, 설치 후 전체화면 실행 (데스크탑·모바일)
 - [ ] **오프라인 상태에서 마지막 브리핑 열람 가능**
-- [ ] 다크 모드·라이트 모드 모두 시각적 완성도 양호 (WCAG AA 대비 통과), 시스템 설정 자동 감지
-- [ ] KO ↔ EN 토글 시 UI·요약·주석 모두 전환
-- [ ] **탭 2개 (시사·경제) 전환 동작**, URL 쿼리 동기화 (`?tab=current|economy&scope=all|domestic|foreign`)
-- [ ] 카톡 딥링크 클릭 시 경제 탭으로 직접 열림
-- [ ] 시그널 점수가 금액·비율에 따라 차별화 (동일 유형 공시여도 규모 따라 점수 다름)
-- [ ] SEC EDGAR Form 4 공시가 아침 브리핑에 포함됨
-- [ ] 토스 디자인 원칙 5가지 준수 확인 (`DESIGN.md` 1절): chrome 없이 타이포그래피로 위계, conversational copy, numbers as heroes, one focused action, generous whitespace
+- [ ] 다크/라이트 모드 시스템 자동 감지 + 수동 토글, WCAG AA 통과
+- [ ] KO ↔ EN 토글 시 UI chrome 전환, 요약·주석 lazy 생성
+- [ ] **2탭 (시사·경제) 전환 동작**, URL 쿼리 동기화
+- [ ] 카톡 메시지에 용어 해설 연결 (앱에서 챕 → 해설 노출)
+- [ ] 카톡 "열기" 클릭 시 경제 탭으로 직접 진입
+- [ ] 시그널 점수가 금액·비율에 따라 차별화 (동일 유형도 규모 차등)
+- [ ] 토스 디자인 원칙 5가지 준수 (`DESIGN.md` 1절): chrome 없이 타이포로 위계, 대화체, 숫자 크게, 카드당 action 1개, 여유 여백
+
+### 의도적으로 Week 2a 에 하지 않는 것
+
+- 종목 탭 (Today's Pick) — Week 2b
+- SEC EDGAR 수집 — Week 2b
+- TradingView 차트 임베드 — Week 2b
+- 증권사 딥링크 — Week 2b
+- 썸네일 OG 이미지 추출 — Week 3
+
+---
+
+## Week 2b: 종목 탭 (Today's Pick) + SEC EDGAR + 차트·딥링크
+
+### 목표
+
+Week 2a 기반 위에 **종목 탭 (Today's Pick, `DECISIONS.md` #12)** 를 추가한다. 국내(DART) + 해외(SEC EDGAR) 시그널 상위 종목을 그리드로 스캔하고, 카드 탭 시 TradingView 차트와 증권사 딥링크로 바로 실행 동선까지 연결한다.
+
+### 작업 항목
+
+1. **SEC EDGAR 수집기** (F4)
+   - 8-K (주요 사건) + Form 4 (내부자 매매) RSS 피드
+   - SEC Rate limit (10 req/s) 존중, User-Agent 필수
+   - 정규화된 `CollectedItem` 으로 변환, `source="edgar"`, `scope="foreign"`
+   - 아침 배치에 통합 (한국 06:00 = 전일 미국장 마감 반영)
+
+2. **SEC EDGAR 스코어링**
+   - Form 4 매수/매도 구분 → Week 1 scoring.py 확장
+   - 8-K Item 번호별 기본 점수 (Item 1.01 계약, Item 2.01 인수 등)
+   - `SIGNALS.md` 2.1 표 해외 대응 섹션 추가 필요
+
+3. **DART `corp_code` ↔ 종목코드 매핑** (F18 지원)
+   - DART 기업 개황 API 로 매핑 테이블 구축
+   - `storage/tickers.py` + `tickers` 테이블 (corp_code, stock_code, corp_name)
+   - 하루 1회 동기화 (morning 시작 시 lazy refresh)
+
+4. **종목 탭 UI (F24 확장, 3탭)**
+   - 탭 네비게이션을 2탭 → 3탭 확장: `[시사] [경제] [종목]`
+   - URL 쿼리 `?tab=picks` 신규
+   - 기본 진입 (PWA 아이콘): 시사 유지. 카톡 딥링크 타겟은 Week 2b 완료 후 `?tab=picks` 전환 검토
+
+5. **종목 그리드 컴포넌트**
+   - `PicksGrid` 컴포넌트 — 데스크탑 2×컬럼 (좌 국내 / 우 해외), 모바일 세로 스택
+   - 각 컬럼 섹션 헤더: "국내" / "해외", 서브 "Today's Pick · N건"
+   - 6건씩 2×3 또는 3×2 컴팩트 그리드
+   - 데스크탑 컨테이너 max-width 720px (기본 560px 에서 확장, `DESIGN.md` 4.2 보충)
+   - 빈 상태 카피: "오늘은 조용한 종목 라인업이에요"
+
+6. **종목 컴팩트 카드**
+   - 종목명 (title-md 18/700) + 회사 코드 · 한 줄 이벤트 (14/500) · 시간 + 점수 dot
+   - border/shadow 없음, 배경 대비로 구분
+   - 탭 시 아코디언 펼침 (차트 + 딥링크 3개 + 원문 링크)
+   - `DESIGN.md` 5.13 로 spec 추가 필요
+
+7. **TradingView 위젯 임베드** (F18)
+   - Embed Widget (무료, key 불필요)
+   - 한국: `KRX:{종목코드}`, 미국 NASDAQ/NYSE: `NASDAQ:{ticker}` / `NYSE:{ticker}`
+   - 모바일 340×220, 데스크탑 500×300
+   - 아코디언 펼침/접힘 상태 localStorage
+   - `prefers-reduced-motion` 존중
+
+8. **증권사 딥링크 생성기** (F19)
+   - `src/news_briefing/delivery/deeplinks.py` — 종목코드 → 3개 URL 생성
+   - 토스증권: `supertoss://stock/{code}`
+   - 증권플러스: `koreainvestment://stock/{code}`
+   - 네이버증권: `https://m.stock.naver.com/domestic/stock/{code}/total`
+   - 해외 종목은 딥링크 미지원 (카드 우측 하단 "해외 종목" 라벨)
+
+9. **Today's Pick 선별 로직**
+   - `orchestrator.py` 에 종목 선별 단계 추가
+   - 국내: DART 공시 중 점수 상위 6건 (company_code 중복 제거)
+   - 해외: EDGAR 중 점수 상위 6건
+   - 같은 종목 중복 공시는 최고 점수만 노출
+   - `json_builder.py` 에서 `tabs.picks` 구조 채우기
+
+10. **카톡 메시지 업데이트 (optional)**
+    - 본문 건수 표시에 "종목 X건" 추가 검토
+    - 카카오 딥링크 타겟을 `?tab=economy` → `?tab=picks` 로 전환할지 결정
+
+### Definition of Done (Week 2b)
+
+- [ ] 종목 탭 진입 시 국내/해외 2×컬럼 그리드 렌더, 모바일에서는 세로 스택
+- [ ] 국내 카드 탭 시 TradingView 차트 (KRX:종목코드) 정상 렌더
+- [ ] 해외 카드 탭 시 TradingView 차트 (NASDAQ:/NYSE:) 정상 렌더
+- [ ] 국내 카드에 증권사 딥링크 3개 (토스·증권플러스·네이버) 버튼 노출, 각각 정상 앱 이동 (iOS/Android 각각 수동 검증)
+- [ ] SEC EDGAR Form 4/8-K 가 해외 Today's Pick 에 포함됨
+- [ ] 같은 종목이 여러 공시로 중복 노출되지 않음
+- [ ] 탭 3개 (시사·경제·종목) 전환·URL 쿼리 동기화 동작
+- [ ] `CLAUDE.md` P1 금칙어("추천") 가 UI·코드 어디에도 없음, "주목" / "Pick" 만 사용
+- [ ] `DECISIONS.md` #12 재고 조건 2개가 README 또는 해당 문서에 명시돼 있음
+
+### 의도적으로 Week 2b 에 하지 않는 것
+
+- KIS API 실시간 시세 (F20) — Week 5+ 선택
+- Today's Pick 과거 히스토리 페이지 (어제 Pick 이 뭐였는지)
+- 종목 즐겨찾기·포트폴리오 관리
+- 시사 뉴스 수집기 (F27-F30) — Week 3
 
 ---
 
