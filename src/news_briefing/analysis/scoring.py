@@ -98,3 +98,40 @@ def score_with_context(report_name: str, ctx: ScoringContext) -> ScoringResult:
 
     final = min(100, base_score + bonus)
     return ScoringResult(score=final, direction=direction)
+
+
+# SIGNALS.md 2.1 해외 대응 — 8-K Item 번호별
+EDGAR_ITEM_WEIGHTS: dict[str, tuple[int, Direction]] = {
+    "1.01": (75, "positive"),   # Material Definitive Agreement (신규 계약)
+    "1.02": (75, "negative"),   # Termination of Material Agreement
+    "2.01": (85, "mixed"),      # Completion of Acquisition/Disposition
+    "2.02": (80, "mixed"),      # Results of Operations (실적 발표)
+    "2.06": (95, "negative"),   # Material Impairments
+    "3.01": (85, "negative"),   # Delisting / Failure to Satisfy Listing Rule
+    "3.02": (75, "mixed"),      # Unregistered Sales of Equity
+    "4.01": (90, "negative"),   # Changes in Registrant's Certifying Accountant
+    "4.02": (90, "negative"),   # Non-reliance on Previously Issued Financials
+    "5.02": (70, "mixed"),      # Departure / Appointment of Directors or Officers
+    "5.07": (50, "neutral"),    # Submission of Matters to a Vote
+    "7.01": (60, "neutral"),    # Regulation FD Disclosure
+    "8.01": (60, "neutral"),    # Other Events
+}
+
+
+def score_edgar(*, form_type: str, items: str) -> tuple[int, Direction]:
+    """SEC EDGAR form_type + items 기반 점수.
+
+    - Form 4: 기본 70, mixed (실제 매수/매도 구분은 별도 파싱 필요)
+    - 8-K: Item 번호 우선 매칭, 매칭 실패 시 기본 70
+    - 기타 (10-K, 10-Q 등): 45, neutral
+    """
+    if form_type == "4":
+        return 70, "mixed"
+
+    if form_type == "8-K":
+        for item_code, (score, direction) in EDGAR_ITEM_WEIGHTS.items():
+            if item_code in items:
+                return score, direction
+        return 70, "neutral"
+
+    return 45, "neutral"
