@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import { AppShell } from '@/components/AppShell'
 import './globals.css'
 
 export const metadata: Metadata = {
@@ -28,9 +29,7 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <main className="mx-auto" style={{ maxWidth: 'var(--container-briefing)' }}>
-          {children}
-        </main>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   )
