@@ -1,10 +1,11 @@
-"""공시 유형별 기본 점수 산정 (SIGNALS.md 2.1 표 기반).
+"""공시 유형별 기본 점수 산정 (SIGNALS.md 2.1 + 2.3 기반).
 
-키워드 매칭은 순서대로 진행하며 먼저 걸리는 규칙의 가중치를 적용한다.
-Week 2 에서는 정량 보정(금액·지분율)을 추가한다.
+Week 1: `score_report` — 제목 키워드 매칭만.
+Week 2a: `score_with_context` — 금액·지분율·매수/매도 구분 등 정량 보정 추가.
 """
 from __future__ import annotations
 
+from dataclasses import dataclass
 from typing import Literal
 
 Direction = Literal["positive", "negative", "mixed", "neutral"]
@@ -43,3 +44,57 @@ def score_report(report_name: str) -> tuple[int, Direction]:
         if keyword in report_name:
             return score, direction
     return DEFAULT_SCORE, DEFAULT_DIRECTION
+
+
+@dataclass(frozen=True, slots=True)
+class ScoringContext:
+    """정량 보정 입력. 모두 optional — 값이 있을 때만 해당 규칙 적용."""
+
+    amount: int | None = None              # 원 단위 (공시 금액)
+    market_cap: int | None = None          # 원 단위 (시가총액)
+    acquisition_method: str | None = None  # '장내매수' | '신탁' | 기타
+    trade_type: str | None = None          # '매수' | '매도' (임원공시)
+    stake_change_pct: float | None = None  # 지분율 변동 %
+    is_ceo: bool = False
+    is_largest_shareholder: bool = False
+
+
+@dataclass(frozen=True, slots=True)
+class ScoringResult:
+    score: int
+    direction: Direction
+
+
+def score_with_context(report_name: str, ctx: ScoringContext) -> ScoringResult:
+    """기본 점수 + 정량 보정. SIGNALS.md 2.3 규칙."""
+    base_score, direction = score_report(report_name)
+    bonus = 0
+
+    # 자기주식취득 정량 보정 (SIGNALS.md 2.3 stacking)
+    if "자기주식취득" in report_name:
+        if ctx.amount and ctx.market_cap:
+            ratio = ctx.amount / ctx.market_cap
+            if ratio >= 0.01:
+                bonus += 10
+            if ratio >= 0.05:
+                bonus += 15  # 누적 최대 +25
+        if ctx.acquisition_method == "장내매수":
+            bonus += 5
+
+    # 임원·주요주주 매수/매도 방향성 분기
+    if "임원" in report_name and "주주" in report_name:
+        if ctx.trade_type == "매수":
+            direction = "positive"
+            if ctx.is_ceo:
+                bonus += 15
+            if ctx.amount and ctx.amount > 1_000_000_000:
+                bonus += 10
+        elif ctx.trade_type == "매도":
+            direction = "negative"
+            if ctx.stake_change_pct and ctx.stake_change_pct > 1.0:
+                bonus += 15
+            if ctx.is_largest_shareholder:
+                bonus += 20
+
+    final = min(100, base_score + bonus)
+    return ScoringResult(score=final, direction=direction)
