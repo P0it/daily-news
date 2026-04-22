@@ -28,7 +28,7 @@ def parse_dart_response(data: dict) -> list[CollectedItem]:
         try:
             published = datetime.strptime(rcept_dt, "%Y%m%d")
         except ValueError:
-            published = datetime.utcnow()
+            published = datetime.now()
         items.append(
             CollectedItem(
                 source="dart",
