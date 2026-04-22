@@ -15,6 +15,7 @@ def _completed(stdout: str = "", returncode: int = 0) -> subprocess.CompletedPro
 
 def test_summarize_calls_claude_cli(memory_db: sqlite3.Connection, mocker) -> None:
     init_schema(memory_db)
+    mocker.patch("news_briefing.analysis.llm._resolve", side_effect=lambda c: c)
     mock_run = mocker.patch(
         "news_briefing.analysis.llm.subprocess.run",
         return_value=_completed(stdout="삼성전자가 자사주를 매수합니다.\n주주환원 목적입니다."),
@@ -40,6 +41,7 @@ def test_summarize_falls_back_to_ollama_when_claude_fails(
     memory_db: sqlite3.Connection, mocker
 ) -> None:
     init_schema(memory_db)
+    mocker.patch("news_briefing.analysis.llm._resolve", side_effect=lambda c: c)
     calls: list[list[str]] = []
 
     def fake_run(cmd, **kwargs):

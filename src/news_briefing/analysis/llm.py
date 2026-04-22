@@ -5,12 +5,21 @@
 from __future__ import annotations
 
 import logging
+import shutil
 import sqlite3
 import subprocess
 
 from news_briefing.storage.cache import cache_get, cache_put
 
 log = logging.getLogger(__name__)
+
+
+def _resolve(cmd: str) -> str:
+    """PATH 에서 실행 파일 전체 경로 찾기. Windows `.cmd`/`.bat` 확장자 지원.
+
+    찾지 못하면 원래 이름을 반환하고, 실행 단계에서 FileNotFoundError 가 난다.
+    """
+    return shutil.which(cmd) or cmd
 
 SUMMARIZE_TASK = "summarize"
 SUMMARIZE_SYSTEM = (
@@ -25,7 +34,7 @@ SUMMARIZE_SYSTEM = (
 def _call_claude(input_text: str, timeout: int = 45) -> str:
     prompt = f"{SUMMARIZE_SYSTEM}\n\n---\n\n{input_text}"
     result = subprocess.run(
-        ["claude", "-p", prompt, "--output-format", "text"],
+        [_resolve("claude"), "-p", prompt, "--output-format", "text"],
         capture_output=True,
         text=True,
         timeout=timeout,
@@ -41,7 +50,7 @@ def _call_claude(input_text: str, timeout: int = 45) -> str:
 def _call_ollama(input_text: str, model: str, timeout: int = 60) -> str:
     prompt = f"{SUMMARIZE_SYSTEM}\n\n---\n\n{input_text}"
     result = subprocess.run(
-        ["ollama", "run", model, prompt],
+        [_resolve("ollama"), "run", model, prompt],
         capture_output=True,
         text=True,
         timeout=timeout,
