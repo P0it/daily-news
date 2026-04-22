@@ -17,7 +17,11 @@ export function TabBar({ lang }: { lang: Lang }) {
   ]
 
   return (
-    <nav className="flex gap-2 px-5 pt-3 pb-4" role="tablist">
+    <nav
+      className="flex gap-1.5 px-5 pt-2 pb-3"
+      role="tablist"
+      style={{ borderBottom: '1px solid transparent' }}
+    >
       {tabs.map(({ key, label }) => {
         const active = currentTab === key
         return (
@@ -26,11 +30,15 @@ export function TabBar({ lang }: { lang: Lang }) {
             href={tabHref(key)}
             role="tab"
             aria-selected={active}
-            className={`min-w-[100px] text-center rounded-full px-6 py-3 text-[15px] tracking-tight transition-colors ${
-              active
-                ? 'bg-white text-gray-900 font-bold dark:bg-gray-800 dark:text-white'
-                : 'bg-transparent text-gray-500 font-semibold'
-            }`}
+            className="text-center rounded-full transition-colors"
+            style={{
+              padding: '7px 16px',
+              fontSize: 14,
+              letterSpacing: '-0.01em',
+              background: active ? 'var(--bg-card)' : 'transparent',
+              color: active ? 'var(--text-primary)' : 'var(--text-tertiary)',
+              fontWeight: active ? 700 : 600,
+            }}
           >
             {label}
           </Link>

@@ -97,18 +97,26 @@ function HomeInner() {
     )
   }
 
-  // current tab
+  // current tab — 모든 카테고리를 시간 역순으로 섞고, scope 필터 적용
   const current = briefing.tabs.current
   const allNews: NewsItem[] = [
     ...current.politics,
     ...current.society,
     ...current.international,
     ...current.tech,
-  ].filter((n) => {
-    if (scope === 'all') return true
-    if (scope === 'domestic') return n.scope === 'domestic'
-    return n.scope === 'foreign'
-  })
+  ]
+    .filter((n) => {
+      if (scope === 'all') return true
+      if (scope === 'domestic') return n.scope === 'domestic'
+      return n.scope === 'foreign'
+    })
+    .sort((a, b) => {
+      // "전체" 모드는 최신순으로 섞음. 같은 시간이면 source 기준 tie-break.
+      const ta = new Date(a.time).getTime()
+      const tb = new Date(b.time).getTime()
+      if (tb !== ta) return tb - ta
+      return a.source.localeCompare(b.source)
+    })
 
   if (allNews.length === 0) {
     return (
