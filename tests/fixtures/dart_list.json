@@ -1,0 +1,43 @@
+{
+  "status": "000",
+  "message": "정상",
+  "page_no": 1,
+  "page_count": 100,
+  "total_count": 3,
+  "total_page": 1,
+  "list": [
+    {
+      "corp_code": "00126380",
+      "corp_name": "삼성전자",
+      "stock_code": "005930",
+      "corp_cls": "Y",
+      "report_nm": "자기주식취득결정",
+      "rcept_no": "20260422000001",
+      "flr_nm": "삼성전자",
+      "rcept_dt": "20260422",
+      "rm": ""
+    },
+    {
+      "corp_code": "00401731",
+      "corp_name": "코스모신소재",
+      "stock_code": "005070",
+      "corp_cls": "K",
+      "report_nm": "횡령ㆍ배임혐의발생",
+      "rcept_no": "20260422000002",
+      "flr_nm": "코스모신소재",
+      "rcept_dt": "20260422",
+      "rm": ""
+    },
+    {
+      "corp_code": "00999999",
+      "corp_name": "테스트기업",
+      "stock_code": "999999",
+      "corp_cls": "K",
+      "report_nm": "기타공시",
+      "rcept_no": "20260422000003",
+      "flr_nm": "테스트기업",
+      "rcept_dt": "20260422",
+      "rm": ""
+    }
+  ]
+}
