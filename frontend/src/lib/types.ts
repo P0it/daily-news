@@ -62,6 +62,8 @@ export type NewsCategory =
 export interface NewsItem {
   id: string
   source: string
+  /** Google News aggregator 의 실제 원문 언론사명 (Week 5a) */
+  publisher?: string
   title: string
   summary: string
   url: string

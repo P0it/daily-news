@@ -54,16 +54,22 @@ def _news_to_dict(
     *,
     curation: int = 0,
     term_ids_by_id: dict[str, str] | None = None,
+    summaries: dict[str, str] | None = None,
 ) -> dict:
     scope, category = SOURCE_META.get(item.source, ("foreign", "stock"))
     extra_cat = (item.extra or {}).get("category", "")
     if extra_cat:
         category = extra_cat  # 파싱 시 덮어쓴 값 우선
+    # LLM 생성 요약 우선 (F36), 없으면 원본 RSS description
+    llm_summary = (summaries or {}).get(item.ext_id, "")
+    summary_text = llm_summary if llm_summary else item.body
+    publisher = (item.extra or {}).get("publisher", "")
     return {
         "id": item.ext_id,
         "source": item.source,
+        "publisher": publisher,
         "title": item.title,
-        "summary": item.body,
+        "summary": summary_text,
         "url": item.url,
         "thumbnail": None,
         "time": item.published_at.isoformat(),
@@ -84,6 +90,7 @@ def build_briefing_json(
     term_ids_by_id: dict[str, str] | None = None,
     picks: PicksResult | None = None,
     theme_banner: dict | None = None,
+    news_summaries: dict[str, str] | None = None,
 ) -> dict:
     filtered_for_economy = [
         s for s in scored_signals if s[1] >= ECONOMY_SIGNAL_THRESHOLD
@@ -116,7 +123,12 @@ def build_briefing_json(
         cat = (item.extra or {}).get("category", "")
         if cat in current_grouped:
             current_grouped[cat].append(
-                _news_to_dict(item, curation=curation, term_ids_by_id=term_ids_by_id)
+                _news_to_dict(
+                    item,
+                    curation=curation,
+                    term_ids_by_id=term_ids_by_id,
+                    summaries=news_summaries,
+                )
             )
     for cat, arr in current_grouped.items():
         arr.sort(key=lambda x: x.get("curationScore", 0), reverse=True)
@@ -132,7 +144,10 @@ def build_briefing_json(
             for it, s, d in filtered_for_economy
         ],
         "news": [
-            _news_to_dict(n, term_ids_by_id=term_ids_by_id) for n in economy_news
+            _news_to_dict(
+                n, term_ids_by_id=term_ids_by_id, summaries=news_summaries
+            )
+            for n in economy_news
         ],
     }
     if theme_banner and theme_banner.get("trendingThemes"):

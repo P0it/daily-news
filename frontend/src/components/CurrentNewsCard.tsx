@@ -29,7 +29,7 @@ export function CurrentNewsCard({
         <span
           style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-tertiary)' }}
         >
-          {news.source}
+          {news.publisher || news.source.replace(/^rss:/, '')}
         </span>
         <span
           className="ml-auto"
@@ -58,8 +58,10 @@ export function CurrentNewsCard({
             lineHeight: 1.65,
             color: 'var(--text-secondary)',
           }}
+          /* Google News summary 는 HTML 스니펫. LLM 요약 결과는 plain text.
+           * 둘 다 안전하게: HTML 태그 제거 후 텍스트만 표시. */
         >
-          {news.summary}
+          {news.summary.replace(/<[^>]*>/g, '').slice(0, 200)}
         </p>
       )}
 

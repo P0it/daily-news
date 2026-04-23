@@ -189,13 +189,17 @@ def run_morning(
         overflow = stock_news_domestic[10:] + stock_news_foreign[5:]
         fresh_news.extend(overflow[: max(0, 15 - len(fresh_news))])
         fresh_news = fresh_news[:15]
+        # Week 5a (F36): 경제 뉴스 2줄 LLM 요약을 JSON 에 기록 → UI 표시
+        news_summaries: dict[str, str] = {}
         for it in fresh_news:
-            _ = summarize(
+            summary_text = summarize(
                 conn,
                 it.title,
                 ollama_enabled=cfg.ollama_enabled,
                 ollama_model=cfg.ollama_model,
             )
+            if summary_text:
+                news_summaries[it.ext_id] = summary_text
 
         # 5. 디지스트 텍스트 백업 (Week 1 그대로)
         text = format_digest(
@@ -243,6 +247,7 @@ def run_morning(
             term_ids_by_id=term_ids_by_id,
             picks=picks,
             theme_banner=theme_banner,
+            news_summaries=news_summaries,
         )
         briefing_json_path = write_briefing(
             public_briefings_dir=cfg.public_briefings_dir, briefing=briefing
