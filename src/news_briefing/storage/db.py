@@ -41,6 +41,34 @@ CREATE TABLE IF NOT EXISTS tickers (
     updated_at TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_tickers_corp ON tickers(corp_code);
+
+CREATE TABLE IF NOT EXISTS themes (
+    theme_id    TEXT PRIMARY KEY,
+    name_ko     TEXT NOT NULL,
+    description TEXT,
+    updated_at  TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS value_layers (
+    layer_id    INTEGER PRIMARY KEY AUTOINCREMENT,
+    theme_id    TEXT NOT NULL REFERENCES themes(theme_id) ON DELETE CASCADE,
+    name        TEXT NOT NULL,
+    description TEXT,
+    updated_at  TEXT NOT NULL,
+    UNIQUE (theme_id, name)
+);
+CREATE INDEX IF NOT EXISTS idx_layers_theme ON value_layers(theme_id);
+
+CREATE TABLE IF NOT EXISTS companies_in_layer (
+    layer_id     INTEGER NOT NULL REFERENCES value_layers(layer_id) ON DELETE CASCADE,
+    ticker       TEXT NOT NULL,
+    company_name TEXT NOT NULL,
+    positioning  TEXT,
+    verified     INTEGER NOT NULL DEFAULT 0,
+    updated_at   TEXT NOT NULL,
+    PRIMARY KEY (layer_id, ticker)
+);
+CREATE INDEX IF NOT EXISTS idx_companies_ticker ON companies_in_layer(ticker);
 """
 
 
