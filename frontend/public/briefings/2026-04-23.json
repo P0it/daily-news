@@ -1,28 +1,319 @@
 {
   "date": "2026-04-23",
-  "generatedAt": "2026-04-22T23:55:10.432663+00:00",
+  "generatedAt": "2026-04-23T00:22:56.456739+00:00",
   "version": 1,
   "hero": null,
   "tabs": {
     "current": {
-      "politics": [],
-      "society": [],
-      "international": [],
-      "tech": []
+      "politics": [
+        {
+          "id": "https://www.yna.co.kr/view/AKR20260423033500504",
+          "source": "rss:yonhap-politics",
+          "title": "[게시판] 軍, 병영독서 활성화 프로젝트",
+          "summary": "▲ 국방부는 병영 내 독서 활성화를 위한 &apos;한 총(銃), 한 책(冊)&apos;(한 손에 총, 한 손에 책) 프로젝트를 추진한다고 23일 밝혔다. 국방부...",
+          "url": "https://www.yna.co.kr/view/AKR20260423033500504",
+          "thumbnail": null,
+          "time": "2026-04-23T00:08:14",
+          "scope": "domestic",
+          "category": "politics",
+          "glossaryTermId": null,
+          "curationScore": 62
+        },
+        {
+          "id": "https://www.yna.co.kr/view/AKR20260423033100504",
+          "source": "rss:yonhap-politics",
+          "title": "외교부, 美의원들 '쿠팡 서한'에 \"미국기업 차별 없어\"",
+          "summary": "(서울=연합뉴스) 김지헌 기자 = 미국 하원 공화당 의원들이 쿠팡 등 미국 기업에 대한 차별적 규제를 중단하라고 서한을 보내자 외교부는 그런 차...",
+          "url": "https://www.yna.co.kr/view/AKR20260423033100504",
+          "thumbnail": null,
+          "time": "2026-04-23T00:06:53",
+          "scope": "domestic",
+          "category": "politics",
+          "glossaryTermId": null,
+          "curationScore": 62
+        },
+        {
+          "id": "https://www.yna.co.kr/view/AKR20260422157300003",
+          "source": "rss:yonhap-politics",
+          "title": "국토부, 중동전쟁 장기화에 \"내달 공사 전체 중단 현장 현실화 우려\"",
+          "summary": "(서울=연합뉴스) 홍국기 기자 = 중동 전쟁 장기화로 다음 달 중 공사 전체가 중단되는 현장이 나올 수 있다는 우려가 제기된다.",
+          "url": "https://www.yna.co.kr/view/AKR20260422157300003",
+          "thumbnail": null,
+          "time": "2026-04-23T00:00:35",
+          "scope": "domestic",
+          "category": "politics",
+          "glossaryTermId": null,
+          "curationScore": 61
+        },
+        {
+          "id": "https://www.yna.co.kr/view/AKR20260422171000002",
+          "source": "rss:yonhap-politics",
+          "title": "담합 반복하면 퇴출한다…등록·허가 취소하거나 영업정지",
+          "summary": "(세종=연합뉴스) 이세원 기자 = 반복해서 담합하는 사업자는 시장에서 퇴출하는 방안을 추진한다.",
+          "url": "https://www.yna.co.kr/view/AKR20260422171000002",
+          "thumbnail": null,
+          "time": "2026-04-23T00:00:02",
+          "scope": "domestic",
+          "category": "politics",
+          "glossaryTermId": null,
+          "curationScore": 61
+        },
+        {
+          "id": "https://www.yna.co.kr/view/AKR20260423030800504",
+          "source": "rss:yonhap-politics",
+          "title": "제3회 순직의무군경의 날 기념식 내일 서울현충원서 거행",
+          "summary": "(서울=연합뉴스) 이정현 기자 = 국가보훈부는 병역의무를 이행하다 순직한 젊은이들을 추모하기 위한 &apos;제3회 순직의무군경의 날 기념식&apos;을 오는 2...",
+          "url": "https://www.yna.co.kr/view/AKR20260423030800504",
+          "thumbnail": null,
+          "time": "2026-04-22T23:42:09",
+          "scope": "domestic",
+          "category": "politics",
+          "glossaryTermId": null,
+          "curationScore": 59
+        }
+      ],
+      "society": [
+        {
+          "id": "https://www.yna.co.kr/view/AKR20260423040600055",
+          "source": "rss:yonhap-society",
+          "title": "군산시, 장애인 평생교육 이용권 지원…1인당 35만원",
+          "summary": "(군산=연합뉴스) 김진방 기자 = 전북 군산시는 관내 19세 이상 등록 장애인을 대상으로 연 35만원 상당의 평생교육 이용권을 지원한다고 23일...",
+          "url": "https://www.yna.co.kr/view/AKR20260423040600055",
+          "thumbnail": null,
+          "time": "2026-04-23T00:16:32",
+          "scope": "domestic",
+          "category": "society",
+          "glossaryTermId": null,
+          "curationScore": 63
+        },
+        {
+          "id": "https://www.yna.co.kr/view/AKR20260423038400017",
+          "source": "rss:yonhap-society",
+          "title": "셀트리온 ADC 3종 임상 본격화…환자 투약 시작",
+          "summary": "(서울=연합뉴스) 유한주 기자 = 셀트리온[068270]은 항체·약물접합체(ADC) 기반 항암 신약후보물질 3종이 모두 환자 투약 단계에 돌입했...",
+          "url": "https://www.yna.co.kr/view/AKR20260423038400017",
+          "thumbnail": null,
+          "time": "2026-04-23T00:13:39",
+          "scope": "domestic",
+          "category": "society",
+          "glossaryTermId": null,
+          "curationScore": 63
+        },
+        {
+          "id": "https://www.yna.co.kr/view/AKR20260423033700054",
+          "source": "rss:yonhap-society",
+          "title": "옛 전남도청, 5·18 기념식 맞춰 내달 18일 정식 개관",
+          "summary": "(광주=연합뉴스) 정다움 기자 = 5·18 민주화운동 최후항쟁지이자 시민군의 심장부로 사용된 옛 전남도청이 2년 5개월간의 복원공사를 거쳐 다음...",
+          "url": "https://www.yna.co.kr/view/AKR20260423033700054",
+          "thumbnail": null,
+          "time": "2026-04-23T00:08:13",
+          "scope": "domestic",
+          "category": "society",
+          "glossaryTermId": null,
+          "curationScore": 62
+        }
+      ],
+      "international": [
+        {
+          "id": "https://www.yna.co.kr/view/AKR20260423039000009",
+          "source": "rss:yonhap-intl",
+          "title": "홍해 차단 위협에 조급해졌나…'아프리카의 북한'에 다가서는 美",
+          "summary": "(서울=연합뉴스) 고일환 기자 = 미국이 &apos;아프리카의 북한&apos;으로 불리는 에리트레아와의 관계 개선을 모색하고 있다.",
+          "url": "https://www.yna.co.kr/view/AKR20260423039000009",
+          "thumbnail": null,
+          "time": "2026-04-23T00:17:23",
+          "scope": "domestic",
+          "category": "international",
+          "glossaryTermId": null,
+          "curationScore": 63
+        },
+        {
+          "id": "https://www.yna.co.kr/view/AKR20260423035800009",
+          "source": "rss:yonhap-intl",
+          "title": "세계의 날씨(4월23일)",
+          "summary": "(09:00)",
+          "url": "https://www.yna.co.kr/view/AKR20260423035800009",
+          "thumbnail": null,
+          "time": "2026-04-23T00:02:00",
+          "scope": "domestic",
+          "category": "international",
+          "glossaryTermId": null,
+          "curationScore": 62
+        },
+        {
+          "id": "https://www.yna.co.kr/view/AKR20260423025200072",
+          "source": "rss:yonhap-intl",
+          "title": "월가 아인슈타인 \"시장, 이란서 완전히 벗어나…변수는 유가뿐\"",
+          "summary": "(뉴욕=연합뉴스) 김연숙 특파원 = 미국 뉴욕증권거래소(NYSE)에서 40년 이상 현장을 지킨 베테랑 트레이더 피터 터크먼은 이란 전쟁의 시장 ...",
+          "url": "https://www.yna.co.kr/view/AKR20260423025200072",
+          "thumbnail": null,
+          "time": "2026-04-22T23:54:11",
+          "scope": "domestic",
+          "category": "international",
+          "glossaryTermId": null,
+          "curationScore": 61
+        }
+      ],
+      "tech": [
+        {
+          "id": "20260423000001",
+          "source": "rss:etnews",
+          "title": "보조 넘어 '독자 판독' 시대 연다…루닛, 글로벌 의료AI 구조 전환",
+          "summary": "의료 인공지능(AI)이 '보조'를 넘어 '독자 판독' 단계로 진입하고 있다. 의사가 놓칠 수 있는 병변을 화면에 표시해주던 조력자 역할에서 벗어나 스스로 영상 분석과 판독문 작성을 수행하고 응급 환자까지 분류하는 주체로 진화하면서 진단 체계 전반의 구조 변화가 본격화됐",
+          "url": "https://www.etnews.com/20260423000001",
+          "thumbnail": null,
+          "time": "2026-04-22T23:00:00",
+          "scope": "domestic",
+          "category": "tech",
+          "glossaryTermId": null,
+          "curationScore": 45
+        },
+        {
+          "id": "20260422000106",
+          "source": "rss:etnews",
+          "title": "“붙이기만 하면 2D·3D 전환”…초박형 메타렌즈 디스플레이 세계 첫 구현",
+          "summary": "스마트폰에 붙이기만 하면 안경 없이도 2D와 3D를 자유자재로 전환할 수 있는 차세대 디스플레이 기술이 국내 연구진에 의해 세계 최초로 개발됐다. 과학기술정보통신부는 노준석 포스텍(POSTECH) 교수 연구팀과 삼성전자 삼성리서치 비주얼 테크놀로지팀이 차세대 광학소자인",
+          "url": "https://www.etnews.com/20260422000106",
+          "thumbnail": null,
+          "time": "2026-04-22T15:00:00",
+          "scope": "domestic",
+          "category": "tech",
+          "glossaryTermId": null,
+          "curationScore": 24
+        }
+      ]
     },
     "economy": {
       "indices": [],
       "signals": [],
       "news": [
         {
-          "id": "https://www.mk.co.kr/news/stock/12024862",
+          "id": "https://www.mk.co.kr/news/culture/12024879",
           "source": "rss:mk",
-          "title": "“변동성에도 실적 모멘텀 유효”…DB손보, 목표가 26만원으로 하향",
-          "summary": "다올투자증권은 23일 DB손해보험에 대해 단기 실적 변동성을 반영해 목표주가를 기존 27만원에서 26만원으로 하향 조정했다. 다만, 실적 둔화 우려에도 안정적인 이익 흐름과 자본여..",
-          "url": "https://www.mk.co.kr/news/stock/12024862",
+          "title": "중국 또 훔쳐봐…변우석·아이유 ‘대군부인’도 당했다",
+          "summary": "변우석 아이유 주연 드라마 ‘21세기 대군부인’이 중국에서 또 불법 시청으로 몸살을 앓고 있다. 23일 서경덕 성신여대 교수는 자신의 SNS를 통해 일부 중국 내 불법 시청 문화에..",
+          "url": "https://www.mk.co.kr/news/culture/12024879",
           "thumbnail": null,
-          "time": "2026-04-22T23:54:44",
+          "time": "2026-04-23T00:06:17",
           "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://www.mk.co.kr/news/stock/12024876",
+          "source": "rss:mk",
+          "title": "[속보] 코스피, 장중 6500 돌파…사흘 연속 사상최고치 경신",
+          "summary": "",
+          "url": "https://www.mk.co.kr/news/stock/12024876",
+          "thumbnail": null,
+          "time": "2026-04-23T00:05:45",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://www.mk.co.kr/news/stock/12024874",
+          "source": "rss:mk",
+          "title": "‘금융 인프라’ 진화한 스테이블코인, 시총 430조원 넘겨",
+          "summary": "피델리티 2026 보고서 분석 투기 줄고 결제·B2B 송금 급증 이더리움 주도 속 목적형 체인 부상 美 클레리티 법안 등 규제 향방 촉각스테이블코인이 단순한 가상자산 투자 수단을 ..",
+          "url": "https://www.mk.co.kr/news/stock/12024874",
+          "thumbnail": null,
+          "time": "2026-04-23T00:03:54",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://www.mk.co.kr/news/business/12024872",
+          "source": "rss:mk",
+          "title": "“자동차·보험·정비 하나로”…KGM·삼성화재, 모빌리티 통합서비스 협약",
+          "summary": "KG모빌리티(KGM)가 삼성화재와 손잡고 차량 생애주기 전반을 아우르는 통합 서비스 구축에 나선다. 신차 판매부터 보험, 정비, 중고차 거래까지 흩어져 있던 서비스를 하나로 연결해..",
+          "url": "https://www.mk.co.kr/news/business/12024872",
+          "thumbnail": null,
+          "time": "2026-04-23T00:01:15",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://www.mk.co.kr/news/politics/12024871",
+          "source": "rss:mk",
+          "title": "‘부산 북갑’ 박민식 “침입자 한동훈과는 단일화 NO…하정우는 결정장애 애매남”",
+          "summary": "단일화 거부, 완주 의지 재확인 한동훈 겨냥 강경 발언 지속 보수 표심 결집 전략 부각부산 북갑 국회의원 보궐선거에서 국민의힘 공천을 기대하는 박민식 전 국가보훈부 장관은 “우리 ..",
+          "url": "https://www.mk.co.kr/news/politics/12024871",
+          "thumbnail": null,
+          "time": "2026-04-23T00:00:33",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://www.mk.co.kr/news/culture/12024027",
+          "source": "rss:mk",
+          "title": "“4번 수술 후 2년 재활”…문근영이 앓은 ‘급성구획증후군’ 뭐길래 [헬스타클럽]",
+          "summary": "‘급성구획증후군’ 진단 후 활동 중단…수술·재활 끝 완치 “손가락 신경 안 돌아올 수도 있다고…연기 못 할 수도 있겠다 생각” 골든타임 6시간…다친 정도에 비해 심한 통증시 내원해..",
+          "url": "https://www.mk.co.kr/news/culture/12024027",
+          "thumbnail": null,
+          "time": "2026-04-23T00:00:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://www.mk.co.kr/news/stock/12024868",
+          "source": "rss:mk",
+          "title": "“공포는 이제 잊어라”…타이거리서치, 비트코인 목표가 14만불 제시",
+          "summary": "타이거 리서치 2분기 보고서 발표 매크로 우호적이나 펀더멘탈은 정체 목표가 하향됐지만 실제 상승 여력은 2배 “단기 저항선 7만8천달러 돌파 주시해야”비트코인 가격이 중장기적으로 ..",
+          "url": "https://www.mk.co.kr/news/stock/12024868",
+          "thumbnail": null,
+          "time": "2026-04-22T23:58:25",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://www.mk.co.kr/news/business/12024866",
+          "source": "rss:mk",
+          "title": "세스코 ‘K-푸드 수출지원컨설팅’…강화되는 해외수출 검증 기준에 선제 대응",
+          "summary": "해외공급자 검증·현지 실사 준비 등 원스톱 컨설팅으로 美 식품 수출 지원종합환경위생기업 세스코(대표 전찬혁)는 국내 식품기업의 해외 진출을 돕기 위해 ‘K-푸드 수출 지원 컨설팅’..",
+          "url": "https://www.mk.co.kr/news/business/12024866",
+          "thumbnail": null,
+          "time": "2026-04-22T23:56:29",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://www.mk.co.kr/news/business/12024864",
+          "source": "rss:mk",
+          "title": "유니드 1분기 매출 3844억원…전년 동기 대비 19.2% 증가",
+          "summary": "22일 칼륨계 화학제품 세계 시장점유율 1위 유니드는 1분기 연결 기준 매출 3844억 원, 영업이익 255억 원을 기록했다고 밝혔다. 매출액은 전년 동기 대비 19.2% 증가했고..",
+          "url": "https://www.mk.co.kr/news/business/12024864",
+          "thumbnail": null,
+          "time": "2026-04-22T23:56:17",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://www.mk.co.kr/news/columnists/12024863",
+          "source": "rss:mk",
+          "title": "중국산 전기차, 안방 차지할 날 곧 오는데…위기의 한국산업 [황인혁칼럼]",
+          "summary": "中전기차 침투 위협적인데 한국시장은 사실상 무방비 미·EU는 노골적 관세장벽 선택적 산업보호 정책 시급‘7년 vs 11개월’ 1995년 BMW가 한국에 진출할 당시, 그 해 판매량..",
+          "url": "https://www.mk.co.kr/news/columnists/12024863",
+          "thumbnail": null,
+          "time": "2026-04-22T23:55:35",
+          "scope": "domestic",
+          "category": "stock",
           "glossaryTermId": null,
           "curationScore": 0
         }
@@ -33,5 +324,16 @@
       "foreign": []
     }
   },
-  "glossary": {}
+  "glossary": {
+    "supplementary_budget": {
+      "shortLabel": "추경 (추가경정예산)",
+      "explanation": "한 해 예산을 다 짜둔 뒤, 큰 변수(재난·경기 침체 등)가 생겨 추가로 편성하는 예산이에요. 규모·용도·재원 조달 방식이 핵심 쟁점이에요. 국채 발행으로 조달하면 재정 건전성 논쟁이 따라와요.",
+      "direction": "mixed"
+    },
+    "merger": {
+      "shortLabel": "합병",
+      "explanation": "두 회사가 하나로 합쳐지는 결정이에요. 시너지 기대와 지분 희석·경영권 이슈가 같이 있어요. 합병비율과 인수 주체의 성격이 해석을 좌우해요.",
+      "direction": "mixed"
+    }
+  }
 }

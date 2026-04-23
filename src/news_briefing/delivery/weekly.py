@@ -83,7 +83,8 @@ def render_weekly_html(report: WeeklyReport) -> str:
         "<!doctype html>\n"
         '<html lang="ko"><head><meta charset="utf-8">'
         f"<title>주간 리포트 · {html.escape(report.week_id)}</title>"
-        '<style>body{font-family:system-ui,sans-serif;max-width:720px;margin:2rem auto;padding:0 1rem;line-height:1.6}</style>'
+        "<style>body{font-family:system-ui,sans-serif;max-width:720px;"
+        "margin:2rem auto;padding:0 1rem;line-height:1.6}</style>"
         "</head><body>"
         f"<h1>주간 리포트 · {html.escape(report.week_id)}</h1>"
         f"<p>{html.escape(report.start_date)} ~ {html.escape(report.end_date)}</p>"
