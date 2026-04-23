@@ -8,7 +8,7 @@ from pathlib import Path
 
 from news_briefing.analysis.curation import curation_score
 from news_briefing.analysis.glossary import detect_term, ensure_glossary_entry
-from news_briefing.analysis.llm import summarize
+from news_briefing.analysis.llm import summarize, translate_news_ko
 from news_briefing.analysis.picks import select_picks
 from news_briefing.analysis.scoring import score_edgar, score_report
 from news_briefing.analysis.trends import detect_trending_themes
@@ -195,6 +195,7 @@ def run_morning(
         fresh_news = fresh_news[:15]
         # Week 5a (F36): 경제 뉴스 2줄 LLM 요약을 JSON 에 기록 → UI 표시
         news_summaries: dict[str, str] = {}
+        ai_title_translations: dict[str, str] = {}
         for it in fresh_news:
             summary_text = summarize(
                 conn,
@@ -204,6 +205,35 @@ def run_morning(
             )
             if summary_text:
                 news_summaries[it.ext_id] = summary_text
+
+        # Week 5b: AI 뉴스 한국어 처리
+        # - 해외 AI (영문): 제목 번역 + 2줄 요약 (한 번의 LLM 호출)
+        # - 국내 AI (한국어): 본문 기반 2줄 요약만
+        from news_briefing.collectors.rss import SOURCE_META as _AI_META
+
+        for it in ai_news[:40]:  # 과도한 LLM 호출 방지 (국내 20 + 해외 20)
+            scope, _cat = _AI_META.get(it.source, ("foreign", "ai"))
+            if scope == "foreign":
+                title_ko, summary_ko = translate_news_ko(
+                    conn,
+                    it.title,
+                    it.body or "",
+                    ollama_enabled=cfg.ollama_enabled,
+                    ollama_model=cfg.ollama_model,
+                )
+                if title_ko:
+                    ai_title_translations[it.ext_id] = title_ko
+                if summary_ko:
+                    news_summaries[it.ext_id] = summary_ko
+            else:
+                summary_text = summarize(
+                    conn,
+                    it.title,
+                    ollama_enabled=cfg.ollama_enabled,
+                    ollama_model=cfg.ollama_model,
+                )
+                if summary_text:
+                    news_summaries[it.ext_id] = summary_text
 
         # 5. 디지스트 텍스트 백업 (Week 1 그대로)
         text = format_digest(
@@ -253,6 +283,7 @@ def run_morning(
             picks=picks,
             theme_banner=theme_banner,
             news_summaries=news_summaries,
+            ai_title_translations=ai_title_translations,
         )
         briefing_json_path = write_briefing(
             public_briefings_dir=cfg.public_briefings_dir, briefing=briefing

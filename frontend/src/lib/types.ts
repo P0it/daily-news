@@ -71,6 +71,8 @@ export interface NewsItem {
   /** Google News aggregator 의 실제 원문 언론사명 (Week 5a) */
   publisher?: string
   title: string
+  /** 해외 AI 뉴스 제목이 번역된 경우 원문 (Week 5b) */
+  titleOriginal?: string | null
   summary: string
   url: string
   thumbnail: string | null

@@ -66,6 +66,7 @@ def _news_to_dict(
     curation: int = 0,
     term_ids_by_id: dict[str, str] | None = None,
     summaries: dict[str, str] | None = None,
+    title_translations: dict[str, str] | None = None,
 ) -> dict:
     scope, category = SOURCE_META.get(item.source, ("foreign", "stock"))
     extra_cat = (item.extra or {}).get("category", "")
@@ -74,12 +75,16 @@ def _news_to_dict(
     # LLM 생성 요약 우선 (F36), 없으면 원본 RSS description
     llm_summary = (summaries or {}).get(item.ext_id, "")
     summary_text = llm_summary if llm_summary else item.body
+    # 해외 AI 뉴스 제목 번역 (Week 5b). 번역본이 있으면 title 자체를 교체
+    title_ko = (title_translations or {}).get(item.ext_id, "")
+    display_title = title_ko if title_ko else item.title
     publisher = (item.extra or {}).get("publisher", "")
     return {
         "id": item.ext_id,
         "source": item.source,
         "publisher": publisher,
-        "title": item.title,
+        "title": display_title,
+        "titleOriginal": item.title if title_ko else None,
         "summary": summary_text,
         "url": item.url,
         "thumbnail": None,
@@ -103,6 +108,7 @@ def build_briefing_json(
     picks: PicksResult | None = None,
     theme_banner: dict | None = None,
     news_summaries: dict[str, str] | None = None,
+    ai_title_translations: dict[str, str] | None = None,
 ) -> dict:
     filtered_for_economy = [
         s for s in scored_signals if s[1] >= ECONOMY_SIGNAL_THRESHOLD
@@ -183,7 +189,10 @@ def build_briefing_json(
     for item in ai_news or []:
         scope, _ = SOURCE_META.get(item.source, ("foreign", "ai"))
         entry = _news_to_dict(
-            item, term_ids_by_id=term_ids_by_id, summaries=news_summaries
+            item,
+            term_ids_by_id=term_ids_by_id,
+            summaries=news_summaries,
+            title_translations=ai_title_translations,
         )
         entry["_priority"] = _ai_source_priority(item.source)  # 정렬 후 제거
         if scope == "domestic":

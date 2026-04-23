@@ -31,6 +31,17 @@ SUMMARIZE_SYSTEM = (
     "④ 이벤트의 통상적 해석만 기술하고 투자 판단은 사용자에게 맡긴다."
 )
 
+TRANSLATE_NEWS_TASK = "translate_news_ko"
+TRANSLATE_NEWS_SYSTEM = (
+    "너는 영문 AI/IT 뉴스를 한국 독자에게 전달하는 번역가다. "
+    "다음 두 가지를 순서대로 출력한다. "
+    "1) 제목을 자연스러운 한국어로 번역 (고유명사·제품명·회사명·모델명은 원문 유지). "
+    "2) 본문을 2줄 이내 한국어로 요약. '~요'체, 느낌표 금지. "
+    "출력 형식은 반드시 다음 두 줄 구조를 따른다 (다른 말·설명·마크다운 없이): "
+    "TITLE: <번역된 제목>\n"
+    "SUMMARY: <2줄 요약>"
+)
+
 
 def _call_claude(prompt: str, timeout: int = 45) -> str:
     """Claude CLI 를 호출해 prompt 를 그대로 전달. stdout 반환.
@@ -105,3 +116,62 @@ def summarize(
             log.error("ollama 호출 실패: %s", e)
 
     return ""
+
+
+def _parse_title_summary(output: str) -> tuple[str, str]:
+    """'TITLE: ... / SUMMARY: ...' 출력 파싱. 실패 시 ('', '')."""
+    title_ko = ""
+    summary_ko = ""
+    for line in output.splitlines():
+        s = line.strip()
+        if s.upper().startswith("TITLE:"):
+            title_ko = s.split(":", 1)[1].strip()
+        elif s.upper().startswith("SUMMARY:"):
+            summary_ko = s.split(":", 1)[1].strip()
+    return title_ko, summary_ko
+
+
+def translate_news_ko(
+    conn: sqlite3.Connection,
+    title: str,
+    body: str = "",
+    *,
+    ollama_enabled: bool = False,
+    ollama_model: str = "qwen2.5:14b",
+) -> tuple[str, str]:
+    """영문 AI/IT 뉴스 → (한국어 제목, 한국어 2줄 요약). 캐시 지원.
+
+    실패 시 ('', '') 반환하고 호출자가 원본 제목을 유지.
+    """
+    cache_key = f"{title}\n---\n{body[:500]}"  # body 길이 제한으로 캐시 키 안정화
+    cached = cache_get(conn, TRANSLATE_NEWS_TASK, cache_key)
+    if cached is not None:
+        return _parse_title_summary(cached)
+
+    prompt = (
+        f"{TRANSLATE_NEWS_SYSTEM}\n\n---\n\n"
+        f"제목: {title}\n본문: {body or '(본문 없음)'}"
+    )
+
+    try:
+        output = _call_claude(prompt)
+        cache_put(conn, TRANSLATE_NEWS_TASK, cache_key, output, "claude-cli")
+        return _parse_title_summary(output)
+    except Exception as e:
+        log.warning("translate_news_ko claude 실패: %s", e)
+
+    if ollama_enabled:
+        try:
+            output = _call_ollama(prompt, ollama_model)
+            cache_put(
+                conn,
+                TRANSLATE_NEWS_TASK,
+                cache_key,
+                output,
+                f"ollama:{ollama_model}",
+            )
+            return _parse_title_summary(output)
+        except Exception as e:
+            log.error("translate_news_ko ollama 실패: %s", e)
+
+    return ("", "")
