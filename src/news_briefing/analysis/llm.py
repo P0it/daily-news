@@ -33,13 +33,13 @@ SUMMARIZE_SYSTEM = (
 
 TRANSLATE_NEWS_TASK = "translate_news_ko"
 TRANSLATE_NEWS_SYSTEM = (
-    "너는 영문 AI/IT 뉴스를 한국 독자에게 전달하는 번역가다. "
-    "다음 두 가지를 순서대로 출력한다. "
-    "1) 제목을 자연스러운 한국어로 번역 (고유명사·제품명·회사명·모델명은 원문 유지). "
-    "2) 본문을 2줄 이내 한국어로 요약. '~요'체, 느낌표 금지. "
-    "출력 형식은 반드시 다음 두 줄 구조를 따른다 (다른 말·설명·마크다운 없이): "
-    "TITLE: <번역된 제목>\n"
-    "SUMMARY: <2줄 요약>"
+    "아래 영문 AI/IT 뉴스의 제목을 자연스러운 한국어로 번역하고, "
+    "본문을 2줄 이내 한국어로 요약한다. "
+    "고유명사(제품명·회사명·모델명)는 원문 유지, '~요'체 존댓말, 느낌표 금지. "
+    "응답은 정확히 두 줄로만 작성한다. "
+    "첫째 줄: TITLE: 로 시작하고 이어서 번역된 한국어 제목. "
+    "둘째 줄: SUMMARY: 로 시작하고 이어서 한국어 요약. "
+    "인사·설명·마크다운·추가 줄 금지. 곧바로 번역·요약 결과만 출력한다."
 )
 
 
@@ -49,10 +49,15 @@ def _call_claude(prompt: str, timeout: int = 45) -> str:
     Claude Code CLI 는 CWD 의 CLAUDE.md 를 자동으로 읽어 system prompt 화 한다.
     RAG/요약 등 일반 LLM 호출에선 이 context 가 오염이 되므로,
     **임시 디렉토리에서 실행**해 프로젝트 CLAUDE.md 영향을 차단한다.
+
+    Windows `.cmd` wrapper 는 개행이 포함된 argv 를 제대로 전달하지 못하므로
+    prompt 는 **stdin 으로 전달** 한다. (argv 경로 사용 시 긴 한글/다줄 prompt 에서
+    본문이 잘려 LLM 이 "기사가 포함되어 있지 않아요" 로 응답하는 버그 회피.)
     """
     with tempfile.TemporaryDirectory(prefix="news_briefing_llm_") as tmpdir:
         result = subprocess.run(
-            [_resolve("claude"), "-p", prompt, "--output-format", "text"],
+            [_resolve("claude"), "-p", "--output-format", "text"],
+            input=prompt,
             capture_output=True,
             text=True,
             encoding="utf-8",
