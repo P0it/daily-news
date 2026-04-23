@@ -123,8 +123,10 @@ def build_briefing_json(
         cap = CURRENT_SECTION_CAPS.get(cat, 5)
         current_grouped[cat] = arr[:cap]
 
+    # Week 5a (DECISIONS #13): picks 를 economy 내부로 이동
     economy_tab: dict = {
         "indices": [],
+        "picks": picks_tab,
         "signals": [
             _signal_to_dict(it, s, d, term_ids_by_id)
             for it, s, d in filtered_for_economy
@@ -144,7 +146,6 @@ def build_briefing_json(
         "tabs": {
             "current": current_grouped,
             "economy": economy_tab,
-            "picks": picks_tab,
         },
         "glossary": glossary or {},
     }
