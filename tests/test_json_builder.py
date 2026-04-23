@@ -116,3 +116,64 @@ def test_write_briefing_appends_new_date_to_index(tmp_path: Path) -> None:
     index = json.loads((tmp_path / "index.json").read_text(encoding="utf-8"))
     # 최신순 정렬
     assert index["dates"] == ["2026-04-22", "2026-04-21"]
+
+
+def test_current_tab_groups_by_category() -> None:
+    now = datetime(2026, 4, 23, 12, 0)
+    politics = CollectedItem(
+        source="rss:yonhap-politics",
+        ext_id="p1",
+        kind="news",
+        title="국회 본회의",
+        url="https://x",
+        published_at=now,
+        extra={"category": "politics"},
+    )
+    society = CollectedItem(
+        source="rss:yonhap-society",
+        ext_id="s1",
+        kind="news",
+        title="사회 이슈",
+        url="https://x",
+        published_at=now,
+        extra={"category": "society"},
+    )
+    data = build_briefing_json(
+        date=now,
+        scored_signals=[],
+        economy_news=[],
+        current_news=[(politics, 70), (society, 60)],
+    )
+    assert len(data["tabs"]["current"]["politics"]) == 1
+    assert data["tabs"]["current"]["politics"][0]["curationScore"] == 70
+    assert data["tabs"]["current"]["society"][0]["curationScore"] == 60
+    assert data["tabs"]["current"]["international"] == []
+
+
+def test_current_tab_sort_and_caps() -> None:
+    now = datetime(2026, 4, 23)
+    # 정치 cap = 5, 초과 건 6개 입력
+    items = [
+        (
+            CollectedItem(
+                source="rss:yonhap-politics",
+                ext_id=f"p{i}",
+                kind="news",
+                title=f"정치{i}",
+                url="x",
+                published_at=now,
+                extra={"category": "politics"},
+            ),
+            50 + i,
+        )
+        for i in range(6)
+    ]
+    data = build_briefing_json(
+        date=now, scored_signals=[], economy_news=[], current_news=items
+    )
+    politics = data["tabs"]["current"]["politics"]
+    assert len(politics) == 5  # cap
+    # 상위 5개가 점수 내림차순
+    scores = [p["curationScore"] for p in politics]
+    assert scores == sorted(scores, reverse=True)
+    assert scores[0] == 55  # 가장 높은 점수

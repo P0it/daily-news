@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
+from news_briefing.analysis.curation import curation_score
 from news_briefing.analysis.glossary import detect_term, ensure_glossary_entry
 from news_briefing.analysis.llm import summarize
 from news_briefing.analysis.picks import select_picks
@@ -38,6 +39,7 @@ class MorningResult:
     new_items: int
     signal_count: int
     news_count: int
+    current_count: int  # 시사 뉴스 수집 건수 (Week 3)
     picks_domestic: int
     picks_foreign: int
     digest_path: Path
@@ -134,8 +136,37 @@ def run_morning(
                                 "direction": entry.signal_direction,
                             }
 
-        # 4. 요약 (뉴스 중 상위 15건)
-        fresh_news = [it for it in new_items if it.kind == "news"][:15]
+        # 4. 뉴스 카테고리별 분리 + 시사 큐레이션 + 시사 용어 감지
+        stock_news: list[CollectedItem] = []
+        current_candidates: list[tuple[CollectedItem, int]] = []
+        for it in new_items:
+            if it.kind != "news":
+                continue
+            category = (it.extra or {}).get("category", "")
+            if category == "stock" or category == "":
+                stock_news.append(it)
+            elif category in ("politics", "society", "international", "tech"):
+                cs = curation_score(
+                    source=it.source,
+                    published_at=it.published_at,
+                    now=now,
+                    importance=1.0,
+                )
+                # 시사 용어 감지 (Week 3 F32)
+                cur_term = detect_term(it.title)
+                if cur_term:
+                    term_ids_by_id[it.ext_id] = cur_term
+                    if cur_term not in glossary_map:
+                        entry = ensure_glossary_entry(conn, cur_term, lang="ko")
+                        if entry:
+                            glossary_map[cur_term] = {
+                                "shortLabel": entry.short_label,
+                                "explanation": entry.explanation,
+                                "direction": entry.signal_direction,
+                            }
+                current_candidates.append((it, cs))
+
+        fresh_news = stock_news[:15]
         for it in fresh_news:
             _ = summarize(
                 conn,
@@ -158,6 +189,7 @@ def run_morning(
             date=now,
             scored_signals=scored,
             economy_news=fresh_news,
+            current_news=current_candidates,
             glossary=glossary_map,
             term_ids_by_id=term_ids_by_id,
             picks=picks,
@@ -185,6 +217,7 @@ def run_morning(
             new_items=len(new_items),
             signal_count=sig_above,
             news_count=len(fresh_news),
+            current_count=len(current_candidates),
             picks_domestic=len(picks.domestic),
             picks_foreign=len(picks.foreign),
             digest_path=digest_path,

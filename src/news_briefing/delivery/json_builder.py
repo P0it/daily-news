@@ -12,10 +12,19 @@ from pathlib import Path
 
 from news_briefing.analysis.picks import PicksResult
 from news_briefing.collectors.base import CollectedItem
+from news_briefing.collectors.rss import SOURCE_META
 
 SCHEMA_VERSION = 1
 HERO_THRESHOLD = 90
 ECONOMY_SIGNAL_THRESHOLD = 60
+
+# PRD F31 — 시사 탭 섹션별 노출 cap
+CURRENT_SECTION_CAPS = {
+    "politics": 5,
+    "society": 3,
+    "international": 3,
+    "tech": 2,
+}
 
 
 def _signal_to_dict(
@@ -40,7 +49,16 @@ def _signal_to_dict(
     }
 
 
-def _news_to_dict(item: CollectedItem) -> dict:
+def _news_to_dict(
+    item: CollectedItem,
+    *,
+    curation: int = 0,
+    term_ids_by_id: dict[str, str] | None = None,
+) -> dict:
+    scope, category = SOURCE_META.get(item.source, ("foreign", "stock"))
+    extra_cat = (item.extra or {}).get("category", "")
+    if extra_cat:
+        category = extra_cat  # 파싱 시 덮어쓴 값 우선
     return {
         "id": item.ext_id,
         "source": item.source,
@@ -49,9 +67,10 @@ def _news_to_dict(item: CollectedItem) -> dict:
         "url": item.url,
         "thumbnail": None,
         "time": item.published_at.isoformat(),
-        "scope": "domestic" if item.source in ("rss:hankyung", "rss:mk") else "foreign",
-        "glossaryTermId": None,
-        "curationScore": 0,
+        "scope": scope,
+        "category": category,
+        "glossaryTermId": (term_ids_by_id or {}).get(item.ext_id),
+        "curationScore": curation,
     }
 
 
@@ -60,6 +79,7 @@ def build_briefing_json(
     date: datetime,
     scored_signals: list[tuple[CollectedItem, int, str]],
     economy_news: list[CollectedItem],
+    current_news: list[tuple[CollectedItem, int]] | None = None,
     glossary: dict[str, dict] | None = None,
     term_ids_by_id: dict[str, str] | None = None,
     picks: PicksResult | None = None,
@@ -84,25 +104,40 @@ def build_briefing_json(
             _signal_to_dict(it, s, d, term_ids_by_id) for it, s, d in picks.foreign
         ]
 
+    # 시사 탭 — 카테고리별 그루핑 + curation 정렬 + cap
+    current_grouped: dict[str, list[dict]] = {
+        "politics": [],
+        "society": [],
+        "international": [],
+        "tech": [],
+    }
+    for item, curation in (current_news or []):
+        cat = (item.extra or {}).get("category", "")
+        if cat in current_grouped:
+            current_grouped[cat].append(
+                _news_to_dict(item, curation=curation, term_ids_by_id=term_ids_by_id)
+            )
+    for cat, arr in current_grouped.items():
+        arr.sort(key=lambda x: x.get("curationScore", 0), reverse=True)
+        cap = CURRENT_SECTION_CAPS.get(cat, 5)
+        current_grouped[cat] = arr[:cap]
+
     return {
         "date": date.strftime("%Y-%m-%d"),
         "generatedAt": datetime.now(UTC).isoformat(),
         "version": SCHEMA_VERSION,
         "hero": hero,
         "tabs": {
-            "current": {
-                "politics": [],
-                "society": [],
-                "international": [],
-                "tech": [],
-            },
+            "current": current_grouped,
             "economy": {
                 "indices": [],
                 "signals": [
                     _signal_to_dict(it, s, d, term_ids_by_id)
                     for it, s, d in filtered_for_economy
                 ],
-                "news": [_news_to_dict(n) for n in economy_news],
+                "news": [
+                    _news_to_dict(n, term_ids_by_id=term_ids_by_id) for n in economy_news
+                ],
             },
             "picks": picks_tab,
         },
