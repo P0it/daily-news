@@ -17,7 +17,7 @@ import type { Briefing, NewsItem } from '@/lib/types'
 import { CurrentSection } from '@/components/CurrentSection'
 import { HeroCard } from '@/components/HeroCard'
 import { MarketIndices } from '@/components/MarketIndices'
-import { PicksGrid } from '@/components/PicksGrid'
+import { PicksSection } from '@/components/PicksSection'
 import { SignalCard } from '@/components/SignalCard'
 import { ThemeBanner } from '@/components/ThemeBanner'
 
@@ -76,23 +76,22 @@ function HomeInner() {
     )
   }
 
-  if (tab === 'picks') {
-    const picks = briefing.tabs.picks ?? { domestic: [], foreign: [] }
-    return <PicksGrid picks={picks} dict={dict} />
-  }
-
+  // ───── 경제 탭 (Week 5a: picks 내부 통합 + 국내/해외 단일 scope) ─────
   if (tab === 'economy') {
-    const signals = briefing.tabs.economy.signals.filter(
-      (s) => scope === 'all' || s.scope === scope,
-    )
+    const economy = briefing.tabs.economy
+    const signals = economy.signals.filter((s) => s.scope === scope)
+    const picks = economy.picks ?? { domestic: [], foreign: [] }
+    const showHero =
+      briefing.hero !== null && briefing.hero.scope === scope
 
     return (
       <div>
-        {briefing.tabs.economy.themeBanner && (
-          <ThemeBanner banner={briefing.tabs.economy.themeBanner} />
+        {economy.themeBanner && <ThemeBanner banner={economy.themeBanner} />}
+        <PicksSection picks={picks} scope={scope} dict={dict} />
+        {showHero && briefing.hero && (
+          <HeroCard signal={briefing.hero} dict={dict} />
         )}
-        {briefing.hero && <HeroCard signal={briefing.hero} dict={dict} />}
-        <MarketIndices indices={briefing.tabs.economy.indices} dict={dict} />
+        <MarketIndices indices={economy.indices} dict={dict} />
         {signals.length === 0 ? (
           <p
             className="px-5 py-16 text-center"
@@ -107,14 +106,9 @@ function HomeInner() {
     )
   }
 
-  // current tab — 카테고리별 섹션 렌더 + scope 필터
+  // ───── 시사 탭 (카테고리별 섹션 + 국내/해외 단일 scope) ─────
   const current = briefing.tabs.current
-  const filterScope = (arr: NewsItem[]) =>
-    arr.filter((n) => {
-      if (scope === 'all') return true
-      if (scope === 'domestic') return n.scope === 'domestic'
-      return n.scope === 'foreign'
-    })
+  const filterScope = (arr: NewsItem[]) => arr.filter((n) => n.scope === scope)
   const sections: Array<'politics' | 'society' | 'international' | 'tech'> = [
     'politics',
     'society',

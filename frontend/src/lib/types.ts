@@ -6,7 +6,7 @@ export interface Briefing {
   tabs: {
     current: CurrentTab
     economy: EconomyTab
-    picks?: PicksTab  // Week 2b
+    // Week 5b: ai?: AiTab
   }
   glossary?: Record<string, GlossaryEntry>
 }
@@ -18,17 +18,22 @@ export interface CurrentTab {
   tech: NewsItem[]
 }
 
+// Week 5a (DECISIONS #13): picks 를 economy 내부로 이동
 export interface EconomyTab {
   indices: MarketIndex[]
+  picks: PicksSection
   signals: SignalItem[]
   news: NewsItem[]
   themeBanner?: ThemeBanner
 }
 
-export interface PicksTab {
+export interface PicksSection {
   domestic: SignalItem[]
   foreign: SignalItem[]
 }
+
+// Scope 타입 재export — 컴포넌트들이 공통 사용
+export type { Scope } from './tabs'
 
 export type Direction = 'positive' | 'negative' | 'mixed' | 'neutral'
 

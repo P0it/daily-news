@@ -18,9 +18,10 @@ function ShellInner({ children }: { children: React.ReactNode }) {
     setLang(getStoredLang())
   }, [])
 
-  // 종목 탭만 720px, 그 외는 560px (DESIGN.md 4.2 + 5.13)
-  const maxWidth =
-    tab === 'picks' ? 'var(--container-picks)' : 'var(--container-briefing)'
+  // Week 5a: 모든 탭 560px 단일 (종목 탭 격하, DECISIONS #13)
+  // `tab` 은 향후 AI 탭 추가 시 분기에 사용 (현재는 너비 동일)
+  void tab
+  const maxWidth = 'var(--container-briefing)'
 
   return (
     <>

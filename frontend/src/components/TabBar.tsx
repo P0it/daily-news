@@ -10,10 +10,10 @@ export function TabBar({ lang }: { lang: Lang }) {
   const currentTab = parseTabFromSearch(sp)
   const dict = t(lang)
 
+  // Week 5a: 종목 탭 제거 → 2탭 (시사·경제). Week 5b 에서 AI 탭 추가 예정.
   const tabs: { key: Tab; label: string }[] = [
     { key: 'current', label: dict['tab.current'] },
     { key: 'economy', label: dict['tab.economy'] },
-    { key: 'picks', label: dict['tab.picks'] },
   ]
 
   return (
