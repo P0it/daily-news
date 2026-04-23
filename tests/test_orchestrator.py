@@ -26,6 +26,7 @@ def _cfg(tmp_path: Path) -> Config:
         public_briefings_dir=public_briefings,
         vercel_base_url="https://news-briefing.vercel.app",
         edgar_user_agent="",
+        ollama_embed_model="nomic-embed-text",
     )
 
 

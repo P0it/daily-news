@@ -55,6 +55,7 @@ def test_config_dataclass_is_immutable(tmp_path) -> None:
         tokens_path=tmp_path / "t.json",
         ollama_enabled=False,
         ollama_model="",
+        ollama_embed_model="nomic-embed-text",
         public_briefings_dir=tmp_path / "public",
         vercel_base_url="https://example.com",
         edgar_user_agent="",
