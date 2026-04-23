@@ -96,14 +96,35 @@ def _cmd_themes(args: argparse.Namespace) -> int:
 
 
 def _cmd_weekly(args: argparse.Namespace) -> int:
-    from news_briefing.delivery.weekly import collect_weekly, write_weekly
+    from news_briefing.delivery.weekly import (
+        collect_weekly,
+        generate_essay,
+        write_weekly,
+    )
+    from news_briefing.storage.db import connect
+    from news_briefing.storage.themes import list_themes
 
     cfg = load_config()
+    conn = connect(cfg.db_path)
+    try:
+        themes = list_themes(conn)
+    finally:
+        conn.close()
+    theme_keywords = {t.theme_id: [t.name_ko] for t in themes}
+
+    report = collect_weekly(cfg.public_briefings_dir, theme_keywords=theme_keywords)
+    essay = generate_essay(report) if args.llm else None
+
     reports_dir = cfg.data_dir / "reports"
-    report = collect_weekly(cfg.public_briefings_dir)
-    path = write_weekly(reports_dir=reports_dir, report=report)
+    path = write_weekly(reports_dir=reports_dir, report=report, essay=essay)
     print(f"주간 리포트 생성: {path}")
-    print(f"  {report.week_id} · {len(report.top_signals)}개 시그널")
+    trending = ", ".join(report.trending_themes) if report.trending_themes else "—"
+    print(
+        f"  {report.week_id} · {len(report.top_signals)}개 시그널 · "
+        f"트렌드 [{trending}]"
+    )
+    if essay:
+        print(f"  에세이 {len(essay)}자 포함")
     return 0
 
 
@@ -156,6 +177,9 @@ def main(argv: list[str] | None = None) -> int:
     p_themes.set_defaults(func=_cmd_themes)
 
     p_weekly = sub.add_parser("weekly", help="주간 리포트 생성 (일요일 저녁)")
+    p_weekly.add_argument(
+        "--llm", action="store_true", help="LLM 에세이 포함 (느림, claude CLI 필요)"
+    )
     p_weekly.set_defaults(func=_cmd_weekly)
 
     p_ask = sub.add_parser("ask", help="RAG 자유 질의")
