@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 
 # term_id → (short_label_hint, keyword_for_detection)
 TERM_CATALOG: dict[str, tuple[str, str]] = {
+    # 증권 용어 (Week 2a)
     "self_stock_buy": ("자사주 매수", "자기주식취득"),
     "self_stock_sell": ("자사주 처분", "자기주식처분"),
     "insider_trade": ("내부자 매매", "임원ㆍ주요주주"),
@@ -32,6 +33,14 @@ TERM_CATALOG: dict[str, tuple[str, str]] = {
     "merger": ("합병", "합병"),
     "embezzlement": ("횡령·배임", "횡령"),
     "management_watch": ("관리종목 지정", "관리종목지정"),
+    # 시사 용어 (Week 3, F32)
+    "plenary_assembly": ("대법원 전원합의체", "전원합의체"),
+    "floor_leader": ("원내대표", "원내대표"),
+    "supplementary_budget": ("추경 (추가경정예산)", "추경"),
+    "national_audit": ("국정감사", "국정감사"),
+    "proportional_representation": ("연동형 비례대표제", "연동형 비례대표"),
+    "constitutional_court": ("헌법재판소", "헌법재판소"),
+    "prosecutor_investigation": ("검찰 수사", "검찰 수사"),
 }
 
 
@@ -120,6 +129,56 @@ SEED_EXPLANATIONS_KO: dict[str, tuple[str, str, str]] = {
         "매각이면 수급상 부담, ESOP면 중립~긍정으로 해석이 갈려요. "
         "처분 방식과 사유가 핵심이에요.",
         "mixed",
+    ),
+    # 시사 용어
+    "plenary_assembly": (
+        "대법원 전원합의체",
+        "대법원의 가장 높은 합의체예요. 전체 대법관 13명이 모여 "
+        "법 해석의 방향을 정하는 결정을 해요. 하급심과 다른 판단을 내리기도 하고, "
+        "이후 비슷한 사건의 기준이 돼요.",
+        "neutral",
+    ),
+    "floor_leader": (
+        "원내대표",
+        "국회 안에서 각 정당의 '현장 지휘관' 역할이에요. 법안 협상, 본회의 일정, "
+        "의원 표결 지도 등을 맡아요. 당 대표가 바깥 이미지라면, 원내대표는 "
+        "실제 정치 실무를 움직여요.",
+        "neutral",
+    ),
+    "supplementary_budget": (
+        "추경 (추가경정예산)",
+        "한 해 예산을 다 짜둔 뒤, 큰 변수(재난·경기 침체 등)가 생겨 "
+        "추가로 편성하는 예산이에요. 규모·용도·재원 조달 방식이 핵심 쟁점이에요. "
+        "국채 발행으로 조달하면 재정 건전성 논쟁이 따라와요.",
+        "mixed",
+    ),
+    "national_audit": (
+        "국정감사",
+        "국회가 정부 기관의 일을 들여다보는 정기 감사예요. "
+        "매년 9~10월 상임위원회별로 진행해요. 의원 질의가 크게 화제되는 시기라 "
+        "특정 이슈가 정치적으로 증폭되곤 해요.",
+        "neutral",
+    ),
+    "proportional_representation": (
+        "연동형 비례대표제",
+        "지역구 당선자 수와 정당 득표율을 연동해 전체 의석을 배분하는 방식이에요. "
+        "득표에 못 미친 정당을 비례의석으로 보완해 민심 반영을 강화하려는 취지예요. "
+        "위성정당 문제 등으로 실제 효과엔 논란이 있어요.",
+        "neutral",
+    ),
+    "constitutional_court": (
+        "헌법재판소",
+        "법률이나 국가 행위가 헌법에 맞는지 판단하는 최고 재판소예요. "
+        "위헌법률심판·헌법소원·탄핵심판 등을 다뤄요. "
+        "대법원과 별개 기관이고, 헌법적 해석의 최종 권위예요.",
+        "neutral",
+    ),
+    "prosecutor_investigation": (
+        "검찰 수사",
+        "범죄 혐의에 대해 검찰이 수사를 진행하는 단계예요. "
+        "압수수색·소환조사·기소 여부 결정 순으로 이어져요. "
+        "수사 개시 단계와 기소 단계는 법적 의미가 크게 달라요.",
+        "neutral",
     ),
 }
 

@@ -28,6 +28,24 @@ def test_term_catalog_has_minimum_entries() -> None:
     assert len(TERM_CATALOG) >= 7
 
 
+def test_current_affairs_terms_detected() -> None:
+    assert detect_term("더불어민주당 원내대표 협상") == "floor_leader"
+    assert detect_term("대법원 전원합의체 선고") == "plenary_assembly"
+    assert detect_term("30조 규모 추경 편성") == "supplementary_budget"
+    assert detect_term("올해 국정감사 정쟁") == "national_audit"
+
+
+def test_term_catalog_has_current_affairs_minimum() -> None:
+    current_terms = [
+        "plenary_assembly",
+        "floor_leader",
+        "supplementary_budget",
+        "national_audit",
+    ]
+    for t in current_terms:
+        assert t in TERM_CATALOG
+
+
 def test_ensure_glossary_uses_seed_when_defined(memory_db: sqlite3.Connection) -> None:
     init_schema(memory_db)
     entry = ensure_glossary_entry(memory_db, "self_stock_buy", lang="ko")
