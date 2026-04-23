@@ -74,11 +74,23 @@ export function AiCard({
           letterSpacing: '-0.02em',
           lineHeight: 1.35,
           color: 'var(--text-primary)',
-          marginBottom: news.summary ? 6 : 0,
+          marginBottom: news.titleOriginal ? 4 : news.summary ? 6 : 0,
         }}
       >
         {news.title}
       </h3>
+      {news.titleOriginal && (
+        <p
+          style={{
+            fontSize: 12,
+            lineHeight: 1.4,
+            color: 'var(--text-tertiary)',
+            marginBottom: news.summary ? 6 : 0,
+          }}
+        >
+          {news.titleOriginal}
+        </p>
+      )}
       {news.summary && (
         <p
           style={{
@@ -87,7 +99,7 @@ export function AiCard({
             color: 'var(--text-secondary)',
           }}
         >
-          {news.summary.replace(/<[^>]*>/g, '').slice(0, 140)}
+          {news.summary.slice(0, 140)}
         </p>
       )}
       {void dict}

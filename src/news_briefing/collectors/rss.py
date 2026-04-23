@@ -235,6 +235,13 @@ def _clean_title(raw: str, publisher: str | None = None) -> str:
     return t
 
 
+def _clean_body(raw: str) -> str:
+    """RSS body: HTML 태그 제거 + entity 디코드 + 공백 정규화."""
+    t = re.sub(r"<[^>]+>", " ", raw)  # <p>, <a href=...> 등 제거
+    t = html.unescape(t).replace("\xa0", " ")
+    return re.sub(r"\s+", " ", t).strip()
+
+
 def parse_rss_feed(
     content: str, source_id: str, category: NewsCategory | None = None
 ) -> list[CollectedItem]:
@@ -274,7 +281,7 @@ def parse_rss_feed(
                 title=clean_title,
                 url=entry.get("link", ""),
                 published_at=published,
-                body=entry.get("summary", "").strip(),
+                body=_clean_body(entry.get("summary", "")),
                 extra=extra,
             )
         )
