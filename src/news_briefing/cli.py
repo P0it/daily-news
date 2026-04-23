@@ -5,7 +5,8 @@
   python -m news_briefing status
   python -m news_briefing themes seed
   python -m news_briefing themes refresh <theme_id>
-  python -m news_briefing weekly
+  python -m news_briefing weekly [--llm]
+  python -m news_briefing ask "질의" [--top-k N]
 """
 from __future__ import annotations
 
@@ -106,6 +107,33 @@ def _cmd_weekly(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_ask(args: argparse.Namespace) -> int:
+    from news_briefing.analysis.rag import answer_query
+    from news_briefing.storage.db import connect
+
+    cfg = load_config()
+    conn = connect(cfg.db_path)
+    try:
+        result = answer_query(
+            conn,
+            args.query,
+            embed_model=cfg.ollama_embed_model,
+            top_k=args.top_k,
+        )
+    finally:
+        conn.close()
+    print()
+    print(result.answer)
+    print()
+    print(f"출처 {len(result.sources)}건:")
+    for s in result.sources:
+        print(f"  - {s['doc_id']} (유사도 {s['score']:.3f})")
+        meta_url = (s.get("metadata") or {}).get("url")
+        if meta_url:
+            print(f"    {meta_url}")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     _setup_logging()
     parser = argparse.ArgumentParser(prog="news_briefing", description="데일리 브리핑 CLI")
@@ -129,6 +157,11 @@ def main(argv: list[str] | None = None) -> int:
 
     p_weekly = sub.add_parser("weekly", help="주간 리포트 생성 (일요일 저녁)")
     p_weekly.set_defaults(func=_cmd_weekly)
+
+    p_ask = sub.add_parser("ask", help="RAG 자유 질의")
+    p_ask.add_argument("query", help="질의 내용")
+    p_ask.add_argument("--top-k", type=int, default=5, help="retrieval top-k")
+    p_ask.set_defaults(func=_cmd_ask)
 
     args = parser.parse_args(argv)
     if not getattr(args, "func", None):

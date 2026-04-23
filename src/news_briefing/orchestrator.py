@@ -198,7 +198,19 @@ def run_morning(
             public_briefings_dir=cfg.public_briefings_dir, briefing=briefing
         )
 
-        # 8. 카톡 전송 (dry-run 아닐 때)
+        # 8. RAG 자동 인덱싱 (Week 4) — 실패해도 morning 전체 중단 X
+        try:
+            from news_briefing.analysis.rag import index_briefing
+
+            indexed = index_briefing(
+                conn, briefing_json_path, embed_model=cfg.ollama_embed_model
+            )
+            if indexed > 0:
+                log.info("RAG 인덱싱: %d 신규 문서", indexed)
+        except Exception as e:
+            log.warning("RAG 인덱싱 실패: %s", e)
+
+        # 9. 카톡 전송 (dry-run 아닐 때)
         sent = False
         sig_above = sum(1 for _, s, _ in scored if s >= MIN_SIGNAL_SCORE)
         if not dry_run:
