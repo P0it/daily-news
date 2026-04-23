@@ -3,6 +3,9 @@
 사용법:
   python -m news_briefing morning [--dry-run]
   python -m news_briefing status
+  python -m news_briefing themes seed
+  python -m news_briefing themes refresh <theme_id>
+  python -m news_briefing weekly
 """
 from __future__ import annotations
 
@@ -10,7 +13,7 @@ import argparse
 import logging
 import sys
 
-from news_briefing.config import load_config
+from news_briefing.config import PROJECT_ROOT, load_config
 from news_briefing.orchestrator import run_morning
 
 
@@ -43,11 +46,63 @@ def _cmd_status(args: argparse.Namespace) -> int:
     )
     print(f"  카카오 토큰: {cfg.tokens_path} ({tokens_state})")
     print(f"  DART 키: {'설정됨' if cfg.dart_api_key else '없음'}")
+    print(f"  EDGAR UA: {'설정됨' if cfg.edgar_user_agent else '없음'}")
     print(f"  Ollama: {'ON' if cfg.ollama_enabled else 'OFF'}")
     digests = sorted(cfg.digests_dir.glob("*.txt"), reverse=True)[:3]
     print("  최근 백업:")
     for p in digests:
         print(f"    {p.name}")
+    return 0
+
+
+def _cmd_themes(args: argparse.Namespace) -> int:
+    from news_briefing.storage.db import connect
+
+    cfg = load_config()
+    if args.subcmd == "seed":
+        from news_briefing.storage.themes import load_seed
+
+        seed_path = PROJECT_ROOT / "data" / "themes_seed.json"
+        if not seed_path.exists():
+            print(f"seed 파일 없음: {seed_path}", file=sys.stderr)
+            return 1
+        conn = connect(cfg.db_path)
+        try:
+            result = load_seed(conn, seed_path)
+        finally:
+            conn.close()
+        print(
+            f"seed 적용 완료: {len(result)} 테마, {sum(result.values())} 기업"
+        )
+        return 0
+    if args.subcmd == "refresh":
+        from news_briefing.analysis.themes import refresh_theme_layers
+        from news_briefing.storage.themes import get_theme
+
+        conn = connect(cfg.db_path)
+        try:
+            theme = get_theme(conn, args.theme_id)
+            if theme is None:
+                print(f"테마 없음: {args.theme_id}", file=sys.stderr)
+                return 1
+            n = refresh_theme_layers(conn, theme)
+            print(f"{theme.name_ko}: {n}개 레이어 갱신")
+        finally:
+            conn.close()
+        return 0
+    print("themes 서브커맨드: seed | refresh <theme_id>", file=sys.stderr)
+    return 2
+
+
+def _cmd_weekly(args: argparse.Namespace) -> int:
+    from news_briefing.delivery.weekly import collect_weekly, write_weekly
+
+    cfg = load_config()
+    reports_dir = cfg.data_dir / "reports"
+    report = collect_weekly(cfg.public_briefings_dir)
+    path = write_weekly(reports_dir=reports_dir, report=report)
+    print(f"주간 리포트 생성: {path}")
+    print(f"  {report.week_id} · {len(report.top_signals)}개 시그널")
     return 0
 
 
@@ -64,6 +119,16 @@ def main(argv: list[str] | None = None) -> int:
 
     p_status = sub.add_parser("status", help="시스템 상태 출력")
     p_status.set_defaults(func=_cmd_status)
+
+    p_themes = sub.add_parser("themes", help="테마·밸류체인 관리")
+    themes_sub = p_themes.add_subparsers(dest="subcmd")
+    themes_sub.add_parser("seed", help="data/themes_seed.json 로부터 DB 로드")
+    p_refresh = themes_sub.add_parser("refresh", help="LLM 으로 테마 밸류체인 재생성")
+    p_refresh.add_argument("theme_id")
+    p_themes.set_defaults(func=_cmd_themes)
+
+    p_weekly = sub.add_parser("weekly", help="주간 리포트 생성 (일요일 저녁)")
+    p_weekly.set_defaults(func=_cmd_weekly)
 
     args = parser.parse_args(argv)
     if not getattr(args, "func", None):

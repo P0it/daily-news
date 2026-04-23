@@ -4,7 +4,8 @@
 .kakao_tokens.json
 
 # Runtime data
-data/
+data/*
+!data/themes_seed.json
 *.db
 *.db-journal
 *.log
