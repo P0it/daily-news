@@ -69,6 +69,28 @@ CREATE TABLE IF NOT EXISTS companies_in_layer (
     PRIMARY KEY (layer_id, ticker)
 );
 CREATE INDEX IF NOT EXISTS idx_companies_ticker ON companies_in_layer(ticker);
+
+CREATE TABLE IF NOT EXISTS embeddings (
+    doc_id        TEXT PRIMARY KEY,
+    source        TEXT NOT NULL,
+    content       TEXT NOT NULL,
+    vector        BLOB NOT NULL,
+    dim           INTEGER NOT NULL,
+    metadata_json TEXT,
+    indexed_at    TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_embeddings_source ON embeddings(source);
+CREATE INDEX IF NOT EXISTS idx_embeddings_indexed_at ON embeddings(indexed_at);
+
+CREATE TABLE IF NOT EXISTS rag_queries (
+    id            INTEGER PRIMARY KEY AUTOINCREMENT,
+    query         TEXT NOT NULL,
+    answer        TEXT,
+    sources_json  TEXT,
+    model         TEXT,
+    created_at    TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_rag_queries_created ON rag_queries(created_at);
 """
 
 
