@@ -14,7 +14,7 @@ import {
   parseTabFromSearch,
 } from '@/lib/tabs'
 import type { Briefing, NewsItem } from '@/lib/types'
-import { CurrentNewsCard } from '@/components/CurrentNewsCard'
+import { CurrentSection } from '@/components/CurrentSection'
 import { HeroCard } from '@/components/HeroCard'
 import { MarketIndices } from '@/components/MarketIndices'
 import { PicksGrid } from '@/components/PicksGrid'
@@ -103,28 +103,22 @@ function HomeInner() {
     )
   }
 
-  // current tab — 모든 카테고리를 시간 역순으로 섞고, scope 필터 적용
+  // current tab — 카테고리별 섹션 렌더 + scope 필터
   const current = briefing.tabs.current
-  const allNews: NewsItem[] = [
-    ...current.politics,
-    ...current.society,
-    ...current.international,
-    ...current.tech,
-  ]
-    .filter((n) => {
+  const filterScope = (arr: NewsItem[]) =>
+    arr.filter((n) => {
       if (scope === 'all') return true
       if (scope === 'domestic') return n.scope === 'domestic'
       return n.scope === 'foreign'
     })
-    .sort((a, b) => {
-      // "전체" 모드는 최신순으로 섞음. 같은 시간이면 source 기준 tie-break.
-      const ta = new Date(a.time).getTime()
-      const tb = new Date(b.time).getTime()
-      if (tb !== ta) return tb - ta
-      return a.source.localeCompare(b.source)
-    })
-
-  if (allNews.length === 0) {
+  const sections: Array<'politics' | 'society' | 'international' | 'tech'> = [
+    'politics',
+    'society',
+    'international',
+    'tech',
+  ]
+  const hasAny = sections.some((s) => filterScope(current[s]).length > 0)
+  if (!hasAny) {
     return (
       <p
         className="px-5 py-16 text-center"
@@ -134,11 +128,15 @@ function HomeInner() {
       </p>
     )
   }
-
   return (
     <div>
-      {allNews.map((n) => (
-        <CurrentNewsCard key={n.id} news={n} dict={dict} />
+      {sections.map((s) => (
+        <CurrentSection
+          key={s}
+          category={s}
+          news={filterScope(current[s])}
+          dict={dict}
+        />
       ))}
     </div>
   )

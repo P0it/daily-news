@@ -47,6 +47,13 @@ export interface SignalItem {
   glossaryTermId: string | null
 }
 
+export type NewsCategory =
+  | 'stock'
+  | 'politics'
+  | 'society'
+  | 'international'
+  | 'tech'
+
 export interface NewsItem {
   id: string
   source: string
@@ -56,6 +63,7 @@ export interface NewsItem {
   thumbnail: string | null
   time: string
   scope: 'domestic' | 'foreign'
+  category?: NewsCategory
   glossaryTermId: string | null
   curationScore: number
 }
