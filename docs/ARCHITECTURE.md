@@ -357,19 +357,17 @@ interface Briefing {
       international: NewsItem[];
       tech: NewsItem[];
     };
-    economy: {                   // 경제 탭 (중앙, Week 2a 카톡 딥링크 타겟)
+    economy: {                   // 경제 탭 (우측, DECISIONS #13)
       indices: MarketIndex[];    // KOSPI, NASDAQ, USD/KRW
-      signals: SignalItem[];     // 점수 60+ 공시 (DART + SEC EDGAR)
-      news: NewsItem[];          // 경제 뉴스 (한경·매경 등)
-      themeBanner?: {            // Week 4+ 추가, 없으면 미표시
-        trendingThemes: string[]; // ["로봇", "AI 반도체", "2차전지"]
-        reportUrl: string;        // "/report/2026-W17"
+      picks: {                   // Today's Pick — Week 5a 에서 종목 탭 격하 후 이곳으로 이동
+        domestic: SignalItem[];  // 국내 시그널 상위 6건 (DART)
+        foreign: SignalItem[];   // 해외 시그널 상위 6건 (SEC EDGAR)
       };
+      signals: SignalItem[];     // 점수 60+ 공시
+      news: NewsItem[];          // 경제 뉴스
+      themeBanner?: { trendingThemes: string[]; reportUrl: string };
     };
-    picks: {                     // 종목 탭 Today's Pick (우측, DECISIONS #12, Week 2b)
-      domestic: SignalItem[];    // 국내 시그널 상위 6건 (DART)
-      foreign: SignalItem[];     // 해외 시그널 상위 6건 (SEC EDGAR)
-    };
+    ai?: AiTab;                  // Week 5b — AI 모델·툴·디자인 소식
   };
 }
 
