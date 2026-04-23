@@ -18,6 +18,14 @@ SCHEMA_VERSION = 1
 HERO_THRESHOLD = 90
 ECONOMY_SIGNAL_THRESHOLD = 60
 
+
+def _epoch(iso: str) -> float:
+    """ISO 시간 문자열 → epoch. 파싱 실패 시 0."""
+    try:
+        return datetime.fromisoformat(iso.replace("Z", "+00:00")).timestamp()
+    except Exception:
+        return 0.0
+
 # PRD F31 — 시사 탭 섹션별 노출 cap
 CURRENT_SECTION_CAPS = {
     "politics": 5,
@@ -157,7 +165,19 @@ def build_briefing_json(
     if theme_banner and theme_banner.get("trendingThemes"):
         economy_tab["themeBanner"] = theme_banner
 
-    # Week 5b: AI 탭 — 최신순 정렬, 국내/해외 각각 cap
+    # Week 5b: AI 탭 — 소스 품질 가중 + 최신성 정렬
+    # 공식 블로그·GeekNews·YouTube·HN 먼저, Google News 는 뒤 (노이즈 최소화)
+    def _ai_source_priority(src: str) -> int:
+        if src.startswith("rss:yt-"):
+            return 0  # YouTube — 영상 소스, 품질 상위
+        if src == "rss:anthropic" or src == "rss:openai":
+            return 1  # 공식 모델 업데이트 — 최고 신뢰도
+        if src == "rss:geeknews":
+            return 2  # 개발자 커뮤니티 큐레이션
+        if src.startswith("rss:hn-"):
+            return 3  # Hacker News
+        return 9  # Google News aggregator (마지막)
+
     ai_domestic: list[dict] = []
     ai_foreign: list[dict] = []
     for item in ai_news or []:
@@ -165,15 +185,18 @@ def build_briefing_json(
         entry = _news_to_dict(
             item, term_ids_by_id=term_ids_by_id, summaries=news_summaries
         )
+        entry["_priority"] = _ai_source_priority(item.source)  # 정렬 후 제거
         if scope == "domestic":
             ai_domestic.append(entry)
         else:
             ai_foreign.append(entry)
-    # 최신순 정렬
-    ai_domestic.sort(key=lambda x: x.get("time", ""), reverse=True)
-    ai_foreign.sort(key=lambda x: x.get("time", ""), reverse=True)
+    # (품질 우선, 최신순) 으로 정렬
+    ai_domestic.sort(key=lambda x: (x["_priority"], -_epoch(x.get("time", ""))))
+    ai_foreign.sort(key=lambda x: (x["_priority"], -_epoch(x.get("time", ""))))
     ai_domestic = ai_domestic[:AI_SECTION_CAP]
     ai_foreign = ai_foreign[:AI_SECTION_CAP]
+    for entry in ai_domestic + ai_foreign:
+        entry.pop("_priority", None)
 
     result: dict = {
         "date": date.strftime("%Y-%m-%d"),
