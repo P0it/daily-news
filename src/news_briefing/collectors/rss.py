@@ -56,11 +56,11 @@ RSS_FEEDS: list[RssFeedSpec] = [
     RssFeedSpec(
         "rss:hani-society", "https://www.hani.co.kr/rss/society/", "domestic", "society"
     ),
-    # 국제 (F29)
+    # 국제 (F29) — 내용이 해외 이슈인 경우 scope=foreign (DECISIONS #9 "국제" 필터와 일치)
     RssFeedSpec(
         "rss:yonhap-intl",
         "https://www.yna.co.kr/rss/international.xml",
-        "domestic",
+        "foreign",
         "international",
     ),
     RssFeedSpec(
@@ -69,9 +69,7 @@ RSS_FEEDS: list[RssFeedSpec] = [
         "foreign",
         "international",
     ),
-    RssFeedSpec(
-        "rss:reuters-world", "https://www.reuters.com/world/rss", "foreign", "international"
-    ),
+    # Reuters world RSS: 2025+ 봇 차단 (401). 비활성.
     # IT/과학 (F30)
     RssFeedSpec(
         "rss:zdnet-kr",

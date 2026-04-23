@@ -138,14 +138,21 @@ def run_morning(
                             }
 
         # 4. 뉴스 카테고리별 분리 + 시사 큐레이션 + 시사 용어 감지
-        stock_news: list[CollectedItem] = []
+        from news_briefing.collectors.rss import SOURCE_META
+
+        stock_news_domestic: list[CollectedItem] = []
+        stock_news_foreign: list[CollectedItem] = []
         current_candidates: list[tuple[CollectedItem, int]] = []
         for it in new_items:
             if it.kind != "news":
                 continue
             category = (it.extra or {}).get("category", "")
             if category == "stock" or category == "":
-                stock_news.append(it)
+                scope, _ = SOURCE_META.get(it.source, ("domestic", "stock"))
+                if scope == "foreign":
+                    stock_news_foreign.append(it)
+                else:
+                    stock_news_domestic.append(it)
             elif category in ("politics", "society", "international", "tech"):
                 cs = curation_score(
                     source=it.source,
@@ -167,7 +174,21 @@ def run_morning(
                             }
                 current_candidates.append((it, cs))
 
-        fresh_news = stock_news[:15]
+        # 경제 뉴스 15건: 국내 최대 10 + 해외 최대 5, 인터리브. 한쪽 부족하면 반대쪽이 메움
+        from itertools import zip_longest
+
+        dom_slice = stock_news_domestic[:10]
+        for_slice = stock_news_foreign[:5]
+        fresh_news: list[CollectedItem] = []
+        for d, f in zip_longest(dom_slice, for_slice):
+            if d is not None:
+                fresh_news.append(d)
+            if f is not None:
+                fresh_news.append(f)
+        # 15 미만이면 각 카테고리의 초과분으로 메움 (국내 우선)
+        overflow = stock_news_domestic[10:] + stock_news_foreign[5:]
+        fresh_news.extend(overflow[: max(0, 15 - len(fresh_news))])
+        fresh_news = fresh_news[:15]
         for it in fresh_news:
             _ = summarize(
                 conn,
