@@ -28,12 +28,9 @@ export function ScopeFilter({ lang }: { lang: Lang }) {
     >
       {options.map((s) => {
         const active = scope === s
+        // Week 5b: 탭 관계없이 '국내 / 해외' 로 통일 (DECISIONS #13)
         const label =
-          s === 'domestic'
-            ? dict['scope.domestic']
-            : tab === 'current'
-            ? dict['scope.international']
-            : dict['scope.foreign']
+          s === 'domestic' ? dict['scope.domestic'] : dict['scope.foreign']
         return (
           <Link
             key={s}
