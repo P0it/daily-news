@@ -83,6 +83,7 @@ def build_briefing_json(
     glossary: dict[str, dict] | None = None,
     term_ids_by_id: dict[str, str] | None = None,
     picks: PicksResult | None = None,
+    theme_banner: dict | None = None,
 ) -> dict:
     filtered_for_economy = [
         s for s in scored_signals if s[1] >= ECONOMY_SIGNAL_THRESHOLD
@@ -122,6 +123,19 @@ def build_briefing_json(
         cap = CURRENT_SECTION_CAPS.get(cat, 5)
         current_grouped[cat] = arr[:cap]
 
+    economy_tab: dict = {
+        "indices": [],
+        "signals": [
+            _signal_to_dict(it, s, d, term_ids_by_id)
+            for it, s, d in filtered_for_economy
+        ],
+        "news": [
+            _news_to_dict(n, term_ids_by_id=term_ids_by_id) for n in economy_news
+        ],
+    }
+    if theme_banner and theme_banner.get("trendingThemes"):
+        economy_tab["themeBanner"] = theme_banner
+
     return {
         "date": date.strftime("%Y-%m-%d"),
         "generatedAt": datetime.now(UTC).isoformat(),
@@ -129,16 +143,7 @@ def build_briefing_json(
         "hero": hero,
         "tabs": {
             "current": current_grouped,
-            "economy": {
-                "indices": [],
-                "signals": [
-                    _signal_to_dict(it, s, d, term_ids_by_id)
-                    for it, s, d in filtered_for_economy
-                ],
-                "news": [
-                    _news_to_dict(n, term_ids_by_id=term_ids_by_id) for n in economy_news
-                ],
-            },
+            "economy": economy_tab,
             "picks": picks_tab,
         },
         "glossary": glossary or {},

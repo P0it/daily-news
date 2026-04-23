@@ -94,6 +94,31 @@ def test_glossary_map_included() -> None:
     assert data["tabs"]["economy"]["signals"][0]["glossaryTermId"] == "self_stock_buy"
 
 
+def test_theme_banner_included_when_trending_themes_present() -> None:
+    data = build_briefing_json(
+        date=datetime(2026, 4, 23),
+        scored_signals=[],
+        economy_news=[],
+        theme_banner={
+            "trendingThemes": ["로봇", "AI 반도체"],
+            "reportUrl": "/report/2026-W17",
+        },
+    )
+    banner = data["tabs"]["economy"].get("themeBanner")
+    assert banner is not None
+    assert "로봇" in banner["trendingThemes"]
+
+
+def test_theme_banner_omitted_when_empty() -> None:
+    data = build_briefing_json(
+        date=datetime(2026, 4, 23),
+        scored_signals=[],
+        economy_news=[],
+        theme_banner={"trendingThemes": [], "reportUrl": ""},
+    )
+    assert "themeBanner" not in data["tabs"]["economy"]
+
+
 def test_write_briefing_creates_json_and_index(tmp_path: Path) -> None:
     data = build_briefing_json(
         date=datetime(2026, 4, 22), scored_signals=[], economy_news=[]

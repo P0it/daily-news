@@ -11,6 +11,7 @@ from news_briefing.analysis.glossary import detect_term, ensure_glossary_entry
 from news_briefing.analysis.llm import summarize
 from news_briefing.analysis.picks import select_picks
 from news_briefing.analysis.scoring import score_edgar, score_report
+from news_briefing.analysis.trends import detect_trending_themes
 from news_briefing.collectors.base import CollectedItem
 from news_briefing.collectors.dart import fetch_dart_list
 from news_briefing.collectors.edgar import fetch_all_edgar
@@ -184,7 +185,34 @@ def run_morning(
         # 6. Today's Pick 선별 (DECISIONS #12, Week 2b)
         picks = select_picks(scored, n_per_side=6)
 
-        # 7. Briefing JSON
+        # 7a. Trending theme 감지 (Week 4 F12)
+        theme_banner: dict | None = None
+        try:
+            from news_briefing.storage.themes import list_themes
+
+            themes_list = list_themes(conn)
+            theme_keywords = {t.theme_id: [t.name_ko] for t in themes_list}
+            events = [(it.title, now) for it in new_items]
+            trending_ids = (
+                detect_trending_themes(
+                    events, theme_keywords=theme_keywords, now=now
+                )
+                if theme_keywords
+                else []
+            )
+            if trending_ids:
+                name_by_id = {t.theme_id: t.name_ko for t in themes_list}
+                week_id = f"{now.year}-W{now.isocalendar()[1]:02d}"
+                theme_banner = {
+                    "trendingThemes": [
+                        name_by_id.get(tid, tid) for tid in trending_ids
+                    ],
+                    "reportUrl": f"/report/{week_id}",
+                }
+        except Exception as e:
+            log.warning("trending theme 감지 실패: %s", e)
+
+        # 7b. Briefing JSON
         briefing = build_briefing_json(
             date=now,
             scored_signals=scored,
@@ -193,6 +221,7 @@ def run_morning(
             glossary=glossary_map,
             term_ids_by_id=term_ids_by_id,
             picks=picks,
+            theme_banner=theme_banner,
         )
         briefing_json_path = write_briefing(
             public_briefings_dir=cfg.public_briefings_dir, briefing=briefing

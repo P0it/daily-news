@@ -19,6 +19,7 @@ import { HeroCard } from '@/components/HeroCard'
 import { MarketIndices } from '@/components/MarketIndices'
 import { PicksGrid } from '@/components/PicksGrid'
 import { SignalCard } from '@/components/SignalCard'
+import { ThemeBanner } from '@/components/ThemeBanner'
 
 function HomeInner() {
   const sp = useSearchParams()
@@ -87,6 +88,9 @@ function HomeInner() {
 
     return (
       <div>
+        {briefing.tabs.economy.themeBanner && (
+          <ThemeBanner banner={briefing.tabs.economy.themeBanner} />
+        )}
         {briefing.hero && <HeroCard signal={briefing.hero} dict={dict} />}
         <MarketIndices indices={briefing.tabs.economy.indices} dict={dict} />
         {signals.length === 0 ? (
