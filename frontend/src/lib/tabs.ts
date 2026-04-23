@@ -8,7 +8,7 @@ export type Scope = 'domestic' | 'foreign'
 const TABS_SET: ReadonlySet<string> = new Set(['ai', 'current', 'economy'])
 const SCOPES_SET: ReadonlySet<string> = new Set(['domestic', 'foreign'])
 
-const DEFAULT_TAB: Tab = 'current' // Week 5a 임시 default. Week 5b 에서 'ai' 로 전환.
+const DEFAULT_TAB: Tab = 'ai' // Week 5b: AI 탭 default (DECISIONS #13)
 const DEFAULT_SCOPE: Scope = 'domestic'
 
 export function parseTabFromSearch(search: URLSearchParams | string): Tab {

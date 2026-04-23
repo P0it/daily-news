@@ -4,11 +4,16 @@ export interface Briefing {
   version: number
   hero: SignalItem | null
   tabs: {
+    ai?: AiTab // Week 5b — default tab (DECISIONS #13)
     current: CurrentTab
     economy: EconomyTab
-    // Week 5b: ai?: AiTab
   }
   glossary?: Record<string, GlossaryEntry>
+}
+
+export interface AiTab {
+  domestic: NewsItem[]
+  foreign: NewsItem[]
 }
 
 export interface CurrentTab {
@@ -58,6 +63,7 @@ export type NewsCategory =
   | 'society'
   | 'international'
   | 'tech'
+  | 'ai'
 
 export interface NewsItem {
   id: string

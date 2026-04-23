@@ -1,6 +1,7 @@
 import type { Dict } from './ko'
 
 export const en: Dict = {
+  'tab.ai': 'AI',
   'tab.current': 'News',
   'tab.economy': 'Economy',
   'tab.picks': 'Picks',

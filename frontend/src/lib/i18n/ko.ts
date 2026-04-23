@@ -1,4 +1,5 @@
 export interface Dict {
+  'tab.ai': string
   'tab.current': string
   'tab.economy': string
   'tab.picks': string
@@ -33,6 +34,7 @@ export interface Dict {
 }
 
 export const ko: Dict = {
+  'tab.ai': 'AI',
   'tab.current': '시사',
   'tab.economy': '경제',
   'tab.picks': '종목',
