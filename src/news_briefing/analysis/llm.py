@@ -1,6 +1,8 @@
 """LLM 호출 래퍼. Claude Code CLI 주 엔진, Ollama 보조 (DECISIONS #2).
 
 절대 anthropic SDK 직접 호출 금지 (P2).
+`_call_claude` / `_call_ollama` 는 **prompt 를 그대로** 전달한다 (system 덧붙이지 않음).
+호출자(summarize, RAG, themes 등)가 자신의 프롬프트를 온전히 구성해서 넘겨야 한다.
 """
 from __future__ import annotations
 
@@ -8,6 +10,7 @@ import logging
 import shutil
 import sqlite3
 import subprocess
+import tempfile
 
 from news_briefing.storage.cache import cache_get, cache_put
 
@@ -15,11 +18,9 @@ log = logging.getLogger(__name__)
 
 
 def _resolve(cmd: str) -> str:
-    """PATH 에서 실행 파일 전체 경로 찾기. Windows `.cmd`/`.bat` 확장자 지원.
-
-    찾지 못하면 원래 이름을 반환하고, 실행 단계에서 FileNotFoundError 가 난다.
-    """
+    """PATH 에서 실행 파일 전체 경로 찾기. Windows `.cmd`/`.bat` 확장자 지원."""
     return shutil.which(cmd) or cmd
+
 
 SUMMARIZE_TASK = "summarize"
 SUMMARIZE_SYSTEM = (
@@ -31,34 +32,45 @@ SUMMARIZE_SYSTEM = (
 )
 
 
-def _call_claude(input_text: str, timeout: int = 45) -> str:
-    prompt = f"{SUMMARIZE_SYSTEM}\n\n---\n\n{input_text}"
-    result = subprocess.run(
-        [_resolve("claude"), "-p", prompt, "--output-format", "text"],
-        capture_output=True,
-        text=True,
-        timeout=timeout,
-        check=False,
-    )
+def _call_claude(prompt: str, timeout: int = 45) -> str:
+    """Claude CLI 를 호출해 prompt 를 그대로 전달. stdout 반환.
+
+    Claude Code CLI 는 CWD 의 CLAUDE.md 를 자동으로 읽어 system prompt 화 한다.
+    RAG/요약 등 일반 LLM 호출에선 이 context 가 오염이 되므로,
+    **임시 디렉토리에서 실행**해 프로젝트 CLAUDE.md 영향을 차단한다.
+    """
+    with tempfile.TemporaryDirectory(prefix="news_briefing_llm_") as tmpdir:
+        result = subprocess.run(
+            [_resolve("claude"), "-p", prompt, "--output-format", "text"],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+            errors="replace",
+            timeout=timeout,
+            check=False,
+            cwd=tmpdir,
+        )
     if result.returncode != 0:
         raise RuntimeError(
             f"claude cli returncode={result.returncode} stderr={result.stderr}"
         )
-    return result.stdout.strip()
+    return (result.stdout or "").strip()
 
 
-def _call_ollama(input_text: str, model: str, timeout: int = 60) -> str:
-    prompt = f"{SUMMARIZE_SYSTEM}\n\n---\n\n{input_text}"
+def _call_ollama(prompt: str, model: str, timeout: int = 60) -> str:
+    """Ollama 를 호출해 prompt 를 그대로 전달. stdout 반환."""
     result = subprocess.run(
         [_resolve("ollama"), "run", model, prompt],
         capture_output=True,
         text=True,
+        encoding="utf-8",
+        errors="replace",
         timeout=timeout,
         check=False,
     )
     if result.returncode != 0:
         raise RuntimeError(f"ollama returncode={result.returncode}")
-    return result.stdout.strip()
+    return (result.stdout or "").strip()
 
 
 def summarize(
@@ -73,8 +85,10 @@ def summarize(
     if cached is not None:
         return cached
 
+    prompt = f"{SUMMARIZE_SYSTEM}\n\n---\n\n{input_text}"
+
     try:
-        output = _call_claude(input_text)
+        output = _call_claude(prompt)
         cache_put(conn, SUMMARIZE_TASK, input_text, output, "claude-cli")
         return output
     except Exception as e:
@@ -82,8 +96,10 @@ def summarize(
 
     if ollama_enabled:
         try:
-            output = _call_ollama(input_text, ollama_model)
-            cache_put(conn, SUMMARIZE_TASK, input_text, output, f"ollama:{ollama_model}")
+            output = _call_ollama(prompt, ollama_model)
+            cache_put(
+                conn, SUMMARIZE_TASK, input_text, output, f"ollama:{ollama_model}"
+            )
             return output
         except Exception as e:
             log.error("ollama 호출 실패: %s", e)
