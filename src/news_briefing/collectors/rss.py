@@ -19,7 +19,7 @@ from news_briefing.collectors.base import CollectedItem
 
 log = logging.getLogger(__name__)
 
-NewsCategory = Literal["stock", "politics", "society", "international", "tech"]
+NewsCategory = Literal["stock", "politics", "society", "international", "tech", "ai"]
 
 
 @dataclass(frozen=True, slots=True)
@@ -114,6 +114,81 @@ RSS_FEEDS: list[RssFeedSpec] = [
         "https://www.yna.co.kr/rss/international.xml",
         "foreign",
         "international",
+    ),
+
+    # ───── AI 탭 (Week 5b) ─────
+    # GeekNews (한국 개발자 커뮤니티, AI 섹션)
+    RssFeedSpec(
+        "rss:geeknews",
+        "https://feeds.feedburner.com/geeknews-feed",
+        "domestic",
+        "ai",
+    ),
+    # Google News AI 검색 (한국어 — 여러 언론사 aggregate)
+    RssFeedSpec(
+        "rss:gnews-ai-kr",
+        _gnews_search("AI OR 인공지능 OR LLM OR ChatGPT"),
+        "domestic",
+        "ai",
+    ),
+    # Anthropic 공식 블로그 (Claude 모델 업데이트)
+    RssFeedSpec(
+        "rss:anthropic",
+        "https://www.anthropic.com/rss",
+        "foreign",
+        "ai",
+    ),
+    # OpenAI 공식 블로그 (GPT 업데이트)
+    RssFeedSpec(
+        "rss:openai",
+        "https://openai.com/blog/rss.xml",
+        "foreign",
+        "ai",
+    ),
+    # Hacker News — AI 관련 (제목에 AI/LLM 등 키워드 많은 상위)
+    RssFeedSpec(
+        "rss:hn-ai",
+        "https://hnrss.org/newest?q=AI+OR+LLM+OR+GPT+OR+Claude",
+        "foreign",
+        "ai",
+    ),
+    # Google News AI 검색 (영어 — 해외 최신 소식)
+    RssFeedSpec(
+        "rss:gnews-ai-en",
+        _gnews_search("AI OR artificial intelligence OR LLM", hl="en", gl="US"),
+        "foreign",
+        "ai",
+    ),
+    # YouTube 채널 RSS — 기본 5개 (Week 2: 사용자가 나중에 data/ai_feeds.json 으로 커스터마이즈)
+    RssFeedSpec(
+        "rss:yt-fireship",
+        "https://www.youtube.com/feeds/videos.xml?channel_id=UCsBjURrPoezykLs9EqgamOA",
+        "foreign",
+        "ai",
+    ),
+    RssFeedSpec(
+        "rss:yt-ai-explained",
+        "https://www.youtube.com/feeds/videos.xml?channel_id=UCNJ1Ymd5yFuUPtn21xtRbbw",
+        "foreign",
+        "ai",
+    ),
+    RssFeedSpec(
+        "rss:yt-matthew-berman",
+        "https://www.youtube.com/feeds/videos.xml?channel_id=UCawZsQWqfGSbCI5yjkdVkTA",
+        "foreign",
+        "ai",
+    ),
+    RssFeedSpec(
+        "rss:yt-two-minute-papers",
+        "https://www.youtube.com/feeds/videos.xml?channel_id=UCbfYPyITQ-7l4upoX8nvctg",
+        "foreign",
+        "ai",
+    ),
+    RssFeedSpec(
+        "rss:yt-lex-fridman",
+        "https://www.youtube.com/feeds/videos.xml?channel_id=UCSHZKyawb77ixDdsGog4iWA",
+        "foreign",
+        "ai",
     ),
 ]
 
