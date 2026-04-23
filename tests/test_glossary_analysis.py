@@ -46,6 +46,21 @@ def test_term_catalog_has_current_affairs_minimum() -> None:
         assert t in TERM_CATALOG
 
 
+def test_macro_economic_terms_detected() -> None:
+    assert detect_term("한은 기준금리 0.25%p 인하 결정") == "base_rate"
+    assert detect_term("미국 소비자물가 3.2% 상승") == "cpi"
+    assert detect_term("GDP 성장률 1.8% 전망") == "gdp"
+    assert detect_term("FOMC 이후 달러 약세") == "fed_fomc"
+    assert detect_term("환율 1,400원 돌파") == "exchange_rate"
+    assert detect_term("경기침체 우려에 증시 하락") == "recession"
+
+
+def test_term_catalog_has_macro_minimum() -> None:
+    macro_terms = ["base_rate", "cpi", "gdp", "fed_fomc", "exchange_rate", "recession"]
+    for t in macro_terms:
+        assert t in TERM_CATALOG
+
+
 def test_ensure_glossary_uses_seed_when_defined(memory_db: sqlite3.Connection) -> None:
     init_schema(memory_db)
     entry = ensure_glossary_entry(memory_db, "self_stock_buy", lang="ko")
