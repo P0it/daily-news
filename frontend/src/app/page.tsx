@@ -14,6 +14,7 @@ import {
   parseTabFromSearch,
 } from '@/lib/tabs'
 import type { Briefing, NewsItem } from '@/lib/types'
+import { AiSection } from '@/components/AiSection'
 import { CurrentSection } from '@/components/CurrentSection'
 import { HeroCard } from '@/components/HeroCard'
 import { MarketIndices } from '@/components/MarketIndices'
@@ -74,6 +75,12 @@ function HomeInner() {
         {dict.loading}
       </p>
     )
+  }
+
+  // ───── AI 탭 (Week 5b: default — DECISIONS #13) ─────
+  if (tab === 'ai') {
+    const aiTab = briefing.tabs.ai ?? { domestic: [], foreign: [] }
+    return <AiSection tab={aiTab} scope={scope} dict={dict} />
   }
 
   // ───── 경제 탭 (Week 5a: picks 내부 통합 + 국내/해외 단일 scope) ─────
