@@ -29,7 +29,8 @@ def _cmd_morning(args: argparse.Namespace) -> int:
     cfg = load_config()
     result = run_morning(cfg, dry_run=args.dry_run)
     print(
-        f"\n완료: 신규 {result.new_items}건, 시그널 {result.signal_count}, "
+        f"\n완료: 신규 {result.new_items}건, "
+        f"AI {result.ai_count}, 시그널 {result.signal_count}, "
         f"뉴스 {result.news_count}, 시사 {result.current_count}, "
         f"Pick 국내 {result.picks_domestic}/해외 {result.picks_foreign}, "
         f"전송={'OK' if result.sent_kakao else 'SKIP'}"

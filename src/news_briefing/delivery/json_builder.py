@@ -26,6 +26,9 @@ CURRENT_SECTION_CAPS = {
     "tech": 2,
 }
 
+# Week 5b AI 탭 cap (국내/해외 각각)
+AI_SECTION_CAP = 20
+
 
 def _signal_to_dict(
     item: CollectedItem,
@@ -86,6 +89,7 @@ def build_briefing_json(
     scored_signals: list[tuple[CollectedItem, int, str]],
     economy_news: list[CollectedItem],
     current_news: list[tuple[CollectedItem, int]] | None = None,
+    ai_news: list[CollectedItem] | None = None,
     glossary: dict[str, dict] | None = None,
     term_ids_by_id: dict[str, str] | None = None,
     picks: PicksResult | None = None,
@@ -153,7 +157,25 @@ def build_briefing_json(
     if theme_banner and theme_banner.get("trendingThemes"):
         economy_tab["themeBanner"] = theme_banner
 
-    return {
+    # Week 5b: AI 탭 — 최신순 정렬, 국내/해외 각각 cap
+    ai_domestic: list[dict] = []
+    ai_foreign: list[dict] = []
+    for item in ai_news or []:
+        scope, _ = SOURCE_META.get(item.source, ("foreign", "ai"))
+        entry = _news_to_dict(
+            item, term_ids_by_id=term_ids_by_id, summaries=news_summaries
+        )
+        if scope == "domestic":
+            ai_domestic.append(entry)
+        else:
+            ai_foreign.append(entry)
+    # 최신순 정렬
+    ai_domestic.sort(key=lambda x: x.get("time", ""), reverse=True)
+    ai_foreign.sort(key=lambda x: x.get("time", ""), reverse=True)
+    ai_domestic = ai_domestic[:AI_SECTION_CAP]
+    ai_foreign = ai_foreign[:AI_SECTION_CAP]
+
+    result: dict = {
         "date": date.strftime("%Y-%m-%d"),
         "generatedAt": datetime.now(UTC).isoformat(),
         "version": SCHEMA_VERSION,
@@ -161,9 +183,11 @@ def build_briefing_json(
         "tabs": {
             "current": current_grouped,
             "economy": economy_tab,
+            "ai": {"domestic": ai_domestic, "foreign": ai_foreign},
         },
         "glossary": glossary or {},
     }
+    return result
 
 
 def write_briefing(*, public_briefings_dir: Path, briefing: dict) -> Path:

@@ -41,6 +41,7 @@ class MorningResult:
     signal_count: int
     news_count: int
     current_count: int  # 시사 뉴스 수집 건수 (Week 3)
+    ai_count: int       # AI 뉴스 수집 건수 (Week 5b)
     picks_domestic: int
     picks_foreign: int
     digest_path: Path
@@ -143,11 +144,14 @@ def run_morning(
         stock_news_domestic: list[CollectedItem] = []
         stock_news_foreign: list[CollectedItem] = []
         current_candidates: list[tuple[CollectedItem, int]] = []
+        ai_news: list[CollectedItem] = []
         for it in new_items:
             if it.kind != "news":
                 continue
             category = (it.extra or {}).get("category", "")
-            if category == "stock" or category == "":
+            if category == "ai":
+                ai_news.append(it)
+            elif category == "stock" or category == "":
                 scope, _ = SOURCE_META.get(it.source, ("domestic", "stock"))
                 if scope == "foreign":
                     stock_news_foreign.append(it)
@@ -243,6 +247,7 @@ def run_morning(
             scored_signals=scored,
             economy_news=fresh_news,
             current_news=current_candidates,
+            ai_news=ai_news,
             glossary=glossary_map,
             term_ids_by_id=term_ids_by_id,
             picks=picks,
@@ -271,10 +276,11 @@ def run_morning(
         if not dry_run:
             title = (
                 f"데일리 브리핑 · {now.strftime('%m월 %d일')}\n"
-                f"공시 {sig_above}건 · 뉴스 {len(fresh_news)}건"
+                f"AI {len(ai_news)}건 · 공시 {sig_above}건 · 뉴스 {len(fresh_news)}건"
             )
+            # Week 5b: 카톡 딥링크 default 를 AI 탭으로 (DECISIONS #13)
             link_url = (
-                f"{cfg.vercel_base_url}/?date={now.strftime('%Y-%m-%d')}&tab=economy"
+                f"{cfg.vercel_base_url}/?date={now.strftime('%Y-%m-%d')}&tab=ai"
             )
             sent = _send_kakao(cfg, title, link_url)
         else:
@@ -285,6 +291,7 @@ def run_morning(
             signal_count=sig_above,
             news_count=len(fresh_news),
             current_count=len(current_candidates),
+            ai_count=len(ai_news),
             picks_domestic=len(picks.domestic),
             picks_foreign=len(picks.foreign),
             digest_path=digest_path,

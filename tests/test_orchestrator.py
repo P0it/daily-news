@@ -95,9 +95,8 @@ def test_run_morning_writes_briefing_json_with_glossary(
     assert data["tabs"]["economy"]["signals"][0]["glossaryTermId"] == "self_stock_buy"
 
 
-def test_kakao_link_includes_tab_economy_and_date(
-    tmp_path: Path, mocker
-) -> None:
+def test_kakao_link_includes_tab_ai_and_date(tmp_path: Path, mocker) -> None:
+    """Week 5b (DECISIONS #13): default 탭이 AI 로 전환됨."""
     cfg = _cfg(tmp_path)
     mocker.patch("news_briefing.orchestrator.fetch_all_rss", return_value=[])
     mocker.patch("news_briefing.orchestrator.summarize", return_value="")
@@ -109,5 +108,5 @@ def test_kakao_link_includes_tab_economy_and_date(
     title_arg = mock_send.call_args.args[1]
     link_arg = mock_send.call_args.args[2]
     assert "데일리 브리핑" in title_arg
-    assert "tab=economy" in link_arg
+    assert "tab=ai" in link_arg
     assert "date=2026-04-22" in link_arg
