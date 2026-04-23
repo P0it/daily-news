@@ -5,6 +5,7 @@ import logging
 from dataclasses import dataclass
 from datetime import datetime
 from time import mktime
+from typing import Literal
 
 import feedparser
 import requests
@@ -13,23 +14,84 @@ from news_briefing.collectors.base import CollectedItem
 
 log = logging.getLogger(__name__)
 
+NewsCategory = Literal["stock", "politics", "society", "international", "tech"]
+
 
 @dataclass(frozen=True, slots=True)
 class RssFeedSpec:
-    source: str  # 'rss:hankyung'
+    source: str                  # 'rss:hankyung'
     url: str
-    scope: str   # 'domestic' | 'foreign'
+    scope: str                   # 'domestic' | 'foreign'
+    category: NewsCategory       # 'stock' | 'politics' | 'society' | 'international' | 'tech'
 
 
 RSS_FEEDS: list[RssFeedSpec] = [
-    RssFeedSpec("rss:hankyung", "https://www.hankyung.com/feed/economy", "domestic"),
-    RssFeedSpec("rss:mk", "https://www.mk.co.kr/rss/30000001/", "domestic"),
-    RssFeedSpec("rss:bbc-business", "https://feeds.bbci.co.uk/news/business/rss.xml", "foreign"),
-    RssFeedSpec("rss:ft-markets", "https://www.ft.com/markets?format=rss", "foreign"),
+    # 경제·주식 (F2, F3)
+    RssFeedSpec("rss:hankyung", "https://www.hankyung.com/feed/economy", "domestic", "stock"),
+    RssFeedSpec("rss:mk", "https://www.mk.co.kr/rss/30000001/", "domestic", "stock"),
+    RssFeedSpec(
+        "rss:bbc-business",
+        "https://feeds.bbci.co.uk/news/business/rss.xml",
+        "foreign",
+        "stock",
+    ),
+    RssFeedSpec("rss:ft-markets", "https://www.ft.com/markets?format=rss", "foreign", "stock"),
+    # 정치 (F27)
+    RssFeedSpec(
+        "rss:yonhap-politics",
+        "https://www.yna.co.kr/rss/politics.xml",
+        "domestic",
+        "politics",
+    ),
+    RssFeedSpec(
+        "rss:hani-politics", "https://www.hani.co.kr/rss/politics/", "domestic", "politics"
+    ),
+    # 사회 (F28)
+    RssFeedSpec(
+        "rss:yonhap-society",
+        "https://www.yna.co.kr/rss/society.xml",
+        "domestic",
+        "society",
+    ),
+    RssFeedSpec(
+        "rss:hani-society", "https://www.hani.co.kr/rss/society/", "domestic", "society"
+    ),
+    # 국제 (F29)
+    RssFeedSpec(
+        "rss:yonhap-intl",
+        "https://www.yna.co.kr/rss/international.xml",
+        "domestic",
+        "international",
+    ),
+    RssFeedSpec(
+        "rss:bbc-world",
+        "https://feeds.bbci.co.uk/news/world/rss.xml",
+        "foreign",
+        "international",
+    ),
+    RssFeedSpec(
+        "rss:reuters-world", "https://www.reuters.com/world/rss", "foreign", "international"
+    ),
+    # IT/과학 (F30)
+    RssFeedSpec(
+        "rss:zdnet-kr",
+        "https://feeds.feedburner.com/zdkorea/AllZDKoreaStoriesFeed",
+        "domestic",
+        "tech",
+    ),
+    RssFeedSpec("rss:etnews", "https://rss.etnews.com/20.xml", "domestic", "tech"),
 ]
 
 
-def parse_rss_feed(content: str, source_id: str) -> list[CollectedItem]:
+# source_id → (scope, category) 조회용 (json_builder 등에서 사용)
+SOURCE_META: dict[str, tuple[str, NewsCategory]] = {
+    spec.source: (spec.scope, spec.category) for spec in RSS_FEEDS
+}
+
+
+def parse_rss_feed(
+    content: str, source_id: str, category: NewsCategory | None = None
+) -> list[CollectedItem]:
     parsed = feedparser.parse(content)
     items: list[CollectedItem] = []
     for entry in parsed.entries:
@@ -42,6 +104,9 @@ def parse_rss_feed(content: str, source_id: str) -> list[CollectedItem]:
                 published = datetime.fromtimestamp(mktime(entry.published_parsed))
             except Exception:
                 pass
+        extra: dict = {}
+        if category:
+            extra["category"] = category
         items.append(
             CollectedItem(
                 source=source_id,
@@ -51,6 +116,7 @@ def parse_rss_feed(content: str, source_id: str) -> list[CollectedItem]:
                 url=entry.get("link", ""),
                 published_at=published,
                 body=entry.get("summary", "").strip(),
+                extra=extra,
             )
         )
     return items
@@ -60,7 +126,7 @@ def fetch_rss_feed(spec: RssFeedSpec, *, timeout: int = 15) -> list[CollectedIte
     try:
         resp = requests.get(spec.url, timeout=timeout)
         resp.raise_for_status()
-        return parse_rss_feed(resp.text, spec.source)
+        return parse_rss_feed(resp.text, spec.source, spec.category)
     except Exception as e:
         log.warning("RSS 수집 실패 %s: %s", spec.source, e)
         return []

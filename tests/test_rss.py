@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from news_briefing.collectors.rss import RSS_FEEDS, parse_rss_feed
+from news_briefing.collectors.rss import RSS_FEEDS, SOURCE_META, parse_rss_feed
 
 
 def test_rss_feeds_catalog_has_stock_and_foreign_sources() -> None:
@@ -11,6 +11,25 @@ def test_rss_feeds_catalog_has_stock_and_foreign_sources() -> None:
     assert "rss:mk" in sources
     # 해외는 Week 1 시점에 죽어있을 수 있으므로 URL 존재만 체크
     assert any("bbc" in f.source for f in RSS_FEEDS)
+
+
+def test_rss_feeds_catalog_has_all_categories() -> None:
+    cats = {f.category for f in RSS_FEEDS}
+    assert cats == {"stock", "politics", "society", "international", "tech"}
+
+
+def test_source_meta_contains_all_feeds() -> None:
+    for spec in RSS_FEEDS:
+        assert spec.source in SOURCE_META
+        scope, cat = SOURCE_META[spec.source]
+        assert scope == spec.scope
+        assert cat == spec.category
+
+
+def test_parse_preserves_category(fixtures_dir) -> None:
+    content = (fixtures_dir / "hankyung.xml").read_text(encoding="utf-8")
+    items = parse_rss_feed(content, source_id="rss:hani-politics", category="politics")
+    assert items[0].extra.get("category") == "politics"
 
 
 def test_parse_rss_feed_from_fixture(fixtures_dir: Path) -> None:
