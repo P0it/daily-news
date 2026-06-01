@@ -120,7 +120,7 @@ function HomeInner() {
         <HeroCard signal={briefing.hero} dict={dict} />
       )}
 
-      {economy.hotIssues && economy.hotIssues.length > 0 && (
+      {scope === 'foreign' && economy.hotIssues && economy.hotIssues.length > 0 && (
         <HotIssuesCard issues={economy.hotIssues} />
       )}
 
