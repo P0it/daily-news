@@ -52,11 +52,23 @@ def embed_hash(text: str) -> np.ndarray:
     return vec / n if n > 0 else vec
 
 
+_ollama_available: bool | None = None  # None = 미확인
+
+
 def embed(text: str, *, model: str) -> np.ndarray:
     """Ollama 시도 후 실패 시 hash fallback. 빈 문자열은 zero vector."""
+    global _ollama_available
     if not text.strip():
         return np.zeros(_HASH_DIM, dtype=np.float32)
-    v = embed_ollama(text, model=model)
-    if v is not None:
-        return v
+
+    # 한 번 실패한 이후엔 Ollama를 시도하지 않는다 — 반복 경고 방지
+    if _ollama_available is not False:
+        v = embed_ollama(text, model=model)
+        if v is not None:
+            _ollama_available = True
+            return v
+        if _ollama_available is None:
+            log.warning("ollama embed 실패 — hash fallback으로 전환 (이후 경고 생략)")
+        _ollama_available = False
+
     return embed_hash(text)

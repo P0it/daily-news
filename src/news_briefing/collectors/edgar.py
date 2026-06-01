@@ -90,10 +90,12 @@ def _fetch_atom(
         log.warning("EDGAR User-Agent 없음, 수집 스킵 (.env 의 EDGAR_USER_AGENT)")
         return []
     try:
+        # action=getcurrent: 특정 유형의 최신 공시 전체를 반환
+        # action=getcompany: 특정 회사 검색용 (company 파라미터 없으면 빈 결과)
         resp = requests.get(
             EDGAR_BROWSE_URL,
             params={
-                "action": "getcompany",
+                "action": "getcurrent",
                 "type": form_type,
                 "dateb": "",
                 "owner": "include",
