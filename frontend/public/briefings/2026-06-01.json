@@ -1,0 +1,928 @@
+{
+  "date": "2026-06-01",
+  "generatedAt": "2026-06-01T04:48:36.519153+00:00",
+  "version": 1,
+  "hero": null,
+  "tabs": {
+    "current": {
+      "politics": [
+        {
+          "id": "CBMib0FVX3lxTE5yaHdEVFNSdENvOHNzRzBxdnFoNUZSWXM5cUlqWDdRSWZNdUUzRGNjTWduTXROZlV5WFM5UlczMlZVTWVZQlpPY19PWk1yQ0JzSkJ0VGNlS2M2QU1iZmtSck5jV0o2bTN3UDdXQldnMA",
+          "source": "rss:gnews-politics-kr",
+          "publisher": "제주도민일보",
+          "title": "김광수 “색깔론 운운?…고의숙 후보, 검증 앞두고 ‘정치공세’ 탓 돌리기 안 된다”",
+          "titleOriginal": null,
+          "summary": "김광수 “색깔론 운운?…고의숙 후보, 검증 앞두고 ‘정치공세’ 탓 돌리기 안 된다” 제주도민일보",
+          "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE5yaHdEVFNSdENvOHNzRzBxdnFoNUZSWXM5cUlqWDdRSWZNdUUzRGNjTWduTXROZlV5WFM5UlczMlZVTWVZQlpPY19PWk1yQ0JzSkJ0VGNlS2M2QU1iZmtSck5jV0o2bTN3UDdXQldnMA?oc=5",
+          "thumbnail": null,
+          "time": "2026-06-01T04:02:33",
+          "scope": "domestic",
+          "category": "politics",
+          "glossaryTermId": null,
+          "curationScore": 35
+        },
+        {
+          "id": "CBMib0FVX3lxTFBjVHZYUy1fOVRLYlVKVG9NODItV0pydVB6MUFqN1A0MDNERkFEXzlNQ1B1YmlLQjdkbkNhM1hJdlNNc3ZEV29BeFdXbTJ4NC1LOXM4Z3ZtTmxpVnRQS0p4bHhEN3ZBYVJUX25ZNDhycw",
+          "source": "rss:gnews-politics-kr",
+          "publisher": "조세일보",
+          "title": "종합특검, 이번 주 '윤 정부 핵심인물' 줄줄이 소환조사",
+          "titleOriginal": null,
+          "summary": "종합특검, 이번 주 '윤 정부 핵심인물' 줄줄이 소환조사 조세일보",
+          "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTFBjVHZYUy1fOVRLYlVKVG9NODItV0pydVB6MUFqN1A0MDNERkFEXzlNQ1B1YmlLQjdkbkNhM1hJdlNNc3ZEV29BeFdXbTJ4NC1LOXM4Z3ZtTmxpVnRQS0p4bHhEN3ZBYVJUX25ZNDhycw?oc=5",
+          "thumbnail": null,
+          "time": "2026-06-01T02:31:15",
+          "scope": "domestic",
+          "category": "politics",
+          "glossaryTermId": null,
+          "curationScore": 28
+        },
+        {
+          "id": "CBMiVkFVX3lxTFBySUQzN18tTXRKZXU4azZ1dm5SbFZ4T1RDU2VYc05XZ1BWbG55UFc0SktENTRqbW5WWmNPNTZHTmFpWU04eDFkR0tFRmh4WUFoLXZMVzBn",
+          "source": "rss:gnews-politics-kr",
+          "publisher": "중앙일보",
+          "title": "레바논 국회의장 “헤즈볼라는 휴전 용의..이군 공격중지 보장 요구”",
+          "titleOriginal": null,
+          "summary": "레바논 국회의장 “헤즈볼라는 휴전 용의..이군 공격중지 보장 요구” 중앙일보",
+          "url": "https://news.google.com/rss/articles/CBMiVkFVX3lxTFBySUQzN18tTXRKZXU4azZ1dm5SbFZ4T1RDU2VYc05XZ1BWbG55UFc0SktENTRqbW5WWmNPNTZHTmFpWU04eDFkR0tFRmh4WUFoLXZMVzBn?oc=5",
+          "thumbnail": null,
+          "time": "2026-05-31T23:34:21",
+          "scope": "domestic",
+          "category": "politics",
+          "glossaryTermId": null,
+          "curationScore": 22
+        },
+        {
+          "id": "CBMiW0FVX3lxTFB2Q2tBV1RBUXNTQVBKRU01MmFnV3FHWXJzbWdOS3U2RnZId2hfemdXb1ZZR1NFaDlXN21pc2VsWkd5ZWhfSFc4aVJpZ0pxMHY3ZEVOU28tbWlCXzDSAWBBVV95cUxQNnNuTndUUDZORUR6SVFFZEFtaW1LVWxCTlI5bnRxYWF4YTVKdGUtZFJzN1k4U1hQODEwREw0clVUQU5GaHJmWTJ6SVJ5TXAxS1VaNHFKNGc0MXFocmtXZ1c",
+          "source": "rss:gnews-politics-kr",
+          "publisher": "연합뉴스",
+          "title": "[오늘의 국회일정](1일·월)",
+          "titleOriginal": null,
+          "summary": "[오늘의 국회일정](1일·월) 연합뉴스",
+          "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTFB2Q2tBV1RBUXNTQVBKRU01MmFnV3FHWXJzbWdOS3U2RnZId2hfemdXb1ZZR1NFaDlXN21pc2VsWkd5ZWhfSFc4aVJpZ0pxMHY3ZEVOU28tbWlCXzDSAWBBVV95cUxQNnNuTndUUDZORUR6SVFFZEFtaW1LVWxCTlI5bnRxYWF4YTVKdGUtZFJzN1k4U1hQODEwREw0clVUQU5GaHJmWTJ6SVJ5TXAxS1VaNHFKNGc0MXFocmtXZ1c?oc=5",
+          "thumbnail": null,
+          "time": "2026-05-31T22:00:01",
+          "scope": "domestic",
+          "category": "politics",
+          "glossaryTermId": null,
+          "curationScore": 20
+        }
+      ],
+      "society": [
+        {
+          "id": "CBMiZEFVX3lxTFBzUDY5clkyUjNZaElPMEdFRVY1ZDZuWHRUQjRrd00yUldvbUpVX1JuS2MzaWVXUFd5UTB5QzAwRmJlM1VaR1l6VHptdEo1Z0w2dlc3T2lKRVRQTXVScHh0SXAwQVY",
+          "source": "rss:gnews-society-kr",
+          "publisher": "한국세정신문",
+          "title": "회계사회, 9일 '지속가능성보고서 인증제도 도입방안' 포럼 개최",
+          "titleOriginal": null,
+          "summary": "회계사회, 9일 '지속가능성보고서 인증제도 도입방안' 포럼 개최 한국세정신문",
+          "url": "https://news.google.com/rss/articles/CBMiZEFVX3lxTFBzUDY5clkyUjNZaElPMEdFRVY1ZDZuWHRUQjRrd00yUldvbUpVX1JuS2MzaWVXUFd5UTB5QzAwRmJlM1VaR1l6VHptdEo1Z0w2dlc3T2lKRVRQTXVScHh0SXAwQVY?oc=5",
+          "thumbnail": null,
+          "time": "2026-06-01T04:40:23",
+          "scope": "domestic",
+          "category": "society",
+          "glossaryTermId": null,
+          "curationScore": 37
+        },
+        {
+          "id": "CBMickFVX3lxTE11X0dPeEJEWEVobk5lb1Z6RlY1ZXpmZmg3V2NjNk9vWGFfbzdpZ01zc3o0eTBTOGFQMllOYXduOXBBMjA3YmNRbmlsQlA0X0ZpdWxlaFJ2SEVGMTJDQXFISGdXSnhHTzRHSDkwYkxfTS0xUQ",
+          "source": "rss:gnews-society-kr",
+          "publisher": "한국여성민우회",
+          "title": "[공약분석] 초고령사회 진입 후 첫 지방선거, 광역단체장 5대 공약 270개 중 (노인) 돌봄 언급은 고작 4.4% (5/27 보도자료)",
+          "titleOriginal": null,
+          "summary": "[공약분석] 초고령사회 진입 후 첫 지방선거, 광역단체장 5대 공약 270개 중 (노인) 돌봄 언급은 고작 4.4% (5/27 보도자료) 한국여성민우회",
+          "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE11X0dPeEJEWEVobk5lb1Z6RlY1ZXpmZmg3V2NjNk9vWGFfbzdpZ01zc3o0eTBTOGFQMllOYXduOXBBMjA3YmNRbmlsQlA0X0ZpdWxlaFJ2SEVGMTJDQXFISGdXSnhHTzRHSDkwYkxfTS0xUQ?oc=5",
+          "thumbnail": null,
+          "time": "2026-06-01T04:42:07",
+          "scope": "domestic",
+          "category": "society",
+          "glossaryTermId": null,
+          "curationScore": 37
+        },
+        {
+          "id": "CBMiaEFVX3lxTE43OHgzcjBXOHpRNzJ0dGljdUNlNHRGcFJaa2RFNVZwYlFSRjBEUDNPb2oxV244TTJEVE4zd1NnUl9NQ0FwSkE3dEM1cXFjc20telFYZ1c4Y0xIVFQ2My1wa2VUazFIUWRF",
+          "source": "rss:gnews-society-kr",
+          "publisher": "경인매일",
+          "title": "여주시 강천면 지역사회보장협의체, ‘사랑의 반찬 나눔’ 실시",
+          "titleOriginal": null,
+          "summary": "여주시 강천면 지역사회보장협의체, ‘사랑의 반찬 나눔’ 실시 경인매일",
+          "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE43OHgzcjBXOHpRNzJ0dGljdUNlNHRGcFJaa2RFNVZwYlFSRjBEUDNPb2oxV244TTJEVE4zd1NnUl9NQ0FwSkE3dEM1cXFjc20telFYZ1c4Y0xIVFQ2My1wa2VUazFIUWRF?oc=5",
+          "thumbnail": null,
+          "time": "2026-06-01T04:32:41",
+          "scope": "domestic",
+          "category": "society",
+          "glossaryTermId": null,
+          "curationScore": 37
+        }
+      ],
+      "international": [
+        {
+          "id": "CBMiogFBVV95cUxQRl9LWW1nNUJiV3RDcVpQQmpabzBEdVE2TFFlMENfVExmUHI1aUl4VEJVYlpzbnNOVmNLQUl1SGdGLVZTMlg0MnpDWTR4UmtwMzN6eFNBelJVODdyaGMtWDlUSk9kbHpNU2p2dkhhT0c1ajdSeGlQQ3h6SmF1cnYtYU5zSXN3cm5mMG13Tml3RmszWWZ6bVZxMmhickRhVDR5emc",
+          "source": "rss:gnews-world-en",
+          "publisher": "Windows Blog",
+          "title": "Introducing Surface Laptop Ultra: Made for world makers",
+          "titleOriginal": null,
+          "summary": "Introducing Surface Laptop Ultra: Made for world makers Windows Blog",
+          "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxQRl9LWW1nNUJiV3RDcVpQQmpabzBEdVE2TFFlMENfVExmUHI1aUl4VEJVYlpzbnNOVmNLQUl1SGdGLVZTMlg0MnpDWTR4UmtwMzN6eFNBelJVODdyaGMtWDlUSk9kbHpNU2p2dkhhT0c1ajdSeGlQQ3h6SmF1cnYtYU5zSXN3cm5mMG13Tml3RmszWWZ6bVZxMmhickRhVDR5emc?oc=5",
+          "thumbnail": null,
+          "time": "2026-06-01T04:36:33",
+          "scope": "foreign",
+          "category": "international",
+          "glossaryTermId": null,
+          "curationScore": 37
+        },
+        {
+          "id": "CBMiekFVX3lxTFBOYkNFck5XMGdrc3Z5Y1E0STJ5TnlDb3ZxM3lfeDJsVWctS2JpU1NFRDlpbWFsWVVjVXl1aVZyQktES29GcGdsLUtRanIteGVGeUtKSWpCcnhRU2VvTmxwLUFzQ3llNDVjZ19YemxPaGJxNnZZWlhZMW1R",
+          "source": "rss:gnews-intl-kr",
+          "publisher": "해양한국",
+          "title": "해외기행/ 배 타고 떠나는 후쿠오카 여행",
+          "titleOriginal": null,
+          "summary": "해외기행/ 배 타고 떠나는 후쿠오카 여행 해양한국",
+          "url": "https://news.google.com/rss/articles/CBMiekFVX3lxTFBOYkNFck5XMGdrc3Z5Y1E0STJ5TnlDb3ZxM3lfeDJsVWctS2JpU1NFRDlpbWFsWVVjVXl1aVZyQktES29GcGdsLUtRanIteGVGeUtKSWpCcnhRU2VvTmxwLUFzQ3llNDVjZ19YemxPaGJxNnZZWlhZMW1R?oc=5",
+          "thumbnail": null,
+          "time": "2026-06-01T04:29:16",
+          "scope": "foreign",
+          "category": "international",
+          "glossaryTermId": null,
+          "curationScore": 36
+        },
+        {
+          "id": "CBMiVEFVX3lxTE9BVUxIakFMbHFYR3VWQzJUaDgtYnY0blJ4QU50X3dVQzVkZGxfaEpQbUYxWWlRbzNZUVZYdEhaWEFsYU9aRWNWM1pKdWdlTm9WU0JoMg",
+          "source": "rss:gnews-intl-kr",
+          "publisher": "이투데이",
+          "title": "해외 코인 거래 관리망 확대…6월 신고에 연말 보고까지",
+          "titleOriginal": null,
+          "summary": "해외 코인 거래 관리망 확대…6월 신고에 연말 보고까지 이투데이",
+          "url": "https://news.google.com/rss/articles/CBMiVEFVX3lxTE9BVUxIakFMbHFYR3VWQzJUaDgtYnY0blJ4QU50X3dVQzVkZGxfaEpQbUYxWWlRbzNZUVZYdEhaWEFsYU9aRWNWM1pKdWdlTm9WU0JoMg?oc=5",
+          "thumbnail": null,
+          "time": "2026-06-01T04:24:00",
+          "scope": "foreign",
+          "category": "international",
+          "glossaryTermId": null,
+          "curationScore": 36
+        }
+      ],
+      "tech": [
+        {
+          "id": "CBMipwFBVV95cUxPZThzZ2c4NlhucnNha3BRUFV4b0xiaGtsM2ZUbW5KNTlpU0V0bG5iSmlSQ1hsNWRoNDc2VHlqZk83MFQ1ZkV2RFZUWUw3S3lxRzhlZXAtUjY2cnFFWGZhS1N6d19vV29xLXYyOFduV1N1S3dHMkNNbVJLdElPNUtvX1ZKLW44R3NqWVhGeTA1NzZ1UUVHdk54eFRCTmR6Vl9HYldUVmM5bw",
+          "source": "rss:gnews-tech-en",
+          "publisher": "chemengonline.com",
+          "title": "Methane-to-bioplastics technology takes advantage of wastewater off-gases",
+          "titleOriginal": null,
+          "summary": "Methane-to-bioplastics technology takes advantage of wastewater off-gases chemengonline.com",
+          "url": "https://news.google.com/rss/articles/CBMipwFBVV95cUxPZThzZ2c4NlhucnNha3BRUFV4b0xiaGtsM2ZUbW5KNTlpU0V0bG5iSmlSQ1hsNWRoNDc2VHlqZk83MFQ1ZkV2RFZUWUw3S3lxRzhlZXAtUjY2cnFFWGZhS1N6d19vV29xLXYyOFduV1N1S3dHMkNNbVJLdElPNUtvX1ZKLW44R3NqWVhGeTA1NzZ1UUVHdk54eFRCTmR6Vl9HYldUVmM5bw?oc=5",
+          "thumbnail": null,
+          "time": "2026-06-01T04:00:00",
+          "scope": "foreign",
+          "category": "tech",
+          "glossaryTermId": null,
+          "curationScore": 34
+        }
+      ]
+    },
+    "economy": {
+      "indices": [
+        {
+          "symbol": "S&P 500",
+          "ticker": "^GSPC",
+          "close": 7580.06,
+          "change": 16.4302,
+          "changePct": 0.22,
+          "currency": "USD",
+          "group": "us_equity"
+        },
+        {
+          "symbol": "NASDAQ",
+          "ticker": "^IXIC",
+          "close": 26972.62,
+          "change": 55.1484,
+          "changePct": 0.2,
+          "currency": "USD",
+          "group": "us_equity"
+        },
+        {
+          "symbol": "DOW",
+          "ticker": "^DJI",
+          "close": 51032.46,
+          "change": 363.4922,
+          "changePct": 0.72,
+          "currency": "USD",
+          "group": "us_equity"
+        },
+        {
+          "symbol": "KOSPI",
+          "ticker": "^KS11",
+          "close": 8846.17,
+          "change": 370.0195,
+          "changePct": 4.37,
+          "currency": "KRW",
+          "group": "kr_equity"
+        },
+        {
+          "symbol": "KOSDAQ",
+          "ticker": "^KQ11",
+          "close": 1047.17,
+          "change": -27.63,
+          "changePct": -2.57,
+          "currency": "KRW",
+          "group": "kr_equity"
+        },
+        {
+          "symbol": "USD/KRW",
+          "ticker": "KRW=X",
+          "close": 1514.38,
+          "change": 19.09,
+          "changePct": 1.28,
+          "currency": "KRW",
+          "group": "fx"
+        },
+        {
+          "symbol": "WTI 원유",
+          "ticker": "CL=F",
+          "close": 89.64,
+          "change": 2.28,
+          "changePct": 2.61,
+          "currency": "USD",
+          "group": "commodity"
+        },
+        {
+          "symbol": "금",
+          "ticker": "GC=F",
+          "close": 4545.6,
+          "change": -14.8999,
+          "changePct": -0.33,
+          "currency": "USD",
+          "group": "commodity"
+        },
+        {
+          "symbol": "미 10Y 국채",
+          "ticker": "^TNX",
+          "close": 4.45,
+          "change": -0.002,
+          "changePct": -0.04,
+          "currency": "%",
+          "group": "bond"
+        },
+        {
+          "symbol": "VIX",
+          "ticker": "^VIX",
+          "close": 15.32,
+          "change": -0.42,
+          "changePct": -2.67,
+          "currency": "",
+          "group": "volatility"
+        }
+      ],
+      "picks": {
+        "domestic": [
+          {
+            "id": "20260601000705",
+            "source": "dart",
+            "company": "대방산업개발",
+            "companyCode": null,
+            "headline": "대규모기업집단현황공시[연1회공시및1/4분기용(개별회사)]",
+            "summary": "대방산업개발이 공정거래위원회 지정 대규모기업집단 소속으로서 연 1회 및 1분기 의무 공시를 제출한 것이요. 이 공시는 계열사 현황, 내부거래, 지배구조 등 그룹 전반의 투명성을 확인할 수 있는 자료로, 시장에서는 지배구조 변화나 신규 계열사 편입 여부 등을 점검하는 계기로 활용되요. 실질적인 주가 촉매보다는 정보 공개 차원의 이벤트이지만, 내용에 따라 지배구조 리스크나 그룹 확장 방향에 대한 단서를 제공할 수 있어요.",
+            "score": 75,
+            "direction": "neutral",
+            "scope": "domestic",
+            "time": "2026-06-01T00:00:00",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000705",
+            "glossaryTermId": null
+          },
+          {
+            "id": "20260601000704",
+            "source": "dart",
+            "company": "동원티엘에스",
+            "companyCode": null,
+            "headline": "대규모기업집단현황공시[연1회공시및1/4분기용(개별회사)]",
+            "summary": "동원티엘에스가 공정거래위원회 규정에 따라 대규모기업집단 소속 회사로서 연 1회 및 1분기 기준 현황공시를 제출했어요. 이 공시는 동원그룹 내 계열사 간 출자·채무보증 현황, 임원 겸직, 내부거래 비중 등 지배구조 전반을 공개하는 자료로, 그룹 전체의 재무 연결고리와 지배주주의 지분 변동 여부를 확인할 수 있어요. 시장에서는 이런 공시를 통해 계열사 리스크 전이 가능성이나 내부거래 의존도를 점검하는 계기로 활용하는 경우가 많아요.",
+            "score": 75,
+            "direction": "neutral",
+            "scope": "domestic",
+            "time": "2026-06-01T00:00:00",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000704",
+            "glossaryTermId": null
+          },
+          {
+            "id": "20260601000702",
+            "source": "dart",
+            "company": "키움투자자산운용",
+            "companyCode": null,
+            "headline": "[기재정정]대규모기업집단현황공시[연1회공시및1/4분기용(개별회사)]",
+            "summary": "키움투자자산운용이 대규모기업집단 현황에 관한 기존 공시 내용을 정정 제출했어요. 이 공시는 공정거래위원회가 지정하는 대규모기업집단 소속 계열사들이 의무적으로 제출하는 것으로, 기재정정은 지배구조·출자 현황·재무정보 등 앞서 신고한 내용에 오류나 변경이 생겼음을 의미해요. 시장에서는 정정 사유와 변경 내용의 중요도에 따라 지배구조 변화나 계열사 현황 재편의 신호로 해석하는 경우가 있으므로, 원문 공시를 통해 구체적으로 어떤 항목이 수정되었는지 직접 확인해 보시는 것이 좋아요.",
+            "score": 75,
+            "direction": "neutral",
+            "scope": "domestic",
+            "time": "2026-06-01T00:00:00",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000702",
+            "glossaryTermId": null
+          },
+          {
+            "id": "20260601000701",
+            "source": "dart",
+            "company": "레이어",
+            "companyCode": null,
+            "headline": "대규모기업집단현황공시[연1회공시및1/4분기용(개별회사)]",
+            "summary": "레이어가 공정거래위원회 지정 대규모기업집단 소속으로서 연 1회 및 1분기 의무 공시를 제출한 것으로, 그룹 전체의 계열사 현황·내부거래·지분구조 등이 공개되는 시점이에요. 이 공시는 투자자들이 해당 기업의 그룹 내 위상, 지배구조 투명성, 계열사 간 자금 흐름을 점검하는 데 활용되며, 시장에서는 지배구조 리스크 또는 성장 모멘텀을 재평가하는 계기로 해석되는 경우가 많아요. 공시 세부 내용에 따라 내부거래 비중이나 신규 계열사 편입 여부가 확인될 수 있어 그룹 전략 방향을 가늠하는 참고 자료로 쓰일 수 있어요.",
+            "score": 75,
+            "direction": "neutral",
+            "scope": "domestic",
+            "time": "2026-06-01T00:00:00",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000701",
+            "glossaryTermId": null
+          },
+          {
+            "id": "20260601000700",
+            "source": "dart",
+            "company": "전국화물마당",
+            "companyCode": null,
+            "headline": "대규모기업집단현황공시[연1회공시및1/4분기용(개별회사)]",
+            "summary": "전국화물마당이 공정거래위원회에 대규모기업집단 현황을 연 1회 및 1분기 기준으로 공시했어요. 이 공시는 해당 기업이 속한 기업집단의 계열사 현황, 내부거래, 지분구조 등을 투명하게 공개하는 의무 보고로, 지배구조와 그룹 내 위상 변화를 파악하는 데 유용한 자료예요. 시장에서는 이를 통해 지배주주의 지분 변동이나 계열사 간 거래 규모 추이를 확인하며, 지배구조 리스크 또는 그룹 내 역할 강화 여부를 가늠하는 참고 지표로 활용하는 경우가 많아요.",
+            "score": 75,
+            "direction": "neutral",
+            "scope": "domestic",
+            "time": "2026-06-01T00:00:00",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000700",
+            "glossaryTermId": null
+          },
+          {
+            "id": "20260601000699",
+            "source": "dart",
+            "company": "흥아해운",
+            "companyCode": "003280",
+            "headline": "대규모기업집단현황공시[연1회공시및1/4분기용(개별회사)]",
+            "summary": "흥아해운이 공정거래위원회에 대규모기업집단 현황을 의무적으로 공시했어요. 이 공시는 계열사 현황, 내부거래 규모, 지배구조 등을 포함하며, 시장에서는 그룹 전반의 재무 건전성과 지배구조 투명성을 점검하는 자료로 활용돼요. 직접적인 실적 변수는 아니지만, 내부거래 비중이나 계열사 변동 내역에 따라 지배구조 관련 재평가가 이루어질 수 있어요.",
+            "score": 75,
+            "direction": "neutral",
+            "scope": "domestic",
+            "time": "2026-06-01T00:00:00",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000699",
+            "glossaryTermId": null
+          }
+        ],
+        "foreign": []
+      },
+      "signals": [
+        {
+          "id": "20260601000705",
+          "source": "dart",
+          "company": "대방산업개발",
+          "companyCode": null,
+          "headline": "대규모기업집단현황공시[연1회공시및1/4분기용(개별회사)]",
+          "summary": "",
+          "score": 75,
+          "direction": "neutral",
+          "scope": "domestic",
+          "time": "2026-06-01T00:00:00",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000705",
+          "glossaryTermId": null
+        },
+        {
+          "id": "20260601000704",
+          "source": "dart",
+          "company": "동원티엘에스",
+          "companyCode": null,
+          "headline": "대규모기업집단현황공시[연1회공시및1/4분기용(개별회사)]",
+          "summary": "",
+          "score": 75,
+          "direction": "neutral",
+          "scope": "domestic",
+          "time": "2026-06-01T00:00:00",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000704",
+          "glossaryTermId": null
+        },
+        {
+          "id": "20260601000702",
+          "source": "dart",
+          "company": "키움투자자산운용",
+          "companyCode": null,
+          "headline": "[기재정정]대규모기업집단현황공시[연1회공시및1/4분기용(개별회사)]",
+          "summary": "",
+          "score": 75,
+          "direction": "neutral",
+          "scope": "domestic",
+          "time": "2026-06-01T00:00:00",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000702",
+          "glossaryTermId": null
+        },
+        {
+          "id": "20260601000701",
+          "source": "dart",
+          "company": "레이어",
+          "companyCode": null,
+          "headline": "대규모기업집단현황공시[연1회공시및1/4분기용(개별회사)]",
+          "summary": "",
+          "score": 75,
+          "direction": "neutral",
+          "scope": "domestic",
+          "time": "2026-06-01T00:00:00",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000701",
+          "glossaryTermId": null
+        },
+        {
+          "id": "20260601000700",
+          "source": "dart",
+          "company": "전국화물마당",
+          "companyCode": null,
+          "headline": "대규모기업집단현황공시[연1회공시및1/4분기용(개별회사)]",
+          "summary": "",
+          "score": 75,
+          "direction": "neutral",
+          "scope": "domestic",
+          "time": "2026-06-01T00:00:00",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000700",
+          "glossaryTermId": null
+        },
+        {
+          "id": "20260601000699",
+          "source": "dart",
+          "company": "흥아해운",
+          "companyCode": "003280",
+          "headline": "대규모기업집단현황공시[연1회공시및1/4분기용(개별회사)]",
+          "summary": "",
+          "score": 75,
+          "direction": "neutral",
+          "scope": "domestic",
+          "time": "2026-06-01T00:00:00",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000699",
+          "glossaryTermId": null
+        },
+        {
+          "id": "20260601000698",
+          "source": "dart",
+          "company": "세종전선",
+          "companyCode": null,
+          "headline": "대규모기업집단현황공시[연1회공시및1/4분기용(개별회사)]",
+          "summary": "",
+          "score": 75,
+          "direction": "neutral",
+          "scope": "domestic",
+          "time": "2026-06-01T00:00:00",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000698",
+          "glossaryTermId": null
+        },
+        {
+          "id": "20260601000696",
+          "source": "dart",
+          "company": "에스폴",
+          "companyCode": null,
+          "headline": "대규모기업집단현황공시[연1회공시및1/4분기용(개별회사)]",
+          "summary": "",
+          "score": 75,
+          "direction": "neutral",
+          "scope": "domestic",
+          "time": "2026-06-01T00:00:00",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000696",
+          "glossaryTermId": null
+        },
+        {
+          "id": "20260601000694",
+          "source": "dart",
+          "company": "한국전력우리스프랏글로벌제2차",
+          "companyCode": null,
+          "headline": "대규모기업집단현황공시[연1회공시및1/4분기용(개별회사)]",
+          "summary": "",
+          "score": 75,
+          "direction": "neutral",
+          "scope": "domestic",
+          "time": "2026-06-01T00:00:00",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000694",
+          "glossaryTermId": null
+        },
+        {
+          "id": "20260601000693",
+          "source": "dart",
+          "company": "애나그램",
+          "companyCode": null,
+          "headline": "대규모기업집단현황공시[연1회공시및1/4분기용(개별회사)]",
+          "summary": "",
+          "score": 75,
+          "direction": "neutral",
+          "scope": "domestic",
+          "time": "2026-06-01T00:00:00",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000693",
+          "glossaryTermId": null
+        },
+        {
+          "id": "20260601000692",
+          "source": "dart",
+          "company": "E1컨테이너터미널",
+          "companyCode": null,
+          "headline": "대규모기업집단현황공시[연1회공시및1/4분기용(개별회사)]",
+          "summary": "",
+          "score": 75,
+          "direction": "neutral",
+          "scope": "domestic",
+          "time": "2026-06-01T00:00:00",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000692",
+          "glossaryTermId": null
+        },
+        {
+          "id": "20260601000691",
+          "source": "dart",
+          "company": "시흥시청역세권복합개발",
+          "companyCode": null,
+          "headline": "대규모기업집단현황공시[연1회공시및1/4분기용(개별회사)]",
+          "summary": "",
+          "score": 75,
+          "direction": "neutral",
+          "scope": "domestic",
+          "time": "2026-06-01T00:00:00",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000691",
+          "glossaryTermId": null
+        },
+        {
+          "id": "20260601000690",
+          "source": "dart",
+          "company": "엠스페이스대명피에프브이",
+          "companyCode": null,
+          "headline": "대규모기업집단현황공시[연1회공시및1/4분기용(개별회사)]",
+          "summary": "",
+          "score": 75,
+          "direction": "neutral",
+          "scope": "domestic",
+          "time": "2026-06-01T00:00:00",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000690",
+          "glossaryTermId": null
+        },
+        {
+          "id": "20260601000688",
+          "source": "dart",
+          "company": "지앤피",
+          "companyCode": null,
+          "headline": "대규모기업집단현황공시[연1회공시및1/4분기용(개별회사)]",
+          "summary": "",
+          "score": 75,
+          "direction": "neutral",
+          "scope": "domestic",
+          "time": "2026-06-01T00:00:00",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000688",
+          "glossaryTermId": null
+        },
+        {
+          "id": "20260601000695",
+          "source": "dart",
+          "company": "삼일제약",
+          "companyCode": "000520",
+          "headline": "임원ㆍ주요주주특정증권등소유상황보고서",
+          "summary": "",
+          "score": 70,
+          "direction": "mixed",
+          "scope": "domestic",
+          "time": "2026-06-01T00:00:00",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260601000695",
+          "glossaryTermId": "insider_trade"
+        }
+      ],
+      "news": [
+        {
+          "id": "CBMiYEFVX3lxTE9xYTVVa3MtUTkwS1BJcnhvb0Y1ZXl2N2wwa3UyWkdJUTFodnZka3E5VGs0TXFfaU53bzREUkNpMTRtb3JPMlByXzlwSVdJNW4xdUw2djl1czZINEdXbmo0S9IBYEFVX3lxTE9xYTVVa3MtUTkwS1BJcnhvb0Y1ZXl2N2wwa3UyWkdJUTFodnZka3E5VGs0TXFfaU53bzREUkNpMTRtb3JPMlByXzlwSVdJNW4xdUw2djl1czZINEdXbmo0Sw",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "연합뉴스",
+          "title": "[인사] 코리아에셋투자증권",
+          "titleOriginal": null,
+          "summary": "코리아에셋투자증권이 임원 인사를 단행했어요. 증권사의 정기 인사는 경영 전략 방향 조정 또는 조직 쇄신의 일환으로 이루어지는 통상적인 절차예요.",
+          "url": "https://news.google.com/rss/articles/CBMiYEFVX3lxTE9xYTVVa3MtUTkwS1BJcnhvb0Y1ZXl2N2wwa3UyWkdJUTFodnZka3E5VGs0TXFfaU53bzREUkNpMTRtb3JPMlByXzlwSVdJNW4xdUw2djl1czZINEdXbmo0S9IBYEFVX3lxTE9xYTVVa3MtUTkwS1BJcnhvb0Y1ZXl2N2wwa3UyWkdJUTFodnZka3E5VGs0TXFfaU53bzREUkNpMTRtb3JPMlByXzlwSVdJNW4xdUw2djl1czZINEdXbmo0Sw?oc=5",
+          "thumbnail": null,
+          "time": "2026-06-01T00:34:42",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMivwFBVV95cUxPcHExcFFDOWtsX1l4dXFQT0R3WldILWNwNnhHSENNR0ZJVzV5TWNYeU82SjRXbnFtSHNNaXB4Y2s4UkNkVUFQQU9Fd3E1WlZVU3hVLU03Tzk4ZTZHbG95SEVhZGNnaDBhTWlXZ1FuMDRsejJEek1MWkxDckdVaU5NNkdvS3NCbDgxV2NUcVo4T1ZBYmNiSXgxdnJrWjZUeWlpTEtlY1ZSVV95S2d1NnRKSk9XSDJLZndTdG95TmNZdw",
+          "source": "rss:gnews-business-en",
+          "publisher": "The Seattle Times",
+          "title": "Japan, South Korea stocks hit more records, as oil gains on Iran war ending fragility",
+          "titleOriginal": null,
+          "summary": "일본·한국 증시가 추가 신고가를 기록했으며, 이란 전쟁 종전 불안정성에 따른 공급 우려로 국제유가도 상승했어요.",
+          "url": "https://news.google.com/rss/articles/CBMivwFBVV95cUxPcHExcFFDOWtsX1l4dXFQT0R3WldILWNwNnhHSENNR0ZJVzV5TWNYeU82SjRXbnFtSHNNaXB4Y2s4UkNkVUFQQU9Fd3E1WlZVU3hVLU03Tzk4ZTZHbG95SEVhZGNnaDBhTWlXZ1FuMDRsejJEek1MWkxDckdVaU5NNkdvS3NCbDgxV2NUcVo4T1ZBYmNiSXgxdnJrWjZUeWlpTEtlY1ZSVV95S2d1NnRKSk9XSDJLZndTdG95TmNZdw?oc=5",
+          "thumbnail": null,
+          "time": "2026-06-01T04:39:05",
+          "scope": "foreign",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMicEFVX3lxTE1pckVXUm80TXUyNmJqWGtZQkkzejRzNm1YSi1xZkVZLU8zN0NnVnFhRnhyNmsxMGJ1Qy1iQWpPLUdyQjBrQXlsTHNFaFJKcjJDajVObk5nWmJBaU1iLVBOWlhRTE01RmdHcDBVVW4wQU8",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "연합인포맥스",
+          "title": "돈나무 언니, 로빈후드 팔고 방산주 매수",
+          "titleOriginal": null,
+          "summary": "ARK Invest의 캐시 우드가 로빈후드 지분을 매각하고 방위산업 관련 주식을 매입한 것으로 전해졌어요. 성장주 중심 포트폴리오에서 방산주로 일부 자금을 이동한 행보로, 지정학적 리스크 확대 국면에서의 섹터 재편 움직임으로 해석돼요.",
+          "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE1pckVXUm80TXUyNmJqWGtZQkkzejRzNm1YSi1xZkVZLU8zN0NnVnFhRnhyNmsxMGJ1Qy1iQWpPLUdyQjBrQXlsTHNFaFJKcjJDajVObk5nWmJBaU1iLVBOWlhRTE01RmdHcDBVVW4wQU8?oc=5",
+          "thumbnail": null,
+          "time": "2026-06-01T04:34:28",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMivwFBVV95cUxNcXp0OHc2a3Q3UWN6TEJpbEUwUi15bTZYeW1Ld0ktRmJaRWhVak1JWVNoUVJyU2UtSUdaOVBYUmZFZkdIYXRKbHRGdzIwQzZsOHVVeWRtTGhkbGtFVUh3VXpuMlBKb0tiU1NrQUFaaXgzWEtCUjViYVdHT0wwR1VybHkwRTNabEZYMC04VGtYYzhlZDBzY19XTm5ROGNybW9iRXBSeVhUVGhMTGF1LW9jZ1cwMWxvQktKaHZweUlLRdIB0wFBVV95cUxOT2ZQSFc1UmYyMGRyb1lVelVOaFFxX05nOHBxX0I2V3E4TjNwcVc5WDF4QjVaTWdELVVjcU1lMkQ2emhscURyeEY0SENaTzVoWFBEODFQMENlZm9vcndZYXM4LWgzRjdORnZsaWF2aU1sUDBOc1c3Rk40NEt6UFhaTGdzWkYtcFQ4TmRmVGFCZ2k1TUVENXVJUWlZSldqcHliREk5VWt0cGt3S3lHRDU2bE1zWEdWNlo3WEdWTXktMUhaVzBGZ3hZTzdLbVl6NHR3dDhF",
+          "source": "rss:gnews-business-en",
+          "publisher": "KJCT",
+          "title": "Young Entrepreneurs Academy shows off Grand Junction’s newest business leaders at trade show",
+          "titleOriginal": null,
+          "summary": "영 앙트러프러너스 아카데미(YEA)가 그랜드 정션에서 무역 박람회를 개최하며 지역 청소년 창업가들의 사업 아이디어를 선보였어요. 지역 내 차세대 창업 인재 육성 프로그램의 성과를 공개하는 행사로 풀이돼요.",
+          "url": "https://news.google.com/rss/articles/CBMivwFBVV95cUxNcXp0OHc2a3Q3UWN6TEJpbEUwUi15bTZYeW1Ld0ktRmJaRWhVak1JWVNoUVJyU2UtSUdaOVBYUmZFZkdIYXRKbHRGdzIwQzZsOHVVeWRtTGhkbGtFVUh3VXpuMlBKb0tiU1NrQUFaaXgzWEtCUjViYVdHT0wwR1VybHkwRTNabEZYMC04VGtYYzhlZDBzY19XTm5ROGNybW9iRXBSeVhUVGhMTGF1LW9jZ1cwMWxvQktKaHZweUlLRdIB0wFBVV95cUxOT2ZQSFc1UmYyMGRyb1lVelVOaFFxX05nOHBxX0I2V3E4TjNwcVc5WDF4QjVaTWdELVVjcU1lMkQ2emhscURyeEY0SENaTzVoWFBEODFQMENlZm9vcndZYXM4LWgzRjdORnZsaWF2aU1sUDBOc1c3Rk40NEt6UFhaTGdzWkYtcFQ4TmRmVGFCZ2k1TUVENXVJUWlZSldqcHliREk5VWt0cGt3S3lHRDU2bE1zWEdWNlo3WEdWTXktMUhaVzBGZ3hZTzdLbVl6NHR3dDhF?oc=5",
+          "thumbnail": null,
+          "time": "2026-05-31T22:40:07",
+          "scope": "foreign",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMiUkFVX3lxTE1DdlE4MjBFaW13Y1NEVTJZaFlnTmRuNDQ5cjR3dmxZcjdISm9YazZOamhkWnFwZ1JocUh3M2JwcnlVRU9lZVYwa0xCQ2ZDZ04tTVE",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "노컷뉴스",
+          "title": "중동전쟁 여파…1분기 기관 해외증권 투자 42.6억달러↓",
+          "titleOriginal": null,
+          "summary": "중동 전쟁의 불확실성 영향으로 올해 1분기 국내 기관투자자의 해외증권 투자 규모가 전분기 대비 42.6억 달러 감소했어요. 지정학적 리스크 확대 시 기관의 해외 투자 심리가 위축되는 통상적인 흐름으로 해석돼요.",
+          "url": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE1DdlE4MjBFaW13Y1NEVTJZaFlnTmRuNDQ5cjR3dmxZcjdISm9YazZOamhkWnFwZ1JocUh3M2JwcnlVRU9lZVYwa0xCQ2ZDZ04tTVE?oc=5",
+          "thumbnail": null,
+          "time": "2026-06-01T04:05:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMi3AFBVV95cUxNaXVzaXoxRENxb3ZnQnpaV0VET09lNjJfU3EzVEs1T1BlOUMxcXZXLXV5VzhiQ3VYTXNOeXZ3WmdkY241UzlPbXJsRHk3MkZBa0Zuc0d1NlRCblFHNlZ4U1gwa00tdWE2d0xHRkFNVXBYNUZjbkxNQ29fMW84ZzJwV3dSLU12WXUtWno4UW5Gb1JiY2tUU0RUM01JRVg0eWpPMUQ0UDlzN2VqSXdhelZwRkhHby03UkFjTzBIeUY2NnVCaEZYQ2I0aGZHUThtNGVicV9ibFV3ejBuWVNi",
+          "source": "rss:gnews-business-en",
+          "publisher": "Insurance Business",
+          "title": "Women in Insurance Initiative rebrands to tackle industry's leadership gap",
+          "titleOriginal": null,
+          "summary": "'Women in Insurance Initiative'가 보험업계의 리더십 성별 격차 해소를 목표로 브랜드를 새롭게 단장했어요. 여성 임원 비율 확대를 위한 업계 차원의 움직임으로 해석돼요.",
+          "url": "https://news.google.com/rss/articles/CBMi3AFBVV95cUxNaXVzaXoxRENxb3ZnQnpaV0VET09lNjJfU3EzVEs1T1BlOUMxcXZXLXV5VzhiQ3VYTXNOeXZ3WmdkY241UzlPbXJsRHk3MkZBa0Zuc0d1NlRCblFHNlZ4U1gwa00tdWE2d0xHRkFNVXBYNUZjbkxNQ29fMW84ZzJwV3dSLU12WXUtWno4UW5Gb1JiY2tUU0RUM01JRVg0eWpPMUQ0UDlzN2VqSXdhelZwRkhHby03UkFjTzBIeUY2NnVCaEZYQ2I0aGZHUThtNGVicV9ibFV3ejBuWVNi?oc=5",
+          "thumbnail": null,
+          "time": "2026-06-01T03:05:47",
+          "scope": "foreign",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMidkFVX3lxTE90M0hiUWt3RXUwSUJId29qbnFESV9RYTR0VlVzRmRsdjNVNjFEQ1hHWFFlNkxDcFpwZjlpX3dUWmtNX0VSZjlIRmFBWlJxQ2xDMC02MENNM1VNYUZpZ0cwUlNuaDU0VExxN3NBeTdaOC1WSG1yWHfSAWZBVV95cUxNZU9xeGFyY3VsM0k5eHVxLXZScVJ4TE43X0t2ZkhkQnpFbWF2Z2o3V1ZmVkg2WFM0ZXhHM0xiQW5EMFB3d0xsVjJOZnpqRHplR0llSFc2NEFRTzVrSU5YQk9SMktiOHc",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "동아일보",
+          "title": "반도체로 부유해진 대만 경제의 그림자: 대만병과 거지 슈퍼맨 [딥다이브]",
+          "titleOriginal": null,
+          "summary": "반도체 산업 호황으로 대만 경제 규모는 크게 성장했지만, 부의 편중과 내수·제조업 공동화 등 '대만병' 현상이 심화되고 있다는 분석이에요. 고도성장 이면에 임금 정체와 양극화 문제가 동시에 부각되고 있는 상황이에요.",
+          "url": "https://news.google.com/rss/articles/CBMidkFVX3lxTE90M0hiUWt3RXUwSUJId29qbnFESV9RYTR0VlVzRmRsdjNVNjFEQ1hHWFFlNkxDcFpwZjlpX3dUWmtNX0VSZjlIRmFBWlJxQ2xDMC02MENNM1VNYUZpZ0cwUlNuaDU0VExxN3NBeTdaOC1WSG1yWHfSAWZBVV95cUxNZU9xeGFyY3VsM0k5eHVxLXZScVJ4TE43X0t2ZkhkQnpFbWF2Z2o3V1ZmVkg2WFM0ZXhHM0xiQW5EMFB3d0xsVjJOZnpqRHplR0llSFc2NEFRTzVrSU5YQk9SMktiOHc?oc=5",
+          "thumbnail": null,
+          "time": "2026-05-30T01:00:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMiakFVX3lxTFA2OTJqNVM0MGtXb0FNZk1qSExPSTNndkZHRHk2Y09wUklnSXFYcXYxSWx4cXpqMTY3YlZSaHpvbmZnV2RaRzZKSENhVlBWRkZDTmVBMlpBNjEzUW9rb1NoSEc1TXVPcWlNZHc",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "뉴스깜",
+          "title": "담양군, 2025년 기준 경제총조사 추진",
+          "titleOriginal": null,
+          "summary": "담양군이 2025년 기준 경제총조사를 추진합니다. 이는 지역 내 사업체 현황과 경제 규모를 파악하기 위한 법정 통계 조사로, 조사 결과는 향후 지역 정책 수립의 기초 자료로 활용될 예정이에요.",
+          "url": "https://news.google.com/rss/articles/CBMiakFVX3lxTFA2OTJqNVM0MGtXb0FNZk1qSExPSTNndkZHRHk2Y09wUklnSXFYcXYxSWx4cXpqMTY3YlZSaHpvbmZnV2RaRzZKSENhVlBWRkZDTmVBMlpBNjEzUW9rb1NoSEc1TXVPcWlNZHc?oc=5",
+          "thumbnail": null,
+          "time": "2026-06-01T02:10:17",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMib0FVX3lxTE5WRndtcHBoWmRCZWdOTW8wcDNYOUNGTExYcG1HTVY0Z0N3dzUxRVhKTnd0SGM4YjlaLU9yNDlXR05mUXZ6UjFFNTNJaWdial85amNpNVFkNUZiVDlabEFpR2JmTTZhdUNNOVhuaHV2TQ",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "YTN",
+          "title": "[경제][속보] 5월 수출, 53% 증가한 877억 달러...사상 최대 실적",
+          "titleOriginal": null,
+          "summary": "5월 한국 수출이 전년 대비 53% 증가한 877억 달러를 기록해 월간 기준 사상 최대치를 달성했어요. 글로벌 수요 회복과 주요 품목 호조가 수출 급증의 배경으로 분석돼요.",
+          "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE5WRndtcHBoWmRCZWdOTW8wcDNYOUNGTExYcG1HTVY0Z0N3dzUxRVhKTnd0SGM4YjlaLU9yNDlXR05mUXZ6UjFFNTNJaWdial85amNpNVFkNUZiVDlabEFpR2JmTTZhdUNNOVhuaHV2TQ?oc=5",
+          "thumbnail": null,
+          "time": "2026-06-01T00:00:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://www.mk.co.kr/news/it/12062757",
+          "source": "rss:mk",
+          "publisher": "",
+          "title": "넥셀, 중국 최대 CRO ‘캠파트너’와 MOU 체결… hiPSC 글로벌 신약 평가 시장 확대",
+          "titleOriginal": null,
+          "summary": "넥셀이 중국 최대 CRO 기업 캠파트너와 MOU를 체결해 hiPSC(인간 유도만능줄기세포) 기반 신약 평가 서비스의 글로벌 시장 진출을 공식화했어요. 이번 협약은 신약 전임상 단계에서 활용되는 줄기세포 플랫폼의 중국 및 글로벌 수요 확대를 겨냥한 파트너십으로 해석돼요.",
+          "url": "https://www.mk.co.kr/news/it/12062757",
+          "thumbnail": null,
+          "time": "2026-06-01T04:39:01",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        }
+      ],
+      "research": [],
+      "etf": [
+        {
+          "code": "069500",
+          "name": "KODEX 200",
+          "theme": "대형주",
+          "close": 141885.0,
+          "change": 7070.0,
+          "changePct": 5.24
+        },
+        {
+          "code": "102110",
+          "name": "TIGER 200",
+          "theme": "대형주",
+          "close": 141795.0,
+          "change": 6835.0,
+          "changePct": 5.06
+        },
+        {
+          "code": "229200",
+          "name": "KODEX KOSDAQ150",
+          "theme": "코스닥",
+          "close": 18350.0,
+          "change": -380.0,
+          "changePct": -2.03
+        },
+        {
+          "code": "261220",
+          "name": "KODEX 미국S&P500",
+          "theme": "미국주식",
+          "close": 24375.0,
+          "change": 670.0,
+          "changePct": 2.83
+        },
+        {
+          "code": "133690",
+          "name": "TIGER 미국나스닥100",
+          "theme": "미국주식",
+          "close": 204485.0,
+          "change": 2540.0,
+          "changePct": 1.26
+        },
+        {
+          "code": "148070",
+          "name": "KOSEF 국고채10년",
+          "theme": "채권",
+          "close": 104935.0,
+          "change": -505.0,
+          "changePct": -0.48
+        },
+        {
+          "code": "132030",
+          "name": "KODEX 골드선물",
+          "theme": "원자재",
+          "close": 25535.0,
+          "change": 0.0,
+          "changePct": 0.0
+        },
+        {
+          "code": "091160",
+          "name": "KODEX 반도체",
+          "theme": "반도체",
+          "close": 164975.0,
+          "change": 3995.0,
+          "changePct": 2.48
+        },
+        {
+          "code": "305720",
+          "name": "KODEX 2차전지산업",
+          "theme": "2차전지",
+          "close": 19870.0,
+          "change": -415.0,
+          "changePct": -2.05
+        },
+        {
+          "code": "364980",
+          "name": "TIGER Fn반도체TOP10",
+          "theme": "반도체",
+          "close": 13120.0,
+          "change": -260.0,
+          "changePct": -1.94
+        },
+        {
+          "code": "139220",
+          "name": "TIGER 200 IT",
+          "theme": "IT",
+          "close": 9085.0,
+          "change": -195.0,
+          "changePct": -2.1
+        },
+        {
+          "code": "448290",
+          "name": "TIGER 미국AI빅테크10",
+          "theme": "AI/빅테크",
+          "close": 17700.0,
+          "change": 65.0,
+          "changePct": 0.37
+        },
+        {
+          "code": "280930",
+          "name": "TIGER 코스피고배당",
+          "theme": "배당",
+          "close": 16640.0,
+          "change": -40.0,
+          "changePct": -0.24
+        },
+        {
+          "code": "091170",
+          "name": "KODEX 은행",
+          "theme": "금융",
+          "close": 14695.0,
+          "change": 180.0,
+          "changePct": 1.24
+        },
+        {
+          "code": "139270",
+          "name": "TIGER 200 에너지화학",
+          "theme": "에너지",
+          "close": 17015.0,
+          "change": 470.0,
+          "changePct": 2.84
+        }
+      ],
+      "hotIssues": [
+        {
+          "rank": 1,
+          "asset": "WTI 원유",
+          "assetType": "macro",
+          "direction": "negative",
+          "signal": "美-이란 핵합의 돌파구",
+          "reason": "BBC 복수 보도에 따르면 미국과 이란의 핵협상 돌파구 보도에 유가가 즉각 하락했어요. 이란산 원유가 제재 해제 시 하루 100만 배럴 이상의 추가 공급이 예상되어 WTI에 구조적 하방 압력이 가중될 수 있어요. 다만 트럼프 대통령이 합의문 수정을 요구 중이고 걸프 내 공습도 지속되고 있어 단순 숏보다는 변동성(VIX·OVX) 전략이 유효해요.",
+          "source": "BBC Business / BBC World",
+          "url": "https://www.bbc.com/news/articles/cp3p62xddq4o"
+        },
+        {
+          "rank": 2,
+          "asset": "휴머노이드 로봇",
+          "assetType": "theme",
+          "direction": "positive",
+          "signal": "BMW, 제조 미래로 공식 채택",
+          "reason": "BMW가 휴머노이드 로봇을 자동차 제조의 미래로 공식 선언하며 글로벌 완성차 기관 채택 신호가 강화됐어요. 이는 Figure AI·Apptronik 파트너십 기업 및 ABB·BOTZ ETF 같은 산업 자동화 자산의 직접 촉매로 작용해요. 중국 EV 업체와의 원가 경쟁 심화로 인건비 절감 수요가 구조적으로 높아지는 시점과 맞물려 수요 가시성이 높아지고 있어요.",
+          "source": "BBC Business",
+          "url": "https://www.bbc.com/news/articles/cgmpwzzvxr2o"
+        },
+        {
+          "rank": 3,
+          "asset": "PDD Holdings (PDD)",
+          "assetType": "stock",
+          "direction": "negative",
+          "signal": "EU, Temu에 €200M 제재",
+          "reason": "EU가 Temu의 불법 제품 판매 방치를 근거로 €2억 벌금을 부과하며 PDD의 유럽 성장 경로에 직접 타격이 가해졌어요. EU DSA(디지털서비스법)에 따른 제재는 추가 과징금·접속 제한으로 확대될 수 있어, 유럽 매출 비중이 확대되던 시점에 리스크 프리미엄이 재부각돼요. 중국 플랫폼에 대한 서방 규제 강화 트렌드는 BABA·JD닷컴에도 부정적 심리 전이가 우려돼요.",
+          "source": "BBC Business",
+          "url": "https://www.bbc.com/news/articles/c1k2ydn1rz8o"
+        }
+      ]
+    },
+    "ai": {
+      "domestic": [
+        {
+          "id": "CBMiZkFVX3lxTE9hLUJSN2ZIQlhZN09xMm80N2U4dW4xX1hCTTdaQjkwalRibFpISWpJYmw4QTdEUFI1eG1WTlpMVFk3MmZfaENmbndPZTBpd0FYUXRSWUF6dzAtMHdvZkpCX1pUNV9iUQ",
+          "source": "rss:gnews-ai-kr",
+          "publisher": "데일리대구경북뉴스",
+          "title": "경산시, 생성형 AI 활용 교육으로 스마트 행정 역량 강화",
+          "titleOriginal": null,
+          "summary": "경산시가 생성형 AI 활용 교육을 실시해 공무원들의 디지털 행정 역량 향상을 추진하고 있어요. 지자체 차원의 AI 도입 확산 흐름의 일환으로 평가돼요.",
+          "url": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE9hLUJSN2ZIQlhZN09xMm80N2U4dW4xX1hCTTdaQjkwalRibFpISWpJYmw4QTdEUFI1eG1WTlpMVFk3MmZfaENmbndPZTBpd0FYUXRSWUF6dzAtMHdvZkpCX1pUNV9iUQ?oc=5",
+          "thumbnail": null,
+          "time": "2026-05-29T06:57:03",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        }
+      ],
+      "foreign": [
+        {
+          "id": "CBMiogFBVV95cUxQMEZXcVczT0dKZGlQU0hVdC1WbFJjdjZrdjBvVUhDRkd4b0pvOVo2aWRqeEM4ZXN3TGgtMF9VeGxJUWdxRkw5b0l2VWZ3WnpOdDJTcFk3azJUZjBaVm45Y1FkZ2RMSkhLdnlENEhIcGo1WWFKclN4WkZHR240a2VPNVpabGNxbElDUm9KbGFrU3VxLUdKVHMwbHVBUHc5WTVfb3c",
+          "source": "rss:gnews-ai-en",
+          "publisher": "Al Majalla",
+          "title": "Claude에서 Colossus까지: Anthropic이 Elon Musk를 필요로 했던 이유",
+          "titleOriginal": "From Claude to Colossus: why Anthropic needed Elon Musk",
+          "summary": "Al Majalla가 Anthropic의 AI 모델 Claude 개발 과정과 Elon Musk와의 연관성을 조명했어요. Anthropic의 성장 배경과 거대 AI 인프라 구축에 얽힌 이해관계를 분석한 내용이에요.",
+          "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxQMEZXcVczT0dKZGlQU0hVdC1WbFJjdjZrdjBvVUhDRkd4b0pvOVo2aWRqeEM4ZXN3TGgtMF9VeGxJUWdxRkw5b0l2VWZ3WnpOdDJTcFk3azJUZjBaVm45Y1FkZ2RMSkhLdnlENEhIcGo1WWFKclN4WkZHR240a2VPNVpabGNxbElDUm9KbGFrU3VxLUdKVHMwbHVBUHc5WTVfb3c?oc=5",
+          "thumbnail": null,
+          "time": "2026-06-01T04:37:40",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        }
+      ]
+    }
+  },
+  "glossary": {
+    "insider_trade": {
+      "shortLabel": "내부자 매매",
+      "explanation": "회사 임원이나 5% 이상 주요주주가 자사 주식을 사고팔면 5영업일 내에 공시해요. 내부 정보에 밝은 사람의 거래라서 시장이 주목해요. 매수는 '저평가로 본다', 매도는 '차익 실현 또는 부정 전망'으로 통상 해석해요.",
+      "direction": "mixed"
+    }
+  }
+}

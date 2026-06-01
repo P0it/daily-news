@@ -97,9 +97,12 @@ export interface HotIssue {
   assetType: 'stock' | 'theme' | 'macro'
   direction: 'positive' | 'negative' | 'mixed'
   signal: string
+  tickers?: string[]
   reason: string
   source: string
   url: string | null
+  /** @deprecated 구버전 JSON 호환용 — asset 필드로 마이그레이션됨 */
+  title?: string
 }
 
 export interface GlossaryEntry {

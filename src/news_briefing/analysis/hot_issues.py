@@ -71,14 +71,17 @@ _PROMPT_SYSTEM = """\
 - 각 원소:
   {
     "rank": 숫자,
-    "asset": "종목명 또는 테마명 (예: NVDA, 반도체, 달러·엔 환율)",
+    "asset": "투자 대상 이름. 종목이면 티커(예: NVDA·MSFT), 테마면 짧은 한국어(예: 에너지·반도체), 매크로면 자산명(예: 달러·WTI원유). 절대 뉴스 제목을 그대로 쓰지 말 것.",
     "assetType": "stock" | "theme" | "macro",
     "direction": "positive" | "negative" | "mixed",
     "signal": "핵심 시그널 15자 이내 (예: 가이던스 상향, 금리 동결, 규제 리스크)",
+    "tickers": ["관련 미국 주식·ETF 티커 최대 4개. 예: NVDA, SMH, TSM. 없으면 빈 배열 []"],
     "reason": "왜 오늘 이 자산에 주목해야 하는지 2~3문장, '~요'체, 구체적 수치 포함",
     "source": "출처 언론사명",
     "url": "원문 URL 또는 null"
   }
+
+중요: asset 필드에 뉴스 제목이나 긴 문장을 쓰면 안 됨. 반드시 투자 대상 이름(티커 또는 짧은 테마명)만 기입.
 """
 
 
@@ -126,12 +129,15 @@ def analyze_hot_issues(
             asset = str(iss.get("asset") or iss.get("title") or "").strip()
             if not asset:
                 continue
+            raw_tickers = iss.get("tickers") or []
+            tickers = [str(t).strip().upper() for t in raw_tickers if str(t).strip()][:4]
             validated.append({
                 "rank": int(iss.get("rank", len(validated) + 1)),
                 "asset": asset,
                 "assetType": iss.get("assetType") or "theme",
                 "direction": iss.get("direction") or "mixed",
                 "signal": str(iss.get("signal") or "").strip(),
+                "tickers": tickers,
                 "reason": str(iss.get("reason") or "").strip(),
                 "source": str(iss.get("source") or "").strip(),
                 "url": iss.get("url") or None,
