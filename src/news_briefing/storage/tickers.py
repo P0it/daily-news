@@ -1,9 +1,10 @@
 """corp_code ↔ stock_code ↔ corp_name 매핑 (F18 차트·딥링크 지원)."""
 from __future__ import annotations
 
-import sqlite3
 from dataclasses import dataclass
 from datetime import UTC, datetime
+
+from news_briefing.storage.db import Connection
 
 
 @dataclass(frozen=True, slots=True)
@@ -14,21 +15,22 @@ class TickerRow:
     market: str | None = None
 
 
-def upsert_ticker(conn: sqlite3.Connection, row: TickerRow) -> None:
+def upsert_ticker(conn: Connection, row: TickerRow) -> None:
     now = datetime.now(UTC).isoformat()
     conn.execute(
-        "INSERT OR REPLACE INTO tickers(stock_code, corp_code, corp_name, market, updated_at) "
-        "VALUES (?, ?, ?, ?, ?)",
+        "INSERT INTO tickers(stock_code, corp_code, corp_name, market, updated_at) "
+        "VALUES (%s, %s, %s, %s, %s) "
+        "ON CONFLICT (stock_code) DO UPDATE SET "
+        "corp_code=EXCLUDED.corp_code, corp_name=EXCLUDED.corp_name, "
+        "market=EXCLUDED.market, updated_at=EXCLUDED.updated_at",
         (row.stock_code, row.corp_code, row.corp_name, row.market, now),
     )
     conn.commit()
 
 
-def get_ticker_by_stock(
-    conn: sqlite3.Connection, stock_code: str
-) -> TickerRow | None:
+def get_ticker_by_stock(conn: Connection, stock_code: str) -> TickerRow | None:
     r = conn.execute(
-        "SELECT stock_code, corp_code, corp_name, market FROM tickers WHERE stock_code=?",
+        "SELECT stock_code, corp_code, corp_name, market FROM tickers WHERE stock_code=%s",
         (stock_code,),
     ).fetchone()
     if r is None:
@@ -41,11 +43,9 @@ def get_ticker_by_stock(
     )
 
 
-def get_ticker_by_corp(
-    conn: sqlite3.Connection, corp_code: str
-) -> TickerRow | None:
+def get_ticker_by_corp(conn: Connection, corp_code: str) -> TickerRow | None:
     r = conn.execute(
-        "SELECT stock_code, corp_code, corp_name, market FROM tickers WHERE corp_code=?",
+        "SELECT stock_code, corp_code, corp_name, market FROM tickers WHERE corp_code=%s",
         (corp_code,),
     ).fetchone()
     if r is None:

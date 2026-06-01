@@ -19,18 +19,16 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 @dataclass(frozen=True, slots=True)
 class Config:
     dart_api_key: str
-    kakao_rest_api_key: str
-    kakao_redirect_uri: str
+    discord_webhook_url: str
+    database_url: str
     data_dir: Path
     digests_dir: Path
-    db_path: Path
-    tokens_path: Path
     ollama_enabled: bool
     ollama_model: str
-    ollama_embed_model: str     # nomic-embed-text (RAG Week 4)
-    public_briefings_dir: Path  # frontend/public/briefings (JSON export 경로)
-    vercel_base_url: str        # 카톡 링크 베이스 URL
-    edgar_user_agent: str       # SEC EDGAR User-Agent (이름/이메일)
+    ollama_embed_model: str
+    public_briefings_dir: Path
+    vercel_base_url: str
+    edgar_user_agent: str
 
 
 def load_config(project_root: Path | None = None) -> Config:
@@ -46,6 +44,13 @@ def load_config(project_root: Path | None = None) -> Config:
             "이 변수를 제거한 뒤 다시 실행하세요."
         )
 
+    database_url = os.environ.get("DATABASE_URL", "")
+    if not database_url:
+        raise RuntimeError(
+            "DATABASE_URL 환경 변수가 설정되지 않았습니다. "
+            ".env 파일에 DATABASE_URL=postgresql://... 을 추가하세요."
+        )
+
     data_dir = root / "data"
     digests_dir = data_dir / "digests"
     public_briefings_dir = root / "frontend" / "public" / "briefings"
@@ -55,14 +60,10 @@ def load_config(project_root: Path | None = None) -> Config:
 
     return Config(
         dart_api_key=os.environ.get("DART_API_KEY", ""),
-        kakao_rest_api_key=os.environ.get("KAKAO_REST_API_KEY", ""),
-        kakao_redirect_uri=os.environ.get(
-            "KAKAO_REDIRECT_URI", "http://localhost:8080/callback"
-        ),
+        discord_webhook_url=os.environ.get("DISCORD_WEBHOOK_URL", ""),
+        database_url=database_url,
         data_dir=data_dir,
         digests_dir=digests_dir,
-        db_path=data_dir / "briefing.db",
-        tokens_path=root / ".kakao_tokens.json",
         ollama_enabled=os.environ.get("OLLAMA_ENABLED", "0") == "1",
         ollama_model=os.environ.get("OLLAMA_MODEL", "qwen2.5:14b"),
         ollama_embed_model=os.environ.get("OLLAMA_EMBED_MODEL", "nomic-embed-text"),

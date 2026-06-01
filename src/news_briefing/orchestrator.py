@@ -8,8 +8,7 @@ from pathlib import Path
 
 from news_briefing.analysis.curation import curation_score
 from news_briefing.analysis.glossary import detect_term, ensure_glossary_entry
-from news_briefing.analysis.llm import pick_foreign_news, pick_rationale, summarize, translate_news_ko
-from news_briefing.analysis.picks import select_picks
+from news_briefing.analysis.llm import summarize, translate_news_ko
 from news_briefing.analysis.scoring import score_consensus, score_edgar, score_report
 from news_briefing.analysis.hot_issues import analyze_hot_issues, analyze_hot_issues_domestic
 from news_briefing.collectors.base import CollectedItem
@@ -60,7 +59,7 @@ def run_morning(
     now = now or datetime.now()
     log.info("morning start date=%s dry_run=%s", now.date(), dry_run)
 
-    conn = connect(cfg.db_path)
+    conn = connect(cfg.database_url)
     try:
         # 0. 오래된 데이터 정리 (일회성 데이터, 매일 실행)
         from news_briefing.storage.cleanup import run_cleanup
@@ -244,71 +243,7 @@ def run_morning(
         )
         digest_path = write_digest(digests_dir=cfg.digests_dir, date=now, text=text)
 
-        # 6a. 해외 뉴스 pick 후보 생성 — BBC·FT·Google News EN 헤드라인 → LLM 배치 분석
-        # stock_news_foreign 상위 20건을 한 번의 LLM 호출로 기업·ticker·점수 추출
-        foreign_news_scored: list[tuple[CollectedItem, int, str]] = []
-        try:
-            from dataclasses import replace as dc_replace
-
-            foreign_candidates = stock_news_foreign[:20]
-            headlines_indexed = [(i, it.title) for i, it in enumerate(foreign_candidates)]
-            foreign_picks_raw = pick_foreign_news(
-                conn,
-                headlines_indexed,
-                ollama_enabled=cfg.ollama_enabled,
-                ollama_model=cfg.ollama_model,
-            )
-            pick_summaries_foreign: dict[str, str] = {}
-            for fp in foreign_picks_raw:
-                idx = fp.get("idx")
-                if idx is None or idx >= len(foreign_candidates):
-                    continue
-                orig = foreign_candidates[idx]
-                enriched = dc_replace(
-                    orig,
-                    company=fp.get("company", ""),
-                    company_code=fp.get("ticker", ""),
-                    extra={**(orig.extra or {}), "scope": "foreign"},
-                )
-                score = max(55, min(95, int(fp.get("score", 65))))
-                direction = fp.get("direction", "neutral")
-                if direction not in ("positive", "negative", "mixed", "neutral"):
-                    direction = "neutral"
-                foreign_news_scored.append((enriched, score, direction))
-                # LLM이 생성한 한국어 투자 포인트를 pick_summaries에 미리 등록
-                reason = fp.get("reason", "")
-                if reason:
-                    pick_summaries_foreign[orig.ext_id] = reason
-            log.info("해외 뉴스 pick 후보 %d건 추출", len(foreign_news_scored))
-        except Exception as e:
-            log.warning("해외 뉴스 pick 분석 실패: %s", e)
-            foreign_news_scored = []
-            pick_summaries_foreign = {}
-
-        # 6b. Today's Pick 선별 — DART + 리서치 + 해외 뉴스 통합 후보
-        all_pick_candidates = scored + research_scored + foreign_news_scored
-        picks = select_picks(all_pick_candidates, n_per_side=6)
-
-        # Pick 별 LLM 투자 포인트 생성 (왜 이 종목인지 2~3문장 설명)
-        # 해외 뉴스 배치 분석 시 이미 생성된 rationale은 재사용 (LLM 호출 절약)
-        pick_summaries: dict[str, str] = {**pick_summaries_foreign}
-        for it, _s, _d in picks.domestic + picks.foreign:
-            if not it.company or it.ext_id in pick_summaries:
-                continue  # 이미 배치 분석에서 rationale 생성됨
-            try:
-                rationale = pick_rationale(
-                    conn,
-                    it.company,
-                    it.title,
-                    ollama_enabled=cfg.ollama_enabled,
-                    ollama_model=cfg.ollama_model,
-                )
-                if rationale:
-                    pick_summaries[it.ext_id] = rationale
-            except Exception as e:
-                log.warning("pick_rationale 실패 %s: %s", it.ext_id, e)
-
-        # 7a. 오늘의 핵심 이슈 선정 — 해외 (EDGAR·FT·BBC) + 국내 (DART·리서치·한경) 분리 실행
+        # 6. 오늘의 핵심 이슈 선정 — 해외 (EDGAR·FT·BBC) + 국내 (DART·리서치·한경) 분리 실행 오늘의 핵심 이슈 선정 — 해외 (EDGAR·FT·BBC) + 국내 (DART·리서치·한경) 분리 실행
         hot_issues_foreign: list[dict] = []
         try:
             foreign_candidates: list[tuple[CollectedItem, int]] = []
@@ -347,8 +282,6 @@ def run_morning(
             ai_news=ai_news,
             glossary=glossary_map,
             term_ids_by_id=term_ids_by_id,
-            picks=picks,
-            pick_summaries=pick_summaries,
             hot_issues_foreign=hot_issues_foreign,
             hot_issues_domestic=hot_issues_domestic,
             news_summaries=news_summaries,
@@ -360,6 +293,15 @@ def run_morning(
         briefing_json_path = write_briefing(
             public_briefings_dir=cfg.public_briefings_dir, briefing=briefing
         )
+
+        # 7c. Supabase briefings 테이블에 저장 (프론트엔드 직접 읽기)
+        try:
+            from news_briefing.storage.briefings import upsert_briefing
+
+            upsert_briefing(conn, briefing["date"], briefing)
+            log.info("briefing upserted to Supabase: %s", briefing["date"])
+        except Exception as e:
+            log.warning("briefing Supabase 저장 실패: %s", e)
 
         # 8. RAG 자동 인덱싱 (Week 4) — 실패해도 morning 전체 중단 X
         try:

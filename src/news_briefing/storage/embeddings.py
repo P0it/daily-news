@@ -1,15 +1,16 @@
 """벡터 임베딩 CRUD + 코사인 유사도 검색 (Week 4).
 
-Chroma 대신 SQLite BLOB + numpy — 개인 스케일에 충분.
+Postgres BYTEA + numpy — 개인 스케일에 충분.
 """
 from __future__ import annotations
 
 import json
-import sqlite3
 from dataclasses import dataclass
 from datetime import UTC, datetime
 
 import numpy as np
+
+from news_briefing.storage.db import Connection
 
 
 @dataclass(frozen=True, slots=True)
@@ -25,16 +26,21 @@ def _serialize(v: np.ndarray) -> bytes:
     return v.astype(np.float32).tobytes()
 
 
-def _deserialize(b: bytes, dim: int) -> np.ndarray:
-    return np.frombuffer(b, dtype=np.float32, count=dim).copy()
+def _deserialize(b: bytes | memoryview, dim: int) -> np.ndarray:
+    # psycopg2 가 BYTEA를 memoryview 로 반환하므로 bytes 로 변환
+    return np.frombuffer(bytes(b), dtype=np.float32, count=dim).copy()
 
 
-def upsert_embedding(conn: sqlite3.Connection, row: EmbeddingRow) -> None:
+def upsert_embedding(conn: Connection, row: EmbeddingRow) -> None:
     now = datetime.now(UTC).isoformat()
     conn.execute(
-        "INSERT OR REPLACE INTO embeddings"
+        "INSERT INTO embeddings"
         "(doc_id, source, content, vector, dim, metadata_json, indexed_at) "
-        "VALUES (?, ?, ?, ?, ?, ?, ?)",
+        "VALUES (%s, %s, %s, %s, %s, %s, %s) "
+        "ON CONFLICT (doc_id) DO UPDATE SET "
+        "source=EXCLUDED.source, content=EXCLUDED.content, "
+        "vector=EXCLUDED.vector, dim=EXCLUDED.dim, "
+        "metadata_json=EXCLUDED.metadata_json, indexed_at=EXCLUDED.indexed_at",
         (
             row.doc_id,
             row.source,
@@ -48,17 +54,17 @@ def upsert_embedding(conn: sqlite3.Connection, row: EmbeddingRow) -> None:
     conn.commit()
 
 
-def has_embedding(conn: sqlite3.Connection, doc_id: str) -> bool:
+def has_embedding(conn: Connection, doc_id: str) -> bool:
     r = conn.execute(
-        "SELECT 1 FROM embeddings WHERE doc_id=?", (doc_id,)
+        "SELECT 1 FROM embeddings WHERE doc_id=%s", (doc_id,)
     ).fetchone()
     return r is not None
 
 
-def get_embedding(conn: sqlite3.Connection, doc_id: str) -> EmbeddingRow | None:
+def get_embedding(conn: Connection, doc_id: str) -> EmbeddingRow | None:
     r = conn.execute(
         "SELECT doc_id, source, content, vector, dim, metadata_json "
-        "FROM embeddings WHERE doc_id=?",
+        "FROM embeddings WHERE doc_id=%s",
         (doc_id,),
     ).fetchone()
     if r is None:
@@ -73,7 +79,7 @@ def get_embedding(conn: sqlite3.Connection, doc_id: str) -> EmbeddingRow | None:
 
 
 def similarity_search(
-    conn: sqlite3.Connection, query_vector: np.ndarray, *, top_k: int = 5
+    conn: Connection, query_vector: np.ndarray, *, top_k: int = 5
 ) -> list[tuple[EmbeddingRow, float]]:
     rows = conn.execute(
         "SELECT doc_id, source, content, vector, dim, metadata_json FROM embeddings"
@@ -110,6 +116,6 @@ def similarity_search(
     return scored[:top_k]
 
 
-def count_embeddings(conn: sqlite3.Connection) -> int:
+def count_embeddings(conn: Connection) -> int:
     r = conn.execute("SELECT COUNT(*) AS n FROM embeddings").fetchone()
     return int(r["n"])

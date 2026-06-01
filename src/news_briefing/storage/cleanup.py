@@ -11,7 +11,8 @@ import json
 import logging
 from datetime import date, datetime, timezone
 from pathlib import Path
-from sqlite3 import Connection
+
+from news_briefing.storage.db import Connection
 
 log = logging.getLogger(__name__)
 
@@ -20,8 +21,8 @@ SEEN_KEEP_DAYS = 14
 
 def purge_seen(conn: Connection) -> int:
     cur = conn.execute(
-        "DELETE FROM seen WHERE substr(seen_at, 1, 10) < date('now', ?)",
-        (f"-{SEEN_KEEP_DAYS} days",),
+        "DELETE FROM seen WHERE seen_at::TIMESTAMPTZ < NOW() - INTERVAL '%s days'"
+        % SEEN_KEEP_DAYS
     )
     conn.commit()
     return cur.rowcount
@@ -34,7 +35,6 @@ def purge_transient_tables(conn: Connection) -> dict[str, int]:
         cur = conn.execute(f"DELETE FROM {table}")  # noqa: S608
         counts[table] = cur.rowcount
     conn.commit()
-    conn.execute("VACUUM")
     return counts
 
 
@@ -48,20 +48,17 @@ def purge_files(
     counts: dict[str, int] = {"digests": 0, "briefings": 0}
 
     for path in digests_dir.glob("*.txt"):
-        stem = path.stem  # e.g. "2026-04-22"
-        if stem != today_str:
+        if path.stem != today_str:
             path.unlink(missing_ok=True)
             counts["digests"] += 1
 
     for path in briefings_dir.glob("*.json"):
         if path.name == "index.json":
             continue
-        stem = path.stem
-        if stem != today_str:
+        if path.stem != today_str:
             path.unlink(missing_ok=True)
             counts["briefings"] += 1
 
-    # index.json 을 오늘 날짜만 남도록 갱신
     index_path = briefings_dir / "index.json"
     today_file = briefings_dir / f"{today_str}.json"
     dates = [today_str] if today_file.exists() else []

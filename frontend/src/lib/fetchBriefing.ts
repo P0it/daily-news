@@ -1,4 +1,5 @@
 import type { Briefing } from '@/lib/types'
+import { supabase } from '@/lib/supabase'
 
 function todayKey(): string {
   const d = new Date()
@@ -7,24 +8,33 @@ function todayKey(): string {
 
 export async function fetchBriefing(date?: string): Promise<Briefing> {
   const key = date ?? todayKey()
-  const resp = await fetch(`/briefings/${key}.json`, { cache: 'no-cache' })
-  if (!resp.ok) {
-    throw new Error(`briefing fetch failed: ${resp.status}`)
+  const { data, error } = await supabase
+    .from('briefings')
+    .select('data')
+    .eq('date', key)
+    .single()
+
+  if (error || !data) {
+    throw new Error(`briefing fetch failed: ${error?.message ?? 'not found'}`)
   }
-  return resp.json()
+  return data.data as Briefing
 }
 
 export async function fetchBriefingIndex(): Promise<{ dates: string[] }> {
-  const resp = await fetch('/briefings/index.json', { cache: 'no-cache' })
-  if (!resp.ok) return { dates: [] }
-  return resp.json()
+  const { data, error } = await supabase
+    .from('briefings')
+    .select('date')
+    .order('date', { ascending: false })
+    .limit(30)
+
+  if (error || !data) return { dates: [] }
+  return { dates: data.map((r) => r.date) }
 }
 
 export async function fetchLatestBriefing(): Promise<Briefing | null> {
   try {
     return await fetchBriefing()
   } catch {
-    // 오늘 파일이 없으면 index.json 최신 날짜로 재시도
     const index = await fetchBriefingIndex()
     if (index.dates.length === 0) return null
     try {

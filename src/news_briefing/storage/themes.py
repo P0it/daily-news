@@ -2,10 +2,11 @@
 from __future__ import annotations
 
 import json
-import sqlite3
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+
+from news_briefing.storage.db import Connection
 
 
 @dataclass(frozen=True, slots=True)
@@ -17,7 +18,7 @@ class Theme:
 
 @dataclass(frozen=True, slots=True)
 class ValueLayer:
-    layer_id: int | None  # None before insert (upsert 후 반환 값 사용)
+    layer_id: int | None  # None before insert
     theme_id: str
     name: str
     description: str | None = None
@@ -32,40 +33,41 @@ class CompanyInLayer:
     verified: bool = False
 
 
-def upsert_theme(conn: sqlite3.Connection, theme: Theme) -> None:
+def upsert_theme(conn: Connection, theme: Theme) -> None:
     now = datetime.now(UTC).isoformat()
     conn.execute(
-        "INSERT OR REPLACE INTO themes(theme_id, name_ko, description, updated_at) "
-        "VALUES (?, ?, ?, ?)",
+        "INSERT INTO themes(theme_id, name_ko, description, updated_at) "
+        "VALUES (%s, %s, %s, %s) "
+        "ON CONFLICT (theme_id) DO UPDATE SET "
+        "name_ko=EXCLUDED.name_ko, description=EXCLUDED.description, updated_at=EXCLUDED.updated_at",
         (theme.theme_id, theme.name_ko, theme.description, now),
     )
     conn.commit()
 
 
-def get_theme(conn: sqlite3.Connection, theme_id: str) -> Theme | None:
+def get_theme(conn: Connection, theme_id: str) -> Theme | None:
     r = conn.execute(
-        "SELECT theme_id, name_ko, description FROM themes WHERE theme_id=?",
+        "SELECT theme_id, name_ko, description FROM themes WHERE theme_id=%s",
         (theme_id,),
     ).fetchone()
     return Theme(r["theme_id"], r["name_ko"], r["description"]) if r else None
 
 
-def list_themes(conn: sqlite3.Connection) -> list[Theme]:
+def list_themes(conn: Connection) -> list[Theme]:
     rows = conn.execute(
         "SELECT theme_id, name_ko, description FROM themes ORDER BY theme_id"
     ).fetchall()
     return [Theme(r["theme_id"], r["name_ko"], r["description"]) for r in rows]
 
 
-def upsert_layer(conn: sqlite3.Connection, layer: ValueLayer) -> int:
+def upsert_layer(conn: Connection, layer: ValueLayer) -> int:
     """layer 를 upsert (theme_id + name unique). 반환: layer_id."""
     now = datetime.now(UTC).isoformat()
-    # SQLite 의 ON CONFLICT 로 UPSERT + RETURNING
     row = conn.execute(
         "INSERT INTO value_layers(theme_id, name, description, updated_at) "
-        "VALUES (?, ?, ?, ?) "
-        "ON CONFLICT(theme_id, name) DO UPDATE SET "
-        "description=excluded.description, updated_at=excluded.updated_at "
+        "VALUES (%s, %s, %s, %s) "
+        "ON CONFLICT (theme_id, name) DO UPDATE SET "
+        "description=EXCLUDED.description, updated_at=EXCLUDED.updated_at "
         "RETURNING layer_id",
         (layer.theme_id, layer.name, layer.description, now),
     ).fetchone()
@@ -73,10 +75,10 @@ def upsert_layer(conn: sqlite3.Connection, layer: ValueLayer) -> int:
     return row["layer_id"]
 
 
-def list_layers(conn: sqlite3.Connection, theme_id: str) -> list[ValueLayer]:
+def list_layers(conn: Connection, theme_id: str) -> list[ValueLayer]:
     rows = conn.execute(
         "SELECT layer_id, theme_id, name, description FROM value_layers "
-        "WHERE theme_id=? ORDER BY layer_id",
+        "WHERE theme_id=%s ORDER BY layer_id",
         (theme_id,),
     ).fetchall()
     return [
@@ -85,12 +87,15 @@ def list_layers(conn: sqlite3.Connection, theme_id: str) -> list[ValueLayer]:
     ]
 
 
-def upsert_company(conn: sqlite3.Connection, company: CompanyInLayer) -> None:
+def upsert_company(conn: Connection, company: CompanyInLayer) -> None:
     now = datetime.now(UTC).isoformat()
     conn.execute(
-        "INSERT OR REPLACE INTO companies_in_layer"
+        "INSERT INTO companies_in_layer"
         "(layer_id, ticker, company_name, positioning, verified, updated_at) "
-        "VALUES (?, ?, ?, ?, ?, ?)",
+        "VALUES (%s, %s, %s, %s, %s, %s) "
+        "ON CONFLICT (layer_id, ticker) DO UPDATE SET "
+        "company_name=EXCLUDED.company_name, positioning=EXCLUDED.positioning, "
+        "verified=EXCLUDED.verified, updated_at=EXCLUDED.updated_at",
         (
             company.layer_id,
             company.ticker,
@@ -103,10 +108,10 @@ def upsert_company(conn: sqlite3.Connection, company: CompanyInLayer) -> None:
     conn.commit()
 
 
-def list_companies(conn: sqlite3.Connection, layer_id: int) -> list[CompanyInLayer]:
+def list_companies(conn: Connection, layer_id: int) -> list[CompanyInLayer]:
     rows = conn.execute(
         "SELECT layer_id, ticker, company_name, positioning, verified "
-        "FROM companies_in_layer WHERE layer_id=? ORDER BY company_name",
+        "FROM companies_in_layer WHERE layer_id=%s ORDER BY company_name",
         (layer_id,),
     ).fetchall()
     return [
@@ -121,7 +126,7 @@ def list_companies(conn: sqlite3.Connection, layer_id: int) -> list[CompanyInLay
     ]
 
 
-def load_seed(conn: sqlite3.Connection, seed_path: Path) -> dict[str, int]:
+def load_seed(conn: Connection, seed_path: Path) -> dict[str, int]:
     """seed JSON 을 DB 에 일괄 적재. 반환: {theme_id: company_count}."""
     data = json.loads(seed_path.read_text(encoding="utf-8"))
     result: dict[str, int] = {}

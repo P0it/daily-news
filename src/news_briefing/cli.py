@@ -65,7 +65,7 @@ def _cmd_themes(args: argparse.Namespace) -> int:
         if not seed_path.exists():
             print(f"seed 파일 없음: {seed_path}", file=sys.stderr)
             return 1
-        conn = connect(cfg.db_path)
+        conn = connect(cfg.database_url)
         try:
             result = load_seed(conn, seed_path)
         finally:
@@ -78,7 +78,7 @@ def _cmd_themes(args: argparse.Namespace) -> int:
         from news_briefing.analysis.themes import refresh_theme_layers
         from news_briefing.storage.themes import get_theme
 
-        conn = connect(cfg.db_path)
+        conn = connect(cfg.database_url)
         try:
             theme = get_theme(conn, args.theme_id)
             if theme is None:
@@ -103,7 +103,7 @@ def _cmd_weekly(args: argparse.Namespace) -> int:
     from news_briefing.storage.themes import list_themes
 
     cfg = load_config()
-    conn = connect(cfg.db_path)
+    conn = connect(cfg.database_url)
     try:
         themes = list_themes(conn)
     finally:
@@ -131,7 +131,7 @@ def _cmd_cleanup(args: argparse.Namespace) -> int:
     from news_briefing.storage.db import connect
 
     cfg = load_config()
-    conn = connect(cfg.db_path)
+    conn = connect(cfg.database_url)
     try:
         run_cleanup(conn, digests_dir=cfg.digests_dir, briefings_dir=cfg.public_briefings_dir)
     finally:
@@ -145,7 +145,7 @@ def _cmd_ask(args: argparse.Namespace) -> int:
     from news_briefing.storage.db import connect
 
     cfg = load_config()
-    conn = connect(cfg.db_path)
+    conn = connect(cfg.database_url)
     try:
         result = answer_query(
             conn,
