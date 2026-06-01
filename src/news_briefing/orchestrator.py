@@ -15,6 +15,7 @@ from news_briefing.analysis.trends import detect_trending_themes
 from news_briefing.collectors.base import CollectedItem
 from news_briefing.collectors.dart import fetch_dart_list
 from news_briefing.collectors.edgar import fetch_all_edgar
+from news_briefing.collectors.macro import fetch_macro
 from news_briefing.collectors.rss import fetch_all_rss
 from news_briefing.config import Config
 from news_briefing.delivery.digest import format_digest, write_digest
@@ -81,11 +82,12 @@ def run_morning(
 
     conn = connect(cfg.db_path)
     try:
-        # 1. 수집 (DART + RSS + EDGAR)
+        # 1. 수집 (DART + RSS + EDGAR + 거시지표)
         date_key = now.strftime("%Y%m%d")
         disclosures = fetch_dart_list(cfg.dart_api_key, date_key)
         news = fetch_all_rss()
         edgar_items = fetch_all_edgar(cfg.edgar_user_agent) if cfg.edgar_user_agent else []
+        macro_indices = fetch_macro()
         all_items = disclosures + news + edgar_items
 
         # 2. 중복 제거 + DART tickers 매핑 자동 수집
@@ -284,6 +286,7 @@ def run_morning(
             theme_banner=theme_banner,
             news_summaries=news_summaries,
             ai_title_translations=ai_title_translations,
+            macro_indices=macro_indices,
         )
         briefing_json_path = write_briefing(
             public_briefings_dir=cfg.public_briefings_dir, briefing=briefing

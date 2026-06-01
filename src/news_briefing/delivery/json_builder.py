@@ -109,6 +109,7 @@ def build_briefing_json(
     theme_banner: dict | None = None,
     news_summaries: dict[str, str] | None = None,
     ai_title_translations: dict[str, str] | None = None,
+    macro_indices: list | None = None,
 ) -> dict:
     filtered_for_economy = [
         s for s in scored_signals if s[1] >= ECONOMY_SIGNAL_THRESHOLD
@@ -154,8 +155,20 @@ def build_briefing_json(
         current_grouped[cat] = arr[:cap]
 
     # Week 5a (DECISIONS #13): picks 를 economy 내부로 이동
+    indices_list = [
+        {
+            "symbol": m.symbol,
+            "ticker": m.ticker,
+            "close": m.close,
+            "change": m.change,
+            "changePct": m.change_pct,
+            "currency": m.currency,
+            "group": m.group,
+        }
+        for m in (macro_indices or [])
+    ]
     economy_tab: dict = {
-        "indices": [],
+        "indices": indices_list,
         "picks": picks_tab,
         "signals": [
             _signal_to_dict(it, s, d, term_ids_by_id)
