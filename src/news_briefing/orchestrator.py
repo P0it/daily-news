@@ -10,23 +10,19 @@ from news_briefing.analysis.curation import curation_score
 from news_briefing.analysis.glossary import detect_term, ensure_glossary_entry
 from news_briefing.analysis.llm import summarize, translate_news_ko
 from news_briefing.analysis.picks import select_picks
-from news_briefing.analysis.scoring import score_edgar, score_report
+from news_briefing.analysis.scoring import score_consensus, score_edgar, score_report
 from news_briefing.analysis.trends import detect_trending_themes
 from news_briefing.collectors.base import CollectedItem
 from news_briefing.collectors.dart import fetch_dart_list
 from news_briefing.collectors.edgar import fetch_all_edgar
+from news_briefing.collectors.krx_etf import ETFSnapshot, fetch_krx_etf
 from news_briefing.collectors.macro import fetch_macro
+from news_briefing.collectors.research import fetch_research_reports
 from news_briefing.collectors.rss import fetch_all_rss
 from news_briefing.config import Config
 from news_briefing.delivery.digest import format_digest, write_digest
 from news_briefing.delivery.json_builder import build_briefing_json, write_briefing
-from news_briefing.delivery.kakao import (
-    compose_text_template,
-    load_tokens,
-    refresh_access_token,
-    save_tokens,
-    send_text,
-)
+from news_briefing.delivery.discord import send_message as discord_send
 from news_briefing.storage.db import connect
 from news_briefing.storage.seen import is_seen, mark_seen
 from news_briefing.storage.tickers import TickerRow, upsert_ticker
@@ -47,31 +43,15 @@ class MorningResult:
     picks_foreign: int
     digest_path: Path
     briefing_json_path: Path
-    sent_kakao: bool
+    sent_discord: bool
 
 
-def _send_kakao(cfg: Config, text_title: str, link_url: str) -> bool:
+def _send_discord(cfg: Config, text: str) -> bool:
     """내부 헬퍼. 테스트에서 mock patch 타겟."""
-    tokens = load_tokens(cfg.tokens_path)
-    if tokens is None:
-        log.warning(
-            ".kakao_tokens.json 없음, 카톡 전송 스킵. kakao_auth.py 먼저 실행하세요."
-        )
+    if not cfg.discord_webhook_url:
+        log.warning("DISCORD_WEBHOOK_URL 미설정, Discord 전송 스킵.")
         return False
-
-    payload = compose_text_template(text_title, link_url, "열기")
-    if send_text(tokens=tokens, rest_api_key=cfg.kakao_rest_api_key, payload=payload):
-        return True
-
-    # 401 의심 → refresh 시도
-    refreshed = refresh_access_token(cfg.kakao_rest_api_key, tokens.refresh_token)
-    if refreshed is None:
-        log.error("refresh 실패. kakao_auth.py 재실행 필요.")
-        return False
-    save_tokens(cfg.tokens_path, refreshed)
-    return send_text(
-        tokens=refreshed, rest_api_key=cfg.kakao_rest_api_key, payload=payload
-    )
+    return discord_send(cfg.discord_webhook_url, text)
 
 
 def run_morning(
@@ -82,13 +62,15 @@ def run_morning(
 
     conn = connect(cfg.db_path)
     try:
-        # 1. 수집 (DART + RSS + EDGAR + 거시지표)
+        # 1. 수집 (DART + RSS + EDGAR + 거시지표 + 리서치 + KRX ETF)
         date_key = now.strftime("%Y%m%d")
         disclosures = fetch_dart_list(cfg.dart_api_key, date_key)
         news = fetch_all_rss()
         edgar_items = fetch_all_edgar(cfg.edgar_user_agent) if cfg.edgar_user_agent else []
         macro_indices = fetch_macro()
-        all_items = disclosures + news + edgar_items
+        research_raw = fetch_research_reports()
+        etf_snapshots: list[ETFSnapshot] = fetch_krx_etf()
+        all_items = disclosures + news + edgar_items + research_raw
 
         # 2. 중복 제거 + DART tickers 매핑 자동 수집
         new_items: list[CollectedItem] = []
@@ -179,6 +161,20 @@ def run_morning(
                                 "direction": entry.signal_direction,
                             }
                 current_candidates.append((it, cs))
+
+        # research 아이템 점수 산정 (신규 아이템만, category=="research" 분기)
+        MIN_RESEARCH_SCORE = 60  # 유지(42)는 제외, 상향/하향/신규만 노출
+        research_scored: list[tuple[CollectedItem, int, str]] = []
+        for it in new_items:
+            if (it.extra or {}).get("category") != "research":
+                continue
+            tp_dir = (it.extra or {}).get("tpDirection", "유지")
+            tp_pct = float((it.extra or {}).get("targetPricePct", 0))
+            s, d = score_consensus(tp_dir, tp_pct)
+            if s >= MIN_RESEARCH_SCORE:
+                research_scored.append((it, s, d))
+        research_scored.sort(key=lambda t: t[1], reverse=True)
+        research_scored = research_scored[:15]  # 상위 15건만
 
         # 경제 뉴스 15건: 국내 최대 10 + 해외 최대 5, 인터리브. 한쪽 부족하면 반대쪽이 메움
         from itertools import zip_longest
@@ -287,6 +283,8 @@ def run_morning(
             news_summaries=news_summaries,
             ai_title_translations=ai_title_translations,
             macro_indices=macro_indices,
+            research_scored=research_scored,
+            etf_snapshots=etf_snapshots,
         )
         briefing_json_path = write_briefing(
             public_briefings_dir=cfg.public_briefings_dir, briefing=briefing
@@ -308,15 +306,13 @@ def run_morning(
         sent = False
         sig_above = sum(1 for _, s, _ in scored if s >= MIN_SIGNAL_SCORE)
         if not dry_run:
-            title = (
-                f"데일리 브리핑 · {now.strftime('%m월 %d일')}\n"
-                f"AI {len(ai_news)}건 · 공시 {sig_above}건 · 뉴스 {len(fresh_news)}건"
+            link_url = f"{cfg.vercel_base_url}/?date={now.strftime('%Y-%m-%d')}&tab=ai"
+            message = (
+                f"**데일리 브리핑 · {now.strftime('%m월 %d일')}**\n"
+                f"AI {len(ai_news)}건 · 공시 {sig_above}건 · 뉴스 {len(fresh_news)}건\n"
+                f"{link_url}"
             )
-            # Week 5b: 카톡 딥링크 default 를 AI 탭으로 (DECISIONS #13)
-            link_url = (
-                f"{cfg.vercel_base_url}/?date={now.strftime('%Y-%m-%d')}&tab=ai"
-            )
-            sent = _send_kakao(cfg, title, link_url)
+            sent = _send_discord(cfg, message)
         else:
             print(text)  # dry-run: stdout 에 전체 디지스트 출력
 
@@ -330,7 +326,7 @@ def run_morning(
             picks_foreign=len(picks.foreign),
             digest_path=digest_path,
             briefing_json_path=briefing_json_path,
-            sent_kakao=sent,
+            sent_discord=sent,
         )
     finally:
         conn.close()

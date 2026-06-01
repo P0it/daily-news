@@ -9,6 +9,7 @@ dependencies = [
     "requests>=2.32.0",
     "numpy>=2.0.0",
     "yfinance>=0.2.40",
+    "beautifulsoup4>=4.12",
 ]
 
 [project.optional-dependencies]

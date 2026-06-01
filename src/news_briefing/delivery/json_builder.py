@@ -110,6 +110,8 @@ def build_briefing_json(
     news_summaries: dict[str, str] | None = None,
     ai_title_translations: dict[str, str] | None = None,
     macro_indices: list | None = None,
+    research_scored: list[tuple[CollectedItem, int, str]] | None = None,
+    etf_snapshots: list | None = None,
 ) -> dict:
     filtered_for_economy = [
         s for s in scored_signals if s[1] >= ECONOMY_SIGNAL_THRESHOLD
@@ -181,6 +183,41 @@ def build_briefing_json(
             for n in economy_news
         ],
     }
+    # 증권사 리서치 리포트 (목표주가 상향/하향/신규)
+    research_list = [
+        {
+            "id": it.ext_id,
+            "company": it.company or "",
+            "companyCode": it.company_code or None,
+            "firm": (it.extra or {}).get("firm", ""),
+            "reportTitle": (it.extra or {}).get("reportTitle", it.title),
+            "targetPrice": (it.extra or {}).get("targetPrice", 0),
+            "targetPriceChange": (it.extra or {}).get("targetPriceChange", 0),
+            "targetPricePct": (it.extra or {}).get("targetPricePct", 0.0),
+            "tpDirection": (it.extra or {}).get("tpDirection", "유지"),
+            "direction": d,
+            "score": s,
+            "url": it.url,
+            "time": it.published_at.isoformat(),
+        }
+        for it, s, d in (research_scored or [])
+    ]
+    economy_tab["research"] = research_list
+
+    # KRX ETF 순자산 상위 (자금 흐름 참고)
+    etf_list = [
+        {
+            "code": e.code,
+            "name": e.name,
+            "theme": e.theme,
+            "close": e.close,
+            "change": e.change,
+            "changePct": e.change_pct,
+        }
+        for e in (etf_snapshots or [])
+    ]
+    economy_tab["etf"] = etf_list
+
     if theme_banner and theme_banner.get("trendingThemes"):
         economy_tab["themeBanner"] = theme_banner
 

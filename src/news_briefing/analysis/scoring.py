@@ -118,6 +118,30 @@ EDGAR_ITEM_WEIGHTS: dict[str, tuple[int, Direction]] = {
 }
 
 
+def score_consensus(tp_direction: str, tp_change_pct: float) -> tuple[int, Direction]:
+    """증권사 리서치 목표주가 방향 기반 점수.
+
+    tp_direction: '상향' | '하향' | '신규' | '유지'
+    tp_change_pct: 변화율 (%) — 상향이면 양수, 하향이면 음수
+    """
+    abs_pct = abs(tp_change_pct)
+    if tp_direction == "상향":
+        if abs_pct >= 10:
+            return 82, "positive"
+        if abs_pct >= 5:
+            return 76, "positive"
+        return 70, "positive"
+    if tp_direction == "하향":
+        if abs_pct >= 10:
+            return 80, "negative"
+        if abs_pct >= 5:
+            return 73, "negative"
+        return 65, "negative"
+    if tp_direction == "신규":
+        return 72, "positive"
+    return 42, "neutral"  # 유지
+
+
 def score_edgar(*, form_type: str, items: str) -> tuple[int, Direction]:
     """SEC EDGAR form_type + items 기반 점수.
 
