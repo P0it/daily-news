@@ -70,14 +70,16 @@ def _signal_to_dict(
     score: int,
     direction: str,
     term_ids_by_id: dict[str, str] | None = None,
+    pick_summaries: dict[str, str] | None = None,
 ) -> dict:
+    summary = (pick_summaries or {}).get(item.ext_id) or item.body or ""
     return {
         "id": item.ext_id,
-        "source": item.source.split(":")[0],  # 'dart' or 'edgar'
+        "source": item.source.split(":")[0],  # 'dart', 'edgar', 'research' 등
         "company": item.company or "",
         "companyCode": item.company_code or None,
         "headline": item.title,
-        "summary": item.body or "",
+        "summary": summary,
         "score": score,
         "direction": direction,
         "scope": "foreign" if item.source.startswith("edgar") else "domestic",
@@ -133,7 +135,8 @@ def build_briefing_json(
     glossary: dict[str, dict] | None = None,
     term_ids_by_id: dict[str, str] | None = None,
     picks: PicksResult | None = None,
-    theme_banner: dict | None = None,
+    pick_summaries: dict[str, str] | None = None,
+    hot_issues: list[dict] | None = None,
     news_summaries: dict[str, str] | None = None,
     ai_title_translations: dict[str, str] | None = None,
     macro_indices: list | None = None,
@@ -154,10 +157,10 @@ def build_briefing_json(
     picks_tab: dict[str, list[dict]] = {"domestic": [], "foreign": []}
     if picks:
         picks_tab["domestic"] = [
-            _signal_to_dict(it, s, d, term_ids_by_id) for it, s, d in picks.domestic
+            _signal_to_dict(it, s, d, term_ids_by_id, pick_summaries) for it, s, d in picks.domestic
         ]
         picks_tab["foreign"] = [
-            _signal_to_dict(it, s, d, term_ids_by_id) for it, s, d in picks.foreign
+            _signal_to_dict(it, s, d, term_ids_by_id, pick_summaries) for it, s, d in picks.foreign
         ]
 
     # 시사 탭 — 카테고리별 그루핑 + curation 정렬 + 소스 다양성 + cap
@@ -245,8 +248,8 @@ def build_briefing_json(
     ]
     economy_tab["etf"] = etf_list
 
-    if theme_banner and theme_banner.get("trendingThemes"):
-        economy_tab["themeBanner"] = theme_banner
+    if hot_issues:
+        economy_tab["hotIssues"] = hot_issues
 
     # Week 5b: AI 탭 — 소스 품질 가중 + 최신성 정렬
     # 공식 블로그·GeekNews·YouTube·HN 먼저, Google News 는 뒤 (노이즈 최소화)

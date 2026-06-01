@@ -29,7 +29,7 @@ export interface EconomyTab {
   picks: PicksSection
   signals: SignalItem[]
   news: NewsItem[]
-  themeBanner?: ThemeBanner
+  hotIssues?: HotIssue[]
 }
 
 export interface PicksSection {
@@ -44,7 +44,8 @@ export type Direction = 'positive' | 'negative' | 'mixed' | 'neutral'
 
 export interface SignalItem {
   id: string
-  source: 'dart' | 'edgar'
+  source: 'dart' | 'edgar' | 'research' | string
+  assetType?: 'stock' | 'etf'
   company: string
   companyCode: string | null
   headline: string
@@ -90,9 +91,12 @@ export interface MarketIndex {
   direction: 'up' | 'down' | 'flat'
 }
 
-export interface ThemeBanner {
-  trendingThemes: string[]
-  reportUrl: string
+export interface HotIssue {
+  rank: number
+  title: string
+  reason: string
+  source: string
+  url: string | null
 }
 
 export interface GlossaryEntry {

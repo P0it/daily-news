@@ -8,10 +8,10 @@ from pathlib import Path
 
 from news_briefing.analysis.curation import curation_score
 from news_briefing.analysis.glossary import detect_term, ensure_glossary_entry
-from news_briefing.analysis.llm import summarize, translate_news_ko
+from news_briefing.analysis.llm import pick_rationale, summarize, translate_news_ko
 from news_briefing.analysis.picks import select_picks
 from news_briefing.analysis.scoring import score_consensus, score_edgar, score_report
-from news_briefing.analysis.trends import detect_trending_themes
+from news_briefing.analysis.hot_issues import analyze_hot_issues
 from news_briefing.collectors.base import CollectedItem
 from news_briefing.collectors.dart import fetch_dart_list
 from news_briefing.collectors.edgar import fetch_all_edgar
@@ -239,35 +239,44 @@ def run_morning(
         )
         digest_path = write_digest(digests_dir=cfg.digests_dir, date=now, text=text)
 
-        # 6. Today's Pick 선별 (DECISIONS #12, Week 2b)
-        picks = select_picks(scored, n_per_side=6)
+        # 6. Today's Pick 선별 — DART + 리서치 리포트 통합 후보 (국내 다각화)
+        # research_scored 는 네이버 금융 증권사 리포트 기반 (company_code 포함)
+        all_pick_candidates = scored + research_scored
+        picks = select_picks(all_pick_candidates, n_per_side=6)
 
-        # 7a. Trending theme 감지 (Week 4 F12)
-        theme_banner: dict | None = None
-        try:
-            from news_briefing.storage.themes import list_themes
-
-            themes_list = list_themes(conn)
-            theme_keywords = {t.theme_id: [t.name_ko] for t in themes_list}
-            events = [(it.title, now) for it in new_items]
-            trending_ids = (
-                detect_trending_themes(
-                    events, theme_keywords=theme_keywords, now=now
+        # Pick 별 LLM 투자 포인트 생성 (왜 이 종목인지 2~3문장 설명)
+        pick_summaries: dict[str, str] = {}
+        for it, _s, _d in picks.domestic + picks.foreign:
+            if not it.company:
+                continue
+            try:
+                rationale = pick_rationale(
+                    conn,
+                    it.company,
+                    it.title,
+                    ollama_enabled=cfg.ollama_enabled,
+                    ollama_model=cfg.ollama_model,
                 )
-                if theme_keywords
-                else []
-            )
-            if trending_ids:
-                name_by_id = {t.theme_id: t.name_ko for t in themes_list}
-                week_id = f"{now.year}-W{now.isocalendar()[1]:02d}"
-                theme_banner = {
-                    "trendingThemes": [
-                        name_by_id.get(tid, tid) for tid in trending_ids
-                    ],
-                    "reportUrl": f"/report/{week_id}",
-                }
+                if rationale:
+                    pick_summaries[it.ext_id] = rationale
+            except Exception as e:
+                log.warning("pick_rationale 실패 %s: %s", it.ext_id, e)
+
+        # 7a. 오늘의 핵심 이슈 선정 — LLM 기반 (Tier 1/2 해외 소스 우선)
+        hot_issues: list[dict] = []
+        try:
+            hot_candidates: list[tuple[CollectedItem, int]] = []
+            for it, s, _d in scored:
+                if it.source == "edgar":
+                    hot_candidates.append((it, s))
+            for it in stock_news_foreign:
+                hot_candidates.append((it, 50))
+            for it, cs in current_candidates:
+                if (it.extra or {}).get("category") == "international":
+                    hot_candidates.append((it, cs))
+            hot_issues = analyze_hot_issues(hot_candidates)
         except Exception as e:
-            log.warning("trending theme 감지 실패: %s", e)
+            log.warning("hot_issues 분석 실패: %s", e)
 
         # 7b. Briefing JSON
         briefing = build_briefing_json(
@@ -279,7 +288,8 @@ def run_morning(
             glossary=glossary_map,
             term_ids_by_id=term_ids_by_id,
             picks=picks,
-            theme_banner=theme_banner,
+            pick_summaries=pick_summaries,
+            hot_issues=hot_issues,
             news_summaries=news_summaries,
             ai_title_translations=ai_title_translations,
             macro_indices=macro_indices,

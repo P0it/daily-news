@@ -13,6 +13,12 @@ const TONE: Record<Direction, string> = {
   neutral: '#8B95A1',
 }
 
+const SOURCE_LABEL: Record<string, string> = {
+  dart: 'DART 공시',
+  edgar: 'SEC EDGAR',
+  research: '증권사 리포트',
+}
+
 function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString('ko-KR', {
     hour: 'numeric',
@@ -32,6 +38,7 @@ export function PicksCard({
   const color = TONE[signal.direction]
   const symbol = resolveTradingViewSymbol(signal)
   const time = formatTime(signal.time)
+  const sourceLabel = SOURCE_LABEL[signal.source] ?? signal.source
 
   return (
     <article
@@ -40,19 +47,24 @@ export function PicksCard({
       style={{
         background: 'var(--bg-card)',
         borderRadius: 'var(--radius-card-sm)',
-        padding: '16px 18px',
+        padding: '18px 18px 16px',
         transition: 'transform 150ms ease-out',
       }}
     >
-      <div className="flex items-center" style={{ gap: 7, marginBottom: 8 }}>
+      {/* 상단: 방향 dot + 소스 레이블 + 시간 */}
+      <div className="flex items-center" style={{ gap: 6, marginBottom: 10 }}>
         <span
           style={{
             width: 6,
             height: 6,
             borderRadius: '50%',
             background: color,
+            flexShrink: 0,
           }}
         />
+        <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
+          {sourceLabel}
+        </span>
         <span
           className="ml-auto"
           style={{ fontSize: 11, color: 'var(--text-tertiary)' }}
@@ -61,29 +73,65 @@ export function PicksCard({
         </span>
       </div>
 
-      <h4
-        style={{
-          fontSize: 16,
-          fontWeight: 700,
-          color: 'var(--text-primary)',
-          letterSpacing: '-0.02em',
-          lineHeight: 1.3,
-        }}
-      >
-        {signal.company || '—'}
-      </h4>
+      {/* 회사명 + 종목코드 */}
+      <div className="flex items-baseline" style={{ gap: 8, marginBottom: 4 }}>
+        <h4
+          style={{
+            fontSize: 16,
+            fontWeight: 700,
+            color: 'var(--text-primary)',
+            letterSpacing: '-0.02em',
+            lineHeight: 1.3,
+          }}
+        >
+          {signal.company || '—'}
+        </h4>
+        {signal.companyCode && (
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 500,
+              color: 'var(--text-tertiary)',
+              background: 'var(--bg-inset)',
+              borderRadius: 4,
+              padding: '1px 5px',
+              flexShrink: 0,
+            }}
+          >
+            {signal.companyCode}
+          </span>
+        )}
+      </div>
+
+      {/* 공시 제목 (헤드라인) */}
       <p
         style={{
           fontSize: 13,
           fontWeight: 500,
           color: 'var(--text-secondary)',
-          marginTop: 4,
           lineHeight: 1.45,
+          marginBottom: signal.summary ? 10 : 0,
         }}
       >
         {signal.headline}
       </p>
 
+      {/* 투자 포인트 — LLM 생성 rationale (항상 표시) */}
+      {signal.summary && (
+        <p
+          style={{
+            fontSize: 13,
+            color: 'var(--text-secondary)',
+            lineHeight: 1.6,
+            paddingTop: 10,
+            borderTop: '1px solid var(--border-subtle)',
+          }}
+        >
+          {signal.summary}
+        </p>
+      )}
+
+      {/* 펼침 영역: TradingView 차트 + 딥링크 */}
       {open && (
         <div
           onClick={(e) => e.stopPropagation()}

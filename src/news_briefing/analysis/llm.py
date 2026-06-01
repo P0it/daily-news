@@ -123,6 +123,51 @@ def summarize(
     return ""
 
 
+PICK_RATIONALE_TASK = "pick_rationale"
+PICK_RATIONALE_SYSTEM = (
+    "너는 개인 투자자를 위한 금융 분석가다. "
+    "주어진 공시·리포트 제목과 회사명을 보고, 이 종목이 오늘 주목할 만한 이유를 "
+    "2~3문장 한국어로 설명한다. 규칙: "
+    "① '~요'체 존댓말. ② 느낌표 금지. ③ 매수·매도 권유 금지. "
+    "④ 이 이벤트가 어떤 의미를 가지는지, 시장에서 통상 어떻게 해석되는지 포함. "
+    "⑤ 설명만 출력, 인사·마크다운·추가 줄 금지."
+)
+
+
+def pick_rationale(
+    conn: sqlite3.Connection,
+    company: str,
+    headline: str,
+    *,
+    ollama_enabled: bool = False,
+    ollama_model: str = "qwen2.5:14b",
+) -> str:
+    """공시·리포트 제목 → 왜 오늘 주목할 만한지 2~3문장 설명. 캐시 지원. 실패 시 ''."""
+    input_text = f"회사: {company}\n제목: {headline}"
+    cached = cache_get(conn, PICK_RATIONALE_TASK, input_text)
+    if cached is not None:
+        return cached
+
+    prompt = f"{PICK_RATIONALE_SYSTEM}\n\n---\n\n{input_text}"
+
+    try:
+        output = _call_claude(prompt)
+        cache_put(conn, PICK_RATIONALE_TASK, input_text, output, "claude-cli")
+        return output
+    except Exception as e:
+        log.warning("pick_rationale claude 실패: %s", e)
+
+    if ollama_enabled:
+        try:
+            output = _call_ollama(prompt, ollama_model)
+            cache_put(conn, PICK_RATIONALE_TASK, input_text, output, f"ollama:{ollama_model}")
+            return output
+        except Exception as e:
+            log.error("pick_rationale ollama 실패: %s", e)
+
+    return ""
+
+
 def _parse_title_summary(output: str) -> tuple[str, str]:
     """'TITLE: ... / SUMMARY: ...' 출력 파싱. 실패 시 ('', '')."""
     title_ko = ""
