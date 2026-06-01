@@ -11,7 +11,7 @@ from news_briefing.analysis.glossary import detect_term, ensure_glossary_entry
 from news_briefing.analysis.llm import pick_foreign_news, pick_rationale, summarize, translate_news_ko
 from news_briefing.analysis.picks import select_picks
 from news_briefing.analysis.scoring import score_consensus, score_edgar, score_report
-from news_briefing.analysis.hot_issues import analyze_hot_issues
+from news_briefing.analysis.hot_issues import analyze_hot_issues, analyze_hot_issues_domestic
 from news_briefing.collectors.base import CollectedItem
 from news_briefing.collectors.dart import fetch_dart_list
 from news_briefing.collectors.edgar import fetch_all_edgar
@@ -62,6 +62,11 @@ def run_morning(
 
     conn = connect(cfg.db_path)
     try:
+        # 0. 오래된 데이터 정리 (일회성 데이터, 매일 실행)
+        from news_briefing.storage.cleanup import run_cleanup
+
+        run_cleanup(conn, digests_dir=cfg.digests_dir, briefings_dir=cfg.public_briefings_dir, today=now.date())
+
         # 1. 수집 (DART + RSS + EDGAR + 거시지표 + 리서치 + KRX ETF)
         date_key = now.strftime("%Y%m%d")
         disclosures = fetch_dart_list(cfg.dart_api_key, date_key)
@@ -303,21 +308,35 @@ def run_morning(
             except Exception as e:
                 log.warning("pick_rationale 실패 %s: %s", it.ext_id, e)
 
-        # 7a. 오늘의 핵심 이슈 선정 — LLM 기반 (Tier 1/2 해외 소스 우선)
-        hot_issues: list[dict] = []
+        # 7a. 오늘의 핵심 이슈 선정 — 해외 (EDGAR·FT·BBC) + 국내 (DART·리서치·한경) 분리 실행
+        hot_issues_foreign: list[dict] = []
         try:
-            hot_candidates: list[tuple[CollectedItem, int]] = []
+            foreign_candidates: list[tuple[CollectedItem, int]] = []
             for it, s, _d in scored:
                 if it.source == "edgar":
-                    hot_candidates.append((it, s))
+                    foreign_candidates.append((it, s))
             for it in stock_news_foreign:
-                hot_candidates.append((it, 50))
+                foreign_candidates.append((it, 50))
             for it, cs in current_candidates:
                 if (it.extra or {}).get("category") == "international":
-                    hot_candidates.append((it, cs))
-            hot_issues = analyze_hot_issues(hot_candidates)
+                    foreign_candidates.append((it, cs))
+            hot_issues_foreign = analyze_hot_issues(foreign_candidates)
         except Exception as e:
-            log.warning("hot_issues 분석 실패: %s", e)
+            log.warning("hot_issues(foreign) 분석 실패: %s", e)
+
+        hot_issues_domestic: list[dict] = []
+        try:
+            domestic_candidates: list[tuple[CollectedItem, int]] = []
+            for it, s, _d in scored:
+                if it.source == "dart":
+                    domestic_candidates.append((it, s))
+            for it, s, _d in research_scored:
+                domestic_candidates.append((it, s))
+            for it in stock_news_domestic:
+                domestic_candidates.append((it, 40))
+            hot_issues_domestic = analyze_hot_issues_domestic(domestic_candidates)
+        except Exception as e:
+            log.warning("hot_issues(domestic) 분석 실패: %s", e)
 
         # 7b. Briefing JSON
         briefing = build_briefing_json(
@@ -330,7 +349,8 @@ def run_morning(
             term_ids_by_id=term_ids_by_id,
             picks=picks,
             pick_summaries=pick_summaries,
-            hot_issues=hot_issues,
+            hot_issues_foreign=hot_issues_foreign,
+            hot_issues_domestic=hot_issues_domestic,
             news_summaries=news_summaries,
             ai_title_translations=ai_title_translations,
             macro_indices=macro_indices,

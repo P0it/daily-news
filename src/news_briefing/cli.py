@@ -33,7 +33,7 @@ def _cmd_morning(args: argparse.Namespace) -> int:
         f"AI {result.ai_count}, 시그널 {result.signal_count}, "
         f"뉴스 {result.news_count}, 시사 {result.current_count}, "
         f"Pick 국내 {result.picks_domestic}/해외 {result.picks_foreign}, "
-        f"전송={'OK' if result.sent_kakao else 'SKIP'}"
+        f"전송={'OK' if result.sent_discord else 'SKIP'}"
     )
     print(f"백업: {result.digest_path}")
     return 0
@@ -43,10 +43,7 @@ def _cmd_status(args: argparse.Namespace) -> int:
     cfg = load_config()
     print("뉴스 브리핑 상태")
     print(f"  DB: {cfg.db_path} ({'있음' if cfg.db_path.exists() else '없음'})")
-    tokens_state = (
-        "있음" if cfg.tokens_path.exists() else "없음 (kakao_auth.py 실행 필요)"
-    )
-    print(f"  카카오 토큰: {cfg.tokens_path} ({tokens_state})")
+    print(f"  Discord 웹훅: {'설정됨' if cfg.discord_webhook_url else '없음 (.env에 DISCORD_WEBHOOK_URL 추가 필요)'}")
     print(f"  DART 키: {'설정됨' if cfg.dart_api_key else '없음'}")
     print(f"  EDGAR UA: {'설정됨' if cfg.edgar_user_agent else '없음'}")
     print(f"  Ollama: {'ON' if cfg.ollama_enabled else 'OFF'}")
@@ -129,6 +126,20 @@ def _cmd_weekly(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_cleanup(args: argparse.Namespace) -> int:
+    from news_briefing.storage.cleanup import run_cleanup
+    from news_briefing.storage.db import connect
+
+    cfg = load_config()
+    conn = connect(cfg.db_path)
+    try:
+        run_cleanup(conn, digests_dir=cfg.digests_dir, briefings_dir=cfg.public_briefings_dir)
+    finally:
+        conn.close()
+    print("정리 완료 (로그 참조)")
+    return 0
+
+
 def _cmd_ask(args: argparse.Namespace) -> int:
     from news_briefing.analysis.rag import answer_query
     from news_briefing.storage.db import connect
@@ -182,6 +193,8 @@ def main(argv: list[str] | None = None) -> int:
         "--llm", action="store_true", help="LLM 에세이 포함 (느림, claude CLI 필요)"
     )
     p_weekly.set_defaults(func=_cmd_weekly)
+
+    sub.add_parser("cleanup", help="오래된 데이터 수동 정리").set_defaults(func=_cmd_cleanup)
 
     p_ask = sub.add_parser("ask", help="RAG 자유 질의")
     p_ask.add_argument("query", help="질의 내용")
