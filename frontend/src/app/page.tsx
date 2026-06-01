@@ -14,7 +14,7 @@ import { AiCard } from '@/components/AiCard'
 import { CurrentSection } from '@/components/CurrentSection'
 import { HeroCard } from '@/components/HeroCard'
 import { SignalCard } from '@/components/SignalCard'
-import { ThemeBanner } from '@/components/ThemeBanner'
+import { HotIssuesCard } from '@/components/HotIssuesCard'
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -120,8 +120,8 @@ function HomeInner() {
         <HeroCard signal={briefing.hero} dict={dict} />
       )}
 
-      {economy.themeBanner && (
-        <ThemeBanner banner={economy.themeBanner} />
+      {economy.hotIssues && economy.hotIssues.length > 0 && (
+        <HotIssuesCard issues={economy.hotIssues} />
       )}
 
       {signals.length > 0 && (
