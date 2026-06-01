@@ -93,7 +93,10 @@ export interface MarketIndex {
 
 export interface HotIssue {
   rank: number
-  title: string
+  asset: string
+  assetType: 'stock' | 'theme' | 'macro'
+  direction: 'positive' | 'negative' | 'mixed'
+  signal: string
   reason: string
   source: string
   url: string | null
