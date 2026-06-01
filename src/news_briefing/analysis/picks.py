@@ -21,7 +21,10 @@ class PicksResult:
 
 
 def _is_foreign(item: CollectedItem) -> bool:
-    return item.source.startswith("edgar")
+    # EDGAR 공시 기본 외에, extra["scope"]=="foreign" 으로 명시된 뉴스 기반 pick도 포함
+    if item.source.startswith("edgar"):
+        return True
+    return (item.extra or {}).get("scope") == "foreign"
 
 
 def _dedup_key(item: CollectedItem) -> tuple[str, str]:

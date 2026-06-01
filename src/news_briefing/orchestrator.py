@@ -8,7 +8,7 @@ from pathlib import Path
 
 from news_briefing.analysis.curation import curation_score
 from news_briefing.analysis.glossary import detect_term, ensure_glossary_entry
-from news_briefing.analysis.llm import pick_rationale, summarize, translate_news_ko
+from news_briefing.analysis.llm import pick_foreign_news, pick_rationale, summarize, translate_news_ko
 from news_briefing.analysis.picks import select_picks
 from news_briefing.analysis.scoring import score_consensus, score_edgar, score_report
 from news_briefing.analysis.hot_issues import analyze_hot_issues
@@ -239,16 +239,57 @@ def run_morning(
         )
         digest_path = write_digest(digests_dir=cfg.digests_dir, date=now, text=text)
 
-        # 6. Today's Pick 선별 — DART + 리서치 리포트 통합 후보 (국내 다각화)
-        # research_scored 는 네이버 금융 증권사 리포트 기반 (company_code 포함)
-        all_pick_candidates = scored + research_scored
+        # 6a. 해외 뉴스 pick 후보 생성 — BBC·FT·Google News EN 헤드라인 → LLM 배치 분석
+        # stock_news_foreign 상위 20건을 한 번의 LLM 호출로 기업·ticker·점수 추출
+        foreign_news_scored: list[tuple[CollectedItem, int, str]] = []
+        try:
+            from dataclasses import replace as dc_replace
+
+            foreign_candidates = stock_news_foreign[:20]
+            headlines_indexed = [(i, it.title) for i, it in enumerate(foreign_candidates)]
+            foreign_picks_raw = pick_foreign_news(
+                conn,
+                headlines_indexed,
+                ollama_enabled=cfg.ollama_enabled,
+                ollama_model=cfg.ollama_model,
+            )
+            pick_summaries_foreign: dict[str, str] = {}
+            for fp in foreign_picks_raw:
+                idx = fp.get("idx")
+                if idx is None or idx >= len(foreign_candidates):
+                    continue
+                orig = foreign_candidates[idx]
+                enriched = dc_replace(
+                    orig,
+                    company=fp.get("company", ""),
+                    company_code=fp.get("ticker", ""),
+                    extra={**(orig.extra or {}), "scope": "foreign"},
+                )
+                score = max(55, min(95, int(fp.get("score", 65))))
+                direction = fp.get("direction", "neutral")
+                if direction not in ("positive", "negative", "mixed", "neutral"):
+                    direction = "neutral"
+                foreign_news_scored.append((enriched, score, direction))
+                # LLM이 생성한 한국어 투자 포인트를 pick_summaries에 미리 등록
+                reason = fp.get("reason", "")
+                if reason:
+                    pick_summaries_foreign[orig.ext_id] = reason
+            log.info("해외 뉴스 pick 후보 %d건 추출", len(foreign_news_scored))
+        except Exception as e:
+            log.warning("해외 뉴스 pick 분석 실패: %s", e)
+            foreign_news_scored = []
+            pick_summaries_foreign = {}
+
+        # 6b. Today's Pick 선별 — DART + 리서치 + 해외 뉴스 통합 후보
+        all_pick_candidates = scored + research_scored + foreign_news_scored
         picks = select_picks(all_pick_candidates, n_per_side=6)
 
         # Pick 별 LLM 투자 포인트 생성 (왜 이 종목인지 2~3문장 설명)
-        pick_summaries: dict[str, str] = {}
+        # 해외 뉴스 배치 분석 시 이미 생성된 rationale은 재사용 (LLM 호출 절약)
+        pick_summaries: dict[str, str] = {**pick_summaries_foreign}
         for it, _s, _d in picks.domestic + picks.foreign:
-            if not it.company:
-                continue
+            if not it.company or it.ext_id in pick_summaries:
+                continue  # 이미 배치 분석에서 rationale 생성됨
             try:
                 rationale = pick_rationale(
                     conn,

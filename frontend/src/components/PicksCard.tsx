@@ -13,10 +13,14 @@ const TONE: Record<Direction, string> = {
   neutral: '#8B95A1',
 }
 
-const SOURCE_LABEL: Record<string, string> = {
-  dart: 'DART 공시',
-  edgar: 'SEC EDGAR',
-  research: '증권사 리포트',
+function resolveSourceLabel(source: string): string {
+  if (source === 'dart') return 'DART 공시'
+  if (source === 'edgar') return 'SEC EDGAR'
+  if (source === 'research') return '증권사 리포트'
+  if (source.includes('ft')) return 'Financial Times'
+  if (source.includes('bbc')) return 'BBC Business'
+  if (source.includes('gnews')) return 'Google News'
+  return source
 }
 
 function formatTime(iso: string): string {
@@ -38,7 +42,7 @@ export function PicksCard({
   const color = TONE[signal.direction]
   const symbol = resolveTradingViewSymbol(signal)
   const time = formatTime(signal.time)
-  const sourceLabel = SOURCE_LABEL[signal.source] ?? signal.source
+  const sourceLabel = resolveSourceLabel(signal.source)
 
   return (
     <article

@@ -82,7 +82,11 @@ def _signal_to_dict(
         "summary": summary,
         "score": score,
         "direction": direction,
-        "scope": "foreign" if item.source.startswith("edgar") else "domestic",
+        "scope": (
+            "foreign"
+            if item.source.startswith("edgar") or (item.extra or {}).get("scope") == "foreign"
+            else "domestic"
+        ),
         "time": item.published_at.isoformat(),
         "url": item.url,
         "glossaryTermId": (term_ids_by_id or {}).get(item.ext_id),

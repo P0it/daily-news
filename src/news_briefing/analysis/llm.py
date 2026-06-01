@@ -6,6 +6,7 @@
 """
 from __future__ import annotations
 
+import json
 import logging
 import shutil
 import sqlite3
@@ -166,6 +167,95 @@ def pick_rationale(
             log.error("pick_rationale ollama 실패: %s", e)
 
     return ""
+
+
+PICK_FOREIGN_TASK = "pick_foreign_news"
+PICK_FOREIGN_SYSTEM = (
+    "너는 해외 주식 투자 전문 애널리스트다. "
+    "아래 해외 주식·경제 뉴스 헤드라인 목록을 보고, "
+    "특정 상장 기업에 관한 투자 시그널이 있는 항목만 선별한다.\n\n"
+    "선별 기준:\n"
+    "- 실적 발표(earnings), 가이던스, 애널리스트 목표주가 변경, M&A, FDA 승인, 대형 계약 등\n"
+    "- 시장 전반(Fed 금리, 유가, 지수 등) 뉴스 → 제외\n"
+    "- 특정 기업명이 명확히 등장하지 않으면 → 제외\n\n"
+    "결과는 아래 JSON 배열 형식으로만 출력 (마크다운·설명·추가 텍스트 일절 금지):\n"
+    '[{"idx":0,"company":"Apple Inc","ticker":"AAPL","score":78,"direction":"positive",'
+    '"reason":"2~3문장 한국어 투자 포인트. \'~요\'체. 느낌표 금지. 매수·매도 권유 금지."}]\n\n'
+    "score: 55~95 사이 정수 (실적 미스·대형 악재=80+, 실적 비트·계약=75+, 목표가 변경=65+)\n"
+    "direction: positive | negative | mixed | neutral\n"
+    "선별 항목이 없으면 []"
+)
+
+
+def pick_foreign_news(
+    conn: sqlite3.Connection,
+    headlines: list[tuple[int, str]],  # (idx, headline) 목록
+    *,
+    ollama_enabled: bool = False,
+    ollama_model: str = "qwen2.5:14b",
+    timeout: int = 60,
+) -> list[dict]:
+    """해외 뉴스 헤드라인 배치 → 기업별 pick 후보 리스트.
+
+    반환값: [{"idx": int, "company": str, "ticker": str,
+              "score": int, "direction": str, "reason": str}]
+    실패 또는 파싱 오류 시 [].
+    """
+    if not headlines:
+        return []
+
+    # 캐시 키: 제목 목록 전체의 해시 (LLM 호출 비용 절약)
+    cache_key = "\n".join(f"{i}|{h}" for i, h in headlines)
+    cached = cache_get(conn, PICK_FOREIGN_TASK, cache_key)
+    if cached is not None:
+        try:
+            return json.loads(cached)
+        except Exception:
+            pass
+
+    numbered = "\n".join(f"[{i}] {h}" for i, h in headlines)
+    prompt = f"{PICK_FOREIGN_SYSTEM}\n\n---\n\n{numbered}"
+
+    def _parse(raw: str) -> list[dict]:
+        raw = raw.strip()
+        # LLM이 ```json ... ``` 블록으로 감싸는 경우 제거
+        if raw.startswith("```"):
+            raw = "\n".join(
+                line for line in raw.splitlines()
+                if not line.strip().startswith("```")
+            ).strip()
+        try:
+            result = json.loads(raw)
+            if isinstance(result, list):
+                return [
+                    r for r in result
+                    if isinstance(r, dict) and r.get("ticker") and r.get("company")
+                ]
+        except Exception:
+            pass
+        return []
+
+    try:
+        output = _call_claude(prompt, timeout=timeout)
+        parsed = _parse(output)
+        cache_put(conn, PICK_FOREIGN_TASK, cache_key, json.dumps(parsed), "claude-cli")
+        return parsed
+    except Exception as e:
+        log.warning("pick_foreign_news claude 실패: %s", e)
+
+    if ollama_enabled:
+        try:
+            output = _call_ollama(prompt, ollama_model, timeout=timeout)
+            parsed = _parse(output)
+            cache_put(
+                conn, PICK_FOREIGN_TASK, cache_key,
+                json.dumps(parsed), f"ollama:{ollama_model}"
+            )
+            return parsed
+        except Exception as e:
+            log.error("pick_foreign_news ollama 실패: %s", e)
+
+    return []
 
 
 def _parse_title_summary(output: str) -> tuple[str, str]:
