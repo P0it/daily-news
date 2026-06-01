@@ -22,8 +22,8 @@ from news_briefing.config import Config
 from news_briefing.delivery.digest import format_digest, write_digest
 from news_briefing.delivery.json_builder import build_briefing_json, write_briefing
 from news_briefing.delivery.discord import send_message as discord_send
-from news_briefing.storage.db import connect
-from news_briefing.storage.seen import is_seen, mark_seen
+from news_briefing.storage.db import get_client
+from news_briefing.storage.seen import batch_filter_unseen, batch_mark_seen
 from news_briefing.storage.tickers import TickerRow, upsert_ticker
 
 log = logging.getLogger(__name__)
@@ -59,7 +59,7 @@ def run_morning(
     now = now or datetime.now()
     log.info("morning start date=%s dry_run=%s", now.date(), dry_run)
 
-    conn = connect(cfg.database_url)
+    conn = get_client(cfg.supabase_url, cfg.supabase_service_key)
     try:
         # 0. 오래된 데이터 정리 (일회성 데이터, 매일 실행)
         from news_briefing.storage.cleanup import run_cleanup
@@ -76,25 +76,25 @@ def run_morning(
         etf_snapshots: list[ETFSnapshot] = fetch_krx_etf()
         all_items = disclosures + news + edgar_items + research_raw
 
-        # 2. 중복 제거 + DART tickers 매핑 자동 수집
-        new_items: list[CollectedItem] = []
-        for item in all_items:
-            if not is_seen(conn, item.source, item.ext_id):
-                new_items.append(item)
-                mark_seen(conn, item.source, item.ext_id)
-                # DART stock_code + corp_code 가 있으면 tickers 테이블에 upsert
-                if item.source == "dart" and item.company_code:
-                    corp_code = (item.extra or {}).get("corp_code", "")
-                    if corp_code:
-                        upsert_ticker(
-                            conn,
-                            TickerRow(
-                                stock_code=item.company_code,
-                                corp_code=corp_code,
-                                corp_name=item.company or "",
-                                market=None,
-                            ),
-                        )
+        # 2. 중복 제거 (배치 조회) + DART tickers 매핑 자동 수집
+        unseen_pairs = set(batch_filter_unseen(conn, [(i.source, i.ext_id) for i in all_items]))
+        new_items: list[CollectedItem] = [i for i in all_items if (i.source, i.ext_id) in unseen_pairs]
+        batch_mark_seen(conn, list(unseen_pairs))
+
+        # DART tickers 배치 upsert
+        for item in new_items:
+            if item.source == "dart" and item.company_code:
+                corp_code = (item.extra or {}).get("corp_code", "")
+                if corp_code:
+                    upsert_ticker(
+                        conn,
+                        TickerRow(
+                            stock_code=item.company_code,
+                            corp_code=corp_code,
+                            corp_name=item.company or "",
+                            market=None,
+                        ),
+                    )
 
         # 3. 점수 + glossary term 감지 (DART + EDGAR 분기)
         scored: list[tuple[CollectedItem, int, str]] = []
@@ -335,8 +335,8 @@ def run_morning(
             news_count=len(fresh_news),
             current_count=len(current_candidates),
             ai_count=len(ai_news),
-            picks_domestic=len(picks.domestic),
-            picks_foreign=len(picks.foreign),
+            picks_domestic=0,
+            picks_foreign=0,
             digest_path=digest_path,
             briefing_json_path=briefing_json_path,
             sent_discord=sent,

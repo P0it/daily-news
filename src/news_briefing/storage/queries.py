@@ -27,29 +27,32 @@ def record_query(
     model: str,
 ) -> int:
     now = datetime.now(UTC).isoformat()
-    r = conn.execute(
-        "INSERT INTO rag_queries(query, answer, sources_json, model, created_at) "
-        "VALUES (%s, %s, %s, %s, %s) RETURNING id",
-        (query, answer, json.dumps(sources, ensure_ascii=False), model, now),
-    ).fetchone()
-    conn.commit()
-    return int(r["id"])
+    r = conn.table("rag_queries").insert({
+        "query": query,
+        "answer": answer,
+        "sources_json": json.dumps(sources, ensure_ascii=False),
+        "model": model,
+        "created_at": now,
+    }).execute()
+    return int(r.data[0]["id"])
 
 
 def list_recent_queries(conn: Connection, *, limit: int = 20) -> list[QueryRecord]:
-    rows = conn.execute(
-        "SELECT id, query, answer, sources_json, model, created_at "
-        "FROM rag_queries ORDER BY id DESC LIMIT %s",
-        (limit,),
-    ).fetchall()
+    r = (
+        conn.table("rag_queries")
+        .select("id,query,answer,sources_json,model,created_at")
+        .order("id", desc=True)
+        .limit(limit)
+        .execute()
+    )
     return [
         QueryRecord(
-            id=r["id"],
-            query=r["query"],
-            answer=r["answer"] or "",
-            sources=json.loads(r["sources_json"] or "[]"),
-            model=r["model"] or "",
-            created_at=r["created_at"],
+            id=d["id"],
+            query=d["query"],
+            answer=d["answer"] or "",
+            sources=json.loads(d["sources_json"] or "[]"),
+            model=d["model"] or "",
+            created_at=d["created_at"],
         )
-        for r in rows
+        for d in r.data
     ]

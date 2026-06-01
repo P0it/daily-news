@@ -35,94 +35,95 @@ class CompanyInLayer:
 
 def upsert_theme(conn: Connection, theme: Theme) -> None:
     now = datetime.now(UTC).isoformat()
-    conn.execute(
-        "INSERT INTO themes(theme_id, name_ko, description, updated_at) "
-        "VALUES (%s, %s, %s, %s) "
-        "ON CONFLICT (theme_id) DO UPDATE SET "
-        "name_ko=EXCLUDED.name_ko, description=EXCLUDED.description, updated_at=EXCLUDED.updated_at",
-        (theme.theme_id, theme.name_ko, theme.description, now),
-    )
-    conn.commit()
+    conn.table("themes").upsert({
+        "theme_id": theme.theme_id,
+        "name_ko": theme.name_ko,
+        "description": theme.description,
+        "updated_at": now,
+    }).execute()
 
 
 def get_theme(conn: Connection, theme_id: str) -> Theme | None:
-    r = conn.execute(
-        "SELECT theme_id, name_ko, description FROM themes WHERE theme_id=%s",
-        (theme_id,),
-    ).fetchone()
-    return Theme(r["theme_id"], r["name_ko"], r["description"]) if r else None
+    r = (
+        conn.table("themes")
+        .select("theme_id,name_ko,description")
+        .eq("theme_id", theme_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
+        return None
+    d = r.data[0]
+    return Theme(d["theme_id"], d["name_ko"], d["description"])
 
 
 def list_themes(conn: Connection) -> list[Theme]:
-    rows = conn.execute(
-        "SELECT theme_id, name_ko, description FROM themes ORDER BY theme_id"
-    ).fetchall()
-    return [Theme(r["theme_id"], r["name_ko"], r["description"]) for r in rows]
+    r = conn.table("themes").select("theme_id,name_ko,description").order("theme_id").execute()
+    return [Theme(d["theme_id"], d["name_ko"], d["description"]) for d in r.data]
 
 
 def upsert_layer(conn: Connection, layer: ValueLayer) -> int:
     """layer 를 upsert (theme_id + name unique). 반환: layer_id."""
     now = datetime.now(UTC).isoformat()
-    row = conn.execute(
-        "INSERT INTO value_layers(theme_id, name, description, updated_at) "
-        "VALUES (%s, %s, %s, %s) "
-        "ON CONFLICT (theme_id, name) DO UPDATE SET "
-        "description=EXCLUDED.description, updated_at=EXCLUDED.updated_at "
-        "RETURNING layer_id",
-        (layer.theme_id, layer.name, layer.description, now),
-    ).fetchone()
-    conn.commit()
-    return row["layer_id"]
+    r = (
+        conn.table("value_layers")
+        .upsert(
+            {
+                "theme_id": layer.theme_id,
+                "name": layer.name,
+                "description": layer.description,
+                "updated_at": now,
+            },
+            on_conflict="theme_id,name",
+        )
+        .execute()
+    )
+    return int(r.data[0]["layer_id"])
 
 
 def list_layers(conn: Connection, theme_id: str) -> list[ValueLayer]:
-    rows = conn.execute(
-        "SELECT layer_id, theme_id, name, description FROM value_layers "
-        "WHERE theme_id=%s ORDER BY layer_id",
-        (theme_id,),
-    ).fetchall()
+    r = (
+        conn.table("value_layers")
+        .select("layer_id,theme_id,name,description")
+        .eq("theme_id", theme_id)
+        .order("layer_id")
+        .execute()
+    )
     return [
-        ValueLayer(r["layer_id"], r["theme_id"], r["name"], r["description"])
-        for r in rows
+        ValueLayer(d["layer_id"], d["theme_id"], d["name"], d["description"])
+        for d in r.data
     ]
 
 
 def upsert_company(conn: Connection, company: CompanyInLayer) -> None:
     now = datetime.now(UTC).isoformat()
-    conn.execute(
-        "INSERT INTO companies_in_layer"
-        "(layer_id, ticker, company_name, positioning, verified, updated_at) "
-        "VALUES (%s, %s, %s, %s, %s, %s) "
-        "ON CONFLICT (layer_id, ticker) DO UPDATE SET "
-        "company_name=EXCLUDED.company_name, positioning=EXCLUDED.positioning, "
-        "verified=EXCLUDED.verified, updated_at=EXCLUDED.updated_at",
-        (
-            company.layer_id,
-            company.ticker,
-            company.company_name,
-            company.positioning,
-            1 if company.verified else 0,
-            now,
-        ),
-    )
-    conn.commit()
+    conn.table("companies_in_layer").upsert({
+        "layer_id": company.layer_id,
+        "ticker": company.ticker,
+        "company_name": company.company_name,
+        "positioning": company.positioning,
+        "verified": 1 if company.verified else 0,
+        "updated_at": now,
+    }).execute()
 
 
 def list_companies(conn: Connection, layer_id: int) -> list[CompanyInLayer]:
-    rows = conn.execute(
-        "SELECT layer_id, ticker, company_name, positioning, verified "
-        "FROM companies_in_layer WHERE layer_id=%s ORDER BY company_name",
-        (layer_id,),
-    ).fetchall()
+    r = (
+        conn.table("companies_in_layer")
+        .select("layer_id,ticker,company_name,positioning,verified")
+        .eq("layer_id", layer_id)
+        .order("company_name")
+        .execute()
+    )
     return [
         CompanyInLayer(
-            r["layer_id"],
-            r["ticker"],
-            r["company_name"],
-            r["positioning"],
-            bool(r["verified"]),
+            d["layer_id"],
+            d["ticker"],
+            d["company_name"],
+            d["positioning"],
+            bool(d["verified"]),
         )
-        for r in rows
+        for d in r.data
     ]
 
 

@@ -10,7 +10,7 @@ export const metadata: Metadata = {
   manifest: '/manifest.json',
   appleWebApp: {
     capable: true,
-    title: '브리핑',
+    title: '데일리 브리핑',
     statusBarStyle: 'default',
   },
   icons: {
@@ -30,7 +30,7 @@ export default function RootLayout({
       <head>
         <link
           rel="stylesheet"
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
+          href="/fonts/tps-main.css"
         />
         <meta
           name="theme-color"

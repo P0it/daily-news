@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 import logging
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 
 from news_briefing.storage.db import Connection
@@ -20,21 +20,20 @@ SEEN_KEEP_DAYS = 14
 
 
 def purge_seen(conn: Connection) -> int:
-    cur = conn.execute(
-        "DELETE FROM seen WHERE seen_at::TIMESTAMPTZ < NOW() - INTERVAL '%s days'"
-        % SEEN_KEEP_DAYS
-    )
-    conn.commit()
-    return cur.rowcount
+    cutoff = (datetime.now(timezone.utc) - timedelta(days=SEEN_KEEP_DAYS)).isoformat()
+    r = conn.table("seen").delete().lt("seen_at", cutoff).execute()
+    return len(r.data)
 
 
 def purge_transient_tables(conn: Connection) -> dict[str, int]:
     """llm_cache, embeddings, rag_queries 전체 삭제."""
     counts: dict[str, int] = {}
-    for table in ("llm_cache", "embeddings", "rag_queries"):
-        cur = conn.execute(f"DELETE FROM {table}")  # noqa: S608
-        counts[table] = cur.rowcount
-    conn.commit()
+    epoch = "1970-01-01T00:00:00+00:00"
+    # 테이블별 타임스탬프 컬럼명이 다름
+    table_ts = {"llm_cache": "created_at", "embeddings": "indexed_at", "rag_queries": "created_at"}
+    for table, ts_col in table_ts.items():
+        r = conn.table(table).delete().gte(ts_col, epoch).execute()
+        counts[table] = len(r.data)
     return counts
 
 

@@ -1,9 +1,10 @@
 """벡터 임베딩 CRUD + 코사인 유사도 검색 (Week 4).
 
-Postgres BYTEA + numpy — 개인 스케일에 충분.
+REST API 경유로 BYTEA 를 base64 인코딩해서 저장/복원한다.
 """
 from __future__ import annotations
 
+import base64
 import json
 from dataclasses import dataclass
 from datetime import UTC, datetime
@@ -22,69 +23,62 @@ class EmbeddingRow:
     metadata: dict
 
 
-def _serialize(v: np.ndarray) -> bytes:
-    return v.astype(np.float32).tobytes()
+def _to_b64(v: np.ndarray) -> str:
+    return base64.b64encode(v.astype(np.float32).tobytes()).decode("ascii")
 
 
-def _deserialize(b: bytes | memoryview, dim: int) -> np.ndarray:
-    # psycopg2 가 BYTEA를 memoryview 로 반환하므로 bytes 로 변환
-    return np.frombuffer(bytes(b), dtype=np.float32, count=dim).copy()
+def _from_b64(s: str, dim: int) -> np.ndarray:
+    # PostgREST 는 BYTEA 를 hex(\x...) 또는 base64 로 반환할 수 있다
+    if isinstance(s, str) and s.startswith("\\x"):
+        raw = bytes.fromhex(s[2:])
+    else:
+        raw = base64.b64decode(s)
+    return np.frombuffer(raw, dtype=np.float32, count=dim).copy()
 
 
 def upsert_embedding(conn: Connection, row: EmbeddingRow) -> None:
     now = datetime.now(UTC).isoformat()
-    conn.execute(
-        "INSERT INTO embeddings"
-        "(doc_id, source, content, vector, dim, metadata_json, indexed_at) "
-        "VALUES (%s, %s, %s, %s, %s, %s, %s) "
-        "ON CONFLICT (doc_id) DO UPDATE SET "
-        "source=EXCLUDED.source, content=EXCLUDED.content, "
-        "vector=EXCLUDED.vector, dim=EXCLUDED.dim, "
-        "metadata_json=EXCLUDED.metadata_json, indexed_at=EXCLUDED.indexed_at",
-        (
-            row.doc_id,
-            row.source,
-            row.content,
-            _serialize(row.vector),
-            row.vector.shape[0],
-            json.dumps(row.metadata, ensure_ascii=False),
-            now,
-        ),
-    )
-    conn.commit()
+    conn.table("embeddings").upsert({
+        "doc_id": row.doc_id,
+        "source": row.source,
+        "content": row.content,
+        "vector": _to_b64(row.vector),
+        "dim": row.vector.shape[0],
+        "metadata_json": json.dumps(row.metadata, ensure_ascii=False),
+        "indexed_at": now,
+    }).execute()
 
 
 def has_embedding(conn: Connection, doc_id: str) -> bool:
-    r = conn.execute(
-        "SELECT 1 FROM embeddings WHERE doc_id=%s", (doc_id,)
-    ).fetchone()
-    return r is not None
+    r = conn.table("embeddings").select("doc_id").eq("doc_id", doc_id).limit(1).execute()
+    return len(r.data) > 0
 
 
 def get_embedding(conn: Connection, doc_id: str) -> EmbeddingRow | None:
-    r = conn.execute(
-        "SELECT doc_id, source, content, vector, dim, metadata_json "
-        "FROM embeddings WHERE doc_id=%s",
-        (doc_id,),
-    ).fetchone()
-    if r is None:
+    r = (
+        conn.table("embeddings")
+        .select("doc_id,source,content,vector,dim,metadata_json")
+        .eq("doc_id", doc_id)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
         return None
+    d = r.data[0]
     return EmbeddingRow(
-        doc_id=r["doc_id"],
-        source=r["source"],
-        content=r["content"],
-        vector=_deserialize(r["vector"], r["dim"]),
-        metadata=json.loads(r["metadata_json"] or "{}"),
+        doc_id=d["doc_id"],
+        source=d["source"],
+        content=d["content"],
+        vector=_from_b64(d["vector"], d["dim"]),
+        metadata=json.loads(d["metadata_json"] or "{}"),
     )
 
 
 def similarity_search(
     conn: Connection, query_vector: np.ndarray, *, top_k: int = 5
 ) -> list[tuple[EmbeddingRow, float]]:
-    rows = conn.execute(
-        "SELECT doc_id, source, content, vector, dim, metadata_json FROM embeddings"
-    ).fetchall()
-    if not rows:
+    r = conn.table("embeddings").select("doc_id,source,content,vector,dim,metadata_json").execute()
+    if not r.data:
         return []
 
     q = query_vector.astype(np.float32)
@@ -94,28 +88,26 @@ def similarity_search(
     q = q / q_norm
 
     scored: list[tuple[EmbeddingRow, float]] = []
-    for r in rows:
-        v = _deserialize(r["vector"], r["dim"])
+    for d in r.data:
+        v = _from_b64(d["vector"], d["dim"])
         n = np.linalg.norm(v)
         if n == 0:
             continue
         sim = float(np.dot(q, v / n))
-        scored.append(
-            (
-                EmbeddingRow(
-                    doc_id=r["doc_id"],
-                    source=r["source"],
-                    content=r["content"],
-                    vector=v,
-                    metadata=json.loads(r["metadata_json"] or "{}"),
-                ),
-                sim,
-            )
-        )
+        scored.append((
+            EmbeddingRow(
+                doc_id=d["doc_id"],
+                source=d["source"],
+                content=d["content"],
+                vector=v,
+                metadata=json.loads(d["metadata_json"] or "{}"),
+            ),
+            sim,
+        ))
     scored.sort(key=lambda x: x[1], reverse=True)
     return scored[:top_k]
 
 
 def count_embeddings(conn: Connection) -> int:
-    r = conn.execute("SELECT COUNT(*) AS n FROM embeddings").fetchone()
-    return int(r["n"])
+    r = conn.table("embeddings").select("doc_id", count="exact").execute()
+    return r.count or 0

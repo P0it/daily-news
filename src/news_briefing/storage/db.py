@@ -1,162 +1,60 @@
-"""PostgreSQL 연결 및 스키마 초기화 (Supabase).
+"""Supabase 클라이언트 (supabase-py, REST API 경유).
 
-sqlite3.Connection 과 동일한 execute() / commit() / close() 인터페이스를
-제공하는 Connection 래퍼를 사용하여 storage 모듈 변경을 최소화한다.
+psycopg2 직접 TCP 연결 대신 HTTPS REST API를 사용하여 IPv6 전용 환경에서도 동작한다.
+storage 모듈은 Connection 타입을 import해서 사용하며, 실제 구현은 supabase Client다.
 """
 from __future__ import annotations
 
 import logging
-from collections.abc import Iterator
-from contextlib import contextmanager
 from typing import Any
 
-import psycopg2
-import psycopg2.extras
+from supabase import Client, create_client
 
 log = logging.getLogger(__name__)
 
-# Postgres 스키마 — scripts/supabase_schema.sql 과 동기화 유지
-_SCHEMA_STATEMENTS = [
-    """CREATE TABLE IF NOT EXISTS seen (
-        source  TEXT NOT NULL,
-        ext_id  TEXT NOT NULL,
-        seen_at TEXT NOT NULL,
-        PRIMARY KEY (source, ext_id)
-    )""",
-    "CREATE INDEX IF NOT EXISTS idx_seen_time ON seen(seen_at)",
-    """CREATE TABLE IF NOT EXISTS llm_cache (
-        content_hash TEXT PRIMARY KEY,
-        task         TEXT NOT NULL,
-        output       TEXT NOT NULL,
-        model        TEXT NOT NULL,
-        created_at   TEXT NOT NULL
-    )""",
-    """CREATE TABLE IF NOT EXISTS glossary (
-        term_id          TEXT NOT NULL,
-        lang             TEXT NOT NULL DEFAULT 'ko',
-        short_label      TEXT NOT NULL,
-        explanation      TEXT NOT NULL,
-        signal_direction TEXT,
-        updated_at       TEXT NOT NULL,
-        PRIMARY KEY (term_id, lang)
-    )""",
-    """CREATE TABLE IF NOT EXISTS tickers (
-        stock_code TEXT PRIMARY KEY,
-        corp_code  TEXT NOT NULL,
-        corp_name  TEXT NOT NULL,
-        market     TEXT,
-        updated_at TEXT NOT NULL
-    )""",
-    "CREATE INDEX IF NOT EXISTS idx_tickers_corp ON tickers(corp_code)",
-    """CREATE TABLE IF NOT EXISTS themes (
-        theme_id    TEXT PRIMARY KEY,
-        name_ko     TEXT NOT NULL,
-        description TEXT,
-        updated_at  TEXT NOT NULL
-    )""",
-    """CREATE TABLE IF NOT EXISTS value_layers (
-        layer_id    SERIAL PRIMARY KEY,
-        theme_id    TEXT NOT NULL REFERENCES themes(theme_id) ON DELETE CASCADE,
-        name        TEXT NOT NULL,
-        description TEXT,
-        updated_at  TEXT NOT NULL,
-        UNIQUE (theme_id, name)
-    )""",
-    "CREATE INDEX IF NOT EXISTS idx_layers_theme ON value_layers(theme_id)",
-    """CREATE TABLE IF NOT EXISTS companies_in_layer (
-        layer_id     INTEGER NOT NULL REFERENCES value_layers(layer_id) ON DELETE CASCADE,
-        ticker       TEXT NOT NULL,
-        company_name TEXT NOT NULL,
-        positioning  TEXT,
-        verified     INTEGER NOT NULL DEFAULT 0,
-        updated_at   TEXT NOT NULL,
-        PRIMARY KEY (layer_id, ticker)
-    )""",
-    "CREATE INDEX IF NOT EXISTS idx_companies_ticker ON companies_in_layer(ticker)",
-    """CREATE TABLE IF NOT EXISTS embeddings (
-        doc_id        TEXT PRIMARY KEY,
-        source        TEXT NOT NULL,
-        content       TEXT NOT NULL,
-        vector        BYTEA NOT NULL,
-        dim           INTEGER NOT NULL,
-        metadata_json TEXT,
-        indexed_at    TEXT NOT NULL
-    )""",
-    "CREATE INDEX IF NOT EXISTS idx_embeddings_source ON embeddings(source)",
-    "CREATE INDEX IF NOT EXISTS idx_embeddings_indexed_at ON embeddings(indexed_at)",
-    """CREATE TABLE IF NOT EXISTS rag_queries (
-        id           SERIAL PRIMARY KEY,
-        query        TEXT NOT NULL,
-        answer       TEXT,
-        sources_json TEXT,
-        model        TEXT,
-        created_at   TEXT NOT NULL
-    )""",
-    "CREATE INDEX IF NOT EXISTS idx_rag_queries_created ON rag_queries(created_at)",
-    """CREATE TABLE IF NOT EXISTS briefings (
-        date       TEXT PRIMARY KEY,
-        data       JSONB NOT NULL,
-        created_at TEXT NOT NULL
-    )""",
-]
-
-
-class _Cursor:
-    """psycopg2 커서의 sqlite3 호환 래퍼."""
-
-    def __init__(self, pg_cursor: Any) -> None:
-        self._cur = pg_cursor
-
-    def fetchone(self) -> Any:
-        return self._cur.fetchone()
-
-    def fetchall(self) -> list[Any]:
-        return self._cur.fetchall()
-
-    @property
-    def rowcount(self) -> int:
-        return self._cur.rowcount
-
 
 class Connection:
-    """psycopg2 연결의 sqlite3 호환 래퍼.
+    """supabase Client 래퍼.
 
-    storage 모듈은 conn.execute() / conn.commit() / conn.close() 만 사용하므로
-    이 인터페이스만 노출한다.
+    storage 모듈 전체가 conn: Connection 타입으로 주입받는다.
+    conn.table(...) 호출은 supabase Client로 위임하고,
+    conn.close()는 HTTP 클라이언트가 관리하므로 no-op.
     """
 
-    def __init__(self, pg_conn: Any) -> None:
-        self._conn = pg_conn
+    def __init__(self, client: Client) -> None:
+        self._client = client
 
-    def execute(self, sql: str, params: tuple = ()) -> _Cursor:
-        cur = self._conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor)
-        cur.execute(sql, params)
-        return _Cursor(cur)
-
-    def commit(self) -> None:
-        self._conn.commit()
+    def __getattr__(self, name: str) -> Any:
+        return getattr(self._client, name)
 
     def close(self) -> None:
-        self._conn.close()
+        pass
 
 
-def init_schema(conn: Connection) -> None:
-    for stmt in _SCHEMA_STATEMENTS:
-        conn.execute(stmt)
-    conn.commit()
+def get_client(supabase_url: str, service_key: str) -> Connection:
+    """service_role 키로 Supabase 클라이언트 생성.
+
+    HTTP/2 는 Windows에서 WinError 10054 연결 재설정이 발생하므로 HTTP/1.1 강제.
+    """
+    import httpx
+
+    client = create_client(supabase_url, service_key)
+    # postgrest session 을 HTTP/1.1 전용 + 연결 재사용 없음으로 교체
+    # WinError 10054 (연결 재설정) 방지: keep-alive 풀 비활성화
+    old_session = client.postgrest.session
+    client.postgrest.session = httpx.Client(
+        http2=False,
+        headers=dict(old_session.headers),
+        timeout=30.0,
+        limits=httpx.Limits(max_keepalive_connections=0, max_connections=10),
+    )
+    return Connection(client)
 
 
-def connect(database_url: str) -> Connection:
-    pg_conn = psycopg2.connect(database_url)
-    conn = Connection(pg_conn)
-    init_schema(conn)
-    return conn
-
-
-@contextmanager
-def open_db(database_url: str) -> Iterator[Connection]:
-    conn = connect(database_url)
-    try:
-        yield conn
-    finally:
-        conn.close()
+# 하위 호환 — orchestrator / cli 의 connect(cfg.database_url) 호출을 위해 유지
+# 실제 연결은 get_client() 로 대체되어야 한다.
+def connect(database_url: str) -> Connection:  # noqa: ARG001
+    raise RuntimeError(
+        "connect(database_url) 는 더 이상 사용하지 않습니다. "
+        "get_client(supabase_url, service_key) 를 사용하세요."
+    )

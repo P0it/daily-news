@@ -20,7 +20,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[2]
 class Config:
     dart_api_key: str
     discord_webhook_url: str
-    database_url: str
+    supabase_url: str
+    supabase_service_key: str
     data_dir: Path
     digests_dir: Path
     ollama_enabled: bool
@@ -44,11 +45,12 @@ def load_config(project_root: Path | None = None) -> Config:
             "이 변수를 제거한 뒤 다시 실행하세요."
         )
 
-    database_url = os.environ.get("DATABASE_URL", "")
-    if not database_url:
+    supabase_url = os.environ.get("SUPABASE_URL", "")
+    supabase_service_key = os.environ.get("SUPABASE_SERVICE_KEY", "")
+    if not supabase_url or not supabase_service_key:
         raise RuntimeError(
-            "DATABASE_URL 환경 변수가 설정되지 않았습니다. "
-            ".env 파일에 DATABASE_URL=postgresql://... 을 추가하세요."
+            "SUPABASE_URL 또는 SUPABASE_SERVICE_KEY 환경 변수가 없습니다. "
+            ".env 파일에 두 값을 추가하세요."
         )
 
     data_dir = root / "data"
@@ -61,7 +63,8 @@ def load_config(project_root: Path | None = None) -> Config:
     return Config(
         dart_api_key=os.environ.get("DART_API_KEY", ""),
         discord_webhook_url=os.environ.get("DISCORD_WEBHOOK_URL", ""),
-        database_url=database_url,
+        supabase_url=supabase_url,
+        supabase_service_key=supabase_service_key,
         data_dir=data_dir,
         digests_dir=digests_dir,
         ollama_enabled=os.environ.get("OLLAMA_ENABLED", "0") == "1",

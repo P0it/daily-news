@@ -17,38 +17,33 @@ class GlossaryEntry:
 
 
 def get_glossary_entry(conn: Connection, term_id: str, lang: str) -> GlossaryEntry | None:
-    row = conn.execute(
-        "SELECT term_id, lang, short_label, explanation, signal_direction "
-        "FROM glossary WHERE term_id = %s AND lang = %s",
-        (term_id, lang),
-    ).fetchone()
-    if row is None:
+    r = (
+        conn.table("glossary")
+        .select("term_id,lang,short_label,explanation,signal_direction")
+        .eq("term_id", term_id)
+        .eq("lang", lang)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
         return None
+    d = r.data[0]
     return GlossaryEntry(
-        term_id=row["term_id"],
-        lang=row["lang"],
-        short_label=row["short_label"],
-        explanation=row["explanation"],
-        signal_direction=row["signal_direction"],
+        term_id=d["term_id"],
+        lang=d["lang"],
+        short_label=d["short_label"],
+        explanation=d["explanation"],
+        signal_direction=d["signal_direction"],
     )
 
 
 def upsert_glossary_entry(conn: Connection, entry: GlossaryEntry) -> None:
     now = datetime.now(UTC).isoformat()
-    conn.execute(
-        "INSERT INTO glossary"
-        "(term_id, lang, short_label, explanation, signal_direction, updated_at) "
-        "VALUES (%s, %s, %s, %s, %s, %s) "
-        "ON CONFLICT (term_id, lang) DO UPDATE SET "
-        "short_label=EXCLUDED.short_label, explanation=EXCLUDED.explanation, "
-        "signal_direction=EXCLUDED.signal_direction, updated_at=EXCLUDED.updated_at",
-        (
-            entry.term_id,
-            entry.lang,
-            entry.short_label,
-            entry.explanation,
-            entry.signal_direction,
-            now,
-        ),
-    )
-    conn.commit()
+    conn.table("glossary").upsert({
+        "term_id": entry.term_id,
+        "lang": entry.lang,
+        "short_label": entry.short_label,
+        "explanation": entry.explanation,
+        "signal_direction": entry.signal_direction,
+        "updated_at": now,
+    }).execute()

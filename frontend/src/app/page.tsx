@@ -11,7 +11,7 @@ import { getStoredLang, t, type Lang } from '@/lib/i18n'
 import { parseDateFromSearch, parseScopeFromSearch } from '@/lib/tabs'
 import type { Briefing, NewsItem } from '@/lib/types'
 import { AiCard } from '@/components/AiCard'
-import { CurrentSection } from '@/components/CurrentSection'
+import { CurrentNewsCard } from '@/components/CurrentNewsCard'
 import { HeroCard } from '@/components/HeroCard'
 import { SignalCard } from '@/components/SignalCard'
 import { HotIssuesCard } from '@/components/HotIssuesCard'
@@ -108,8 +108,13 @@ function HomeInner() {
 
   const current = briefing.tabs.current
   const filterScope = (arr: NewsItem[]) => arr.filter((n) => n.scope === scope)
-  const categories = ['politics', 'society', 'international', 'tech'] as const
-  const hasCurrentNews = categories.some((c) => filterScope(current[c]).length > 0)
+  const allCurrentNews = [
+    ...filterScope(current.politics),
+    ...filterScope(current.society),
+    ...filterScope(current.international),
+    ...filterScope(current.tech),
+  ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+  const hasCurrentNews = allCurrentNews.length > 0
 
   return (
     <div>
@@ -120,8 +125,13 @@ function HomeInner() {
         <HeroCard signal={briefing.hero} dict={dict} />
       )}
 
-      {scope === 'foreign' && economy.hotIssues && economy.hotIssues.length > 0 && (
-        <HotIssuesCard issues={economy.hotIssues} />
+      {economy.hotIssues && (
+        (scope === 'foreign' ? economy.hotIssues.foreign : economy.hotIssues.domestic).length > 0 && (
+          <HotIssuesCard
+            issues={scope === 'foreign' ? economy.hotIssues.foreign : economy.hotIssues.domestic}
+            scope={scope}
+          />
+        )
       )}
 
       {signals.length > 0 && (
@@ -132,7 +142,7 @@ function HomeInner() {
         </div>
       )}
 
-      {/* ── 뉴스 섹션 ── */}
+{/* ── 뉴스 섹션 ── */}
       {(aiItems.length > 0 || hasCurrentNews) && (
         <>
           <Divider />
@@ -147,17 +157,14 @@ function HomeInner() {
             </div>
           )}
 
-          {/* 시사 카테고리 */}
-          {hasCurrentNews &&
-            categories.map((cat) => (
-              <CurrentSection
-                key={cat}
-                category={cat}
-                news={filterScope(current[cat])}
-                dict={dict}
-                hideLabel={scope === 'foreign' && cat === 'international'}
-              />
-            ))}
+          {/* 시사 뉴스 — 카테고리 태그와 함께 시간순 */}
+          {hasCurrentNews && (
+            <div style={{ paddingTop: 8 }}>
+              {allCurrentNews.map((n) => (
+                <CurrentNewsCard key={n.id} news={n} dict={dict} />
+              ))}
+            </div>
+          )}
         </>
       )}
     </div>

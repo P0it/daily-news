@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react'
 
 export function TradingViewWidget({
   symbol,
-  height = 260,
+  height = 360,
 }: {
   symbol: string
   height?: number
@@ -14,28 +14,26 @@ export function TradingViewWidget({
   useEffect(() => {
     const el = containerRef.current
     if (!el) return
-    // Clean any previous widget instance (e.g., on symbol change)
     el.innerHTML = ''
 
     const isDark = document.documentElement.classList.contains('dark')
     const script = document.createElement('script')
     script.src =
-      'https://s3.tradingview.com/external-embedding/embed-widget-symbol-overview.js'
+      'https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js'
     script.async = true
     script.innerHTML = JSON.stringify({
-      symbols: [[symbol, symbol]],
-      chartOnly: true,
+      symbol,
       width: '100%',
       height,
       locale: 'ko',
+      dateRange: '1W',
       colorTheme: isDark ? 'dark' : 'light',
+      isTransparent: false,
       autosize: false,
-      showVolume: false,
-      hideDateRanges: false,
-      isTransparent: true,
       noTimeScale: false,
     })
     el.appendChild(script)
+
     return () => {
       if (el) el.innerHTML = ''
     }
@@ -43,10 +41,19 @@ export function TradingViewWidget({
 
   return (
     <div
-      ref={containerRef}
-      className="tradingview-widget-container"
-      style={{ height, marginTop: 12, marginBottom: 12 }}
-      aria-label={`${symbol} chart`}
-    />
+      style={{
+        borderRadius: 10,
+        overflow: 'hidden',
+        marginTop: 4,
+        marginBottom: 4,
+      }}
+    >
+      <div
+        ref={containerRef}
+        className="tradingview-widget-container"
+        style={{ height }}
+        aria-label={`${symbol} chart`}
+      />
+    </div>
   )
 }

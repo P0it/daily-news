@@ -17,42 +17,48 @@ class TickerRow:
 
 def upsert_ticker(conn: Connection, row: TickerRow) -> None:
     now = datetime.now(UTC).isoformat()
-    conn.execute(
-        "INSERT INTO tickers(stock_code, corp_code, corp_name, market, updated_at) "
-        "VALUES (%s, %s, %s, %s, %s) "
-        "ON CONFLICT (stock_code) DO UPDATE SET "
-        "corp_code=EXCLUDED.corp_code, corp_name=EXCLUDED.corp_name, "
-        "market=EXCLUDED.market, updated_at=EXCLUDED.updated_at",
-        (row.stock_code, row.corp_code, row.corp_name, row.market, now),
-    )
-    conn.commit()
+    conn.table("tickers").upsert({
+        "stock_code": row.stock_code,
+        "corp_code": row.corp_code,
+        "corp_name": row.corp_name,
+        "market": row.market,
+        "updated_at": now,
+    }).execute()
 
 
 def get_ticker_by_stock(conn: Connection, stock_code: str) -> TickerRow | None:
-    r = conn.execute(
-        "SELECT stock_code, corp_code, corp_name, market FROM tickers WHERE stock_code=%s",
-        (stock_code,),
-    ).fetchone()
-    if r is None:
+    r = (
+        conn.table("tickers")
+        .select("stock_code,corp_code,corp_name,market")
+        .eq("stock_code", stock_code)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
         return None
+    d = r.data[0]
     return TickerRow(
-        stock_code=r["stock_code"],
-        corp_code=r["corp_code"],
-        corp_name=r["corp_name"],
-        market=r["market"],
+        stock_code=d["stock_code"],
+        corp_code=d["corp_code"],
+        corp_name=d["corp_name"],
+        market=d["market"],
     )
 
 
 def get_ticker_by_corp(conn: Connection, corp_code: str) -> TickerRow | None:
-    r = conn.execute(
-        "SELECT stock_code, corp_code, corp_name, market FROM tickers WHERE corp_code=%s",
-        (corp_code,),
-    ).fetchone()
-    if r is None:
+    r = (
+        conn.table("tickers")
+        .select("stock_code,corp_code,corp_name,market")
+        .eq("corp_code", corp_code)
+        .limit(1)
+        .execute()
+    )
+    if not r.data:
         return None
+    d = r.data[0]
     return TickerRow(
-        stock_code=r["stock_code"],
-        corp_code=r["corp_code"],
-        corp_name=r["corp_name"],
-        market=r["market"],
+        stock_code=d["stock_code"],
+        corp_code=d["corp_code"],
+        corp_name=d["corp_name"],
+        market=d["market"],
     )

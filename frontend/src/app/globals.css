@@ -1,7 +1,13 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Toss Face Font Web';
+  src: url('/fonts/TossFaceFontWeb.woff2') format('woff2');
+  font-display: block;
+}
+
 @theme {
-  --font-sans: 'Pretendard Variable', Pretendard, system-ui, sans-serif;
+  --font-sans: 'Toss Product Sans', 'Toss Face Font Web', 'Toss Face Font MAC', -apple-system, BlinkMacSystemFont, sans-serif;
 
   --color-gray-50: #F9FAFB;
   --color-gray-100: #F2F4F6;

@@ -17,10 +17,14 @@ def hash_content(task: str, input_text: str) -> str:
 
 def cache_get(conn: Connection, task: str, input_text: str) -> str | None:
     key = hash_content(task, input_text)
-    row = conn.execute(
-        "SELECT output FROM llm_cache WHERE content_hash = %s", (key,)
-    ).fetchone()
-    return row["output"] if row else None
+    r = (
+        conn.table("llm_cache")
+        .select("output")
+        .eq("content_hash", key)
+        .limit(1)
+        .execute()
+    )
+    return r.data[0]["output"] if r.data else None
 
 
 def cache_put(
@@ -28,12 +32,10 @@ def cache_put(
 ) -> None:
     key = hash_content(task, input_text)
     now = datetime.now(UTC).isoformat()
-    conn.execute(
-        "INSERT INTO llm_cache(content_hash, task, output, model, created_at) "
-        "VALUES (%s, %s, %s, %s, %s) "
-        "ON CONFLICT (content_hash) DO UPDATE SET "
-        "task=EXCLUDED.task, output=EXCLUDED.output, "
-        "model=EXCLUDED.model, created_at=EXCLUDED.created_at",
-        (key, task, output, model, now),
-    )
-    conn.commit()
+    conn.table("llm_cache").upsert({
+        "content_hash": key,
+        "task": task,
+        "output": output,
+        "model": model,
+        "created_at": now,
+    }).execute()

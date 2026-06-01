@@ -1,5 +1,6 @@
 'use client'
 
+import { CATEGORY_META } from '@/lib/categoryMeta'
 import type { NewsItem } from '@/lib/types'
 
 function formatTime(iso: string): string {
@@ -16,10 +17,7 @@ function formatTime(iso: string): string {
 function sourceLabel(news: NewsItem): string {
   if (news.publisher) return news.publisher
   const src = news.source.replace(/^rss:/, '')
-  // YouTube 채널 표식
-  if (src.startsWith('yt-')) {
-    return `▶ ${src.replace('yt-', '').replace(/-/g, ' ')}`
-  }
+  if (src.startsWith('yt-')) return `▶ ${src.replace('yt-', '').replace(/-/g, ' ')}`
   if (src === 'anthropic') return 'Anthropic'
   if (src === 'openai') return 'OpenAI'
   if (src === 'geeknews') return 'GeekNews'
@@ -34,22 +32,44 @@ export function AiCard({
   news: NewsItem
   dict: import('@/lib/i18n/ko').Dict
 }) {
+  void dict
   const isVideo = news.source.startsWith('rss:yt-')
+  const summary = news.summary.replace(/<[^>]*>/g, '').trim()
+  const categoryMeta = news.category ? CATEGORY_META[news.category] : null
+
   return (
     <a
       href={news.url}
       target="_blank"
       rel="noopener"
-      className="mx-4 mb-2 block"
+      className="mx-4 mb-2.5 block"
       style={{
         background: 'var(--bg-card)',
         borderRadius: 'var(--radius-card-sm)',
         padding: '16px 18px',
         textDecoration: 'none',
-        transition: 'transform 150ms ease-out',
+        transition: 'opacity 120ms ease-out',
       }}
+      onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.opacity = '0.75' }}
+      onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.opacity = '1' }}
     >
-      <div className="flex items-center gap-2" style={{ marginBottom: 8 }}>
+      {/* 상단 메타 */}
+      <div className="flex items-center" style={{ marginBottom: 9, gap: 6 }}>
+        {categoryMeta && (
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              color: categoryMeta.color,
+              background: categoryMeta.bg,
+              borderRadius: 4,
+              padding: '2px 6px',
+              letterSpacing: '-0.01em',
+            }}
+          >
+            {categoryMeta.label}
+          </span>
+        )}
         <span
           style={{
             fontSize: 12,
@@ -67,42 +87,53 @@ export function AiCard({
           {formatTime(news.time)}
         </span>
       </div>
+
+      {/* 제목 */}
       <h3
         style={{
-          fontSize: 16,
+          fontSize: 15,
           fontWeight: 700,
           letterSpacing: '-0.02em',
-          lineHeight: 1.35,
+          lineHeight: 1.45,
           color: 'var(--text-primary)',
-          marginBottom: news.titleOriginal ? 4 : news.summary ? 6 : 0,
+          marginBottom: news.titleOriginal ? 4 : summary ? 8 : 0,
+          wordBreak: 'keep-all',
+          overflowWrap: 'break-word',
         }}
       >
         {news.title}
       </h3>
+
+      {/* 원문 제목 (번역된 경우) */}
       {news.titleOriginal && (
         <p
           style={{
             fontSize: 12,
-            lineHeight: 1.4,
+            lineHeight: 1.45,
             color: 'var(--text-tertiary)',
-            marginBottom: news.summary ? 6 : 0,
+            marginBottom: summary ? 8 : 0,
           }}
         >
           {news.titleOriginal}
         </p>
       )}
-      {news.summary && (
+
+      {/* 요약 — 2줄 clamp */}
+      {summary && (
         <p
           style={{
             fontSize: 13,
-            lineHeight: 1.55,
+            lineHeight: 1.65,
             color: 'var(--text-secondary)',
+            display: '-webkit-box',
+            WebkitLineClamp: 2,
+            WebkitBoxOrient: 'vertical' as const,
+            overflow: 'hidden',
           }}
         >
-          {news.summary.slice(0, 140)}
+          {summary}
         </p>
       )}
-      {void dict}
     </a>
   )
 }

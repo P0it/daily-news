@@ -40,6 +40,13 @@ def recency_factor(published_at: datetime, now: datetime) -> float:
     6h 이내 = 1.0, 12h = 0.5, 24h = 0.2, 48h+ = 0.0 (선형).
     미래 시각은 1.0 (시계 오차 케이스).
     """
+    # timezone-naive 일 경우 UTC로 취급
+    if published_at.tzinfo is None:
+        from datetime import timezone
+        published_at = published_at.replace(tzinfo=timezone.utc)
+    if now.tzinfo is None:
+        from datetime import timezone
+        now = now.replace(tzinfo=timezone.utc)
     delta = now - published_at
     if delta.total_seconds() < 0:
         return 1.0

@@ -23,18 +23,11 @@ export interface CurrentTab {
   tech: NewsItem[]
 }
 
-// Week 5a (DECISIONS #13): picks 를 economy 내부로 이동
 export interface EconomyTab {
   indices: MarketIndex[]
-  picks: PicksSection
   signals: SignalItem[]
   news: NewsItem[]
-  hotIssues?: HotIssue[]
-}
-
-export interface PicksSection {
-  domestic: SignalItem[]
-  foreign: SignalItem[]
+  hotIssues?: { domestic: HotIssue[]; foreign: HotIssue[] }
 }
 
 // Scope 타입 재export — 컴포넌트들이 공통 사용
@@ -91,17 +84,30 @@ export interface MarketIndex {
   direction: 'up' | 'down' | 'flat'
 }
 
+export interface DomesticEtf {
+  ticker: string  // 국내 ETF 종목코드
+  name: string    // 국내 ETF명
+}
+
+export interface TickerPick {
+  ticker: string              // 미국 심볼 (코드)
+  name: string                // 한국어 기업·펀드명
+  description: string         // 추천 이유 1~2문장
+  domestic: DomesticEtf | DomesticEtf[] | null
+}
+
 export interface HotIssue {
   rank: number
   asset: string
   assetType: 'stock' | 'theme' | 'macro'
   direction: 'positive' | 'negative' | 'mixed'
   signal: string
-  tickers?: string[]
+  picks?: TickerPick[]
   reason: string
+  cautions?: string
   source: string
   url: string | null
-  /** @deprecated 구버전 JSON 호환용 — asset 필드로 마이그레이션됨 */
+  /** @deprecated 구버전 JSON 호환용 */
   title?: string
 }
 
