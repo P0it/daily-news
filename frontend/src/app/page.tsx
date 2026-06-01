@@ -8,23 +8,45 @@ import {
 } from '@/lib/fetchBriefing'
 import { setGlossary } from '@/lib/glossaryStore'
 import { getStoredLang, t, type Lang } from '@/lib/i18n'
-import {
-  parseDateFromSearch,
-  parseScopeFromSearch,
-  parseTabFromSearch,
-} from '@/lib/tabs'
+import { parseDateFromSearch, parseScopeFromSearch } from '@/lib/tabs'
 import type { Briefing, NewsItem } from '@/lib/types'
-import { AiSection } from '@/components/AiSection'
+import { AiCard } from '@/components/AiCard'
 import { CurrentSection } from '@/components/CurrentSection'
 import { HeroCard } from '@/components/HeroCard'
-import { MarketIndices } from '@/components/MarketIndices'
-import { PicksSection } from '@/components/PicksSection'
 import { SignalCard } from '@/components/SignalCard'
 import { ThemeBanner } from '@/components/ThemeBanner'
 
+function SectionLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <div
+      style={{
+        fontSize: 11,
+        fontWeight: 700,
+        letterSpacing: '0.08em',
+        textTransform: 'uppercase',
+        color: 'var(--text-tertiary)',
+        padding: '28px 20px 10px',
+      }}
+    >
+      {children}
+    </div>
+  )
+}
+
+function Divider() {
+  return (
+    <div
+      style={{
+        height: 1,
+        background: 'var(--border-subtle)',
+        margin: '8px 20px 0',
+      }}
+    />
+  )
+}
+
 function HomeInner() {
   const sp = useSearchParams()
-  const tab = parseTabFromSearch(sp)
   const scope = parseScopeFromSearch(sp)
   const date = parseDateFromSearch(sp)
   const [briefing, setBriefing] = useState<Briefing | null>(null)
@@ -77,72 +99,67 @@ function HomeInner() {
     )
   }
 
-  // ───── AI 탭 (Week 5b: default — DECISIONS #13) ─────
-  if (tab === 'ai') {
-    const aiTab = briefing.tabs.ai ?? { domestic: [], foreign: [] }
-    return <AiSection tab={aiTab} scope={scope} dict={dict} />
-  }
+  const economy = briefing.tabs.economy
+  const signals = economy.signals.filter((s) => s.scope === scope && s.direction === 'positive')
+  const showHero = briefing.hero !== null && briefing.hero.scope === scope
 
-  // ───── 경제 탭 (Week 5a: picks 내부 통합 + 국내/해외 단일 scope) ─────
-  if (tab === 'economy') {
-    const economy = briefing.tabs.economy
-    const signals = economy.signals.filter((s) => s.scope === scope)
-    const picks = economy.picks ?? { domestic: [], foreign: [] }
-    const showHero =
-      briefing.hero !== null && briefing.hero.scope === scope
+  const aiTab = briefing.tabs.ai ?? { domestic: [], foreign: [] }
+  const aiItems = scope === 'foreign' ? aiTab.foreign : aiTab.domestic
 
-    return (
-      <div>
-        {economy.themeBanner && <ThemeBanner banner={economy.themeBanner} />}
-        <PicksSection picks={picks} scope={scope} dict={dict} />
-        {showHero && briefing.hero && (
-          <HeroCard signal={briefing.hero} dict={dict} />
-        )}
-        <MarketIndices indices={economy.indices} dict={dict} />
-        {signals.length === 0 ? (
-          <p
-            className="px-5 py-16 text-center"
-            style={{ color: 'var(--text-secondary)' }}
-          >
-            {dict['empty.economy']}
-          </p>
-        ) : (
-          signals.map((s) => <SignalCard key={s.id} signal={s} dict={dict} />)
-        )}
-      </div>
-    )
-  }
-
-  // ───── 시사 탭 (카테고리별 섹션 + 국내/해외 단일 scope) ─────
   const current = briefing.tabs.current
   const filterScope = (arr: NewsItem[]) => arr.filter((n) => n.scope === scope)
-  const sections: Array<'politics' | 'society' | 'international' | 'tech'> = [
-    'politics',
-    'society',
-    'international',
-    'tech',
-  ]
-  const hasAny = sections.some((s) => filterScope(current[s]).length > 0)
-  if (!hasAny) {
-    return (
-      <p
-        className="px-5 py-16 text-center"
-        style={{ color: 'var(--text-secondary)' }}
-      >
-        {dict['empty.current']}
-      </p>
-    )
-  }
+  const categories = ['politics', 'society', 'international', 'tech'] as const
+  const hasCurrentNews = categories.some((c) => filterScope(current[c]).length > 0)
+
   return (
     <div>
-      {sections.map((s) => (
-        <CurrentSection
-          key={s}
-          category={s}
-          news={filterScope(current[s])}
-          dict={dict}
-        />
-      ))}
+      {/* ── 경제 섹션 ── */}
+      <SectionLabel>경제</SectionLabel>
+
+      {showHero && briefing.hero && (
+        <HeroCard signal={briefing.hero} dict={dict} />
+      )}
+
+      {economy.themeBanner && (
+        <ThemeBanner banner={economy.themeBanner} />
+      )}
+
+      {signals.length > 0 && (
+        <div style={{ marginTop: 4 }}>
+          {signals.map((s) => (
+            <SignalCard key={s.id} signal={s} dict={dict} />
+          ))}
+        </div>
+      )}
+
+      {/* ── 뉴스 섹션 ── */}
+      {(aiItems.length > 0 || hasCurrentNews) && (
+        <>
+          <Divider />
+          <SectionLabel>뉴스</SectionLabel>
+
+          {/* AI 소식 */}
+          {aiItems.length > 0 && (
+            <div style={{ paddingBottom: hasCurrentNews ? 8 : 0 }}>
+              {aiItems.map((n) => (
+                <AiCard key={n.id} news={n} dict={dict} />
+              ))}
+            </div>
+          )}
+
+          {/* 시사 카테고리 */}
+          {hasCurrentNews &&
+            categories.map((cat) => (
+              <CurrentSection
+                key={cat}
+                category={cat}
+                news={filterScope(current[cat])}
+                dict={dict}
+                hideLabel={scope === 'foreign' && cat === 'international'}
+              />
+            ))}
+        </>
+      )}
     </div>
   )
 }

@@ -267,6 +267,12 @@ def parse_rss_feed(
         else:
             clean_title = _clean_title(raw_title, None)
 
+        # HN 개인 질문·토론 포스트 제외 — "Ask HN:", "Tell HN:", "Show HN:"
+        if source_id == "rss:hn-ai" and re.match(
+            r"^(Ask|Tell|Show) HN:", clean_title, re.IGNORECASE
+        ):
+            continue
+
         extra: dict = {}
         if category:
             extra["category"] = category

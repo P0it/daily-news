@@ -38,6 +38,33 @@ CURRENT_SECTION_CAPS = {
 AI_SECTION_CAP = 20
 
 
+def _source_group(source: str) -> str:
+    """소스 → 언론사 그룹 (동일 언론사 중복 방지용)."""
+    for keyword in ("bbc", "yonhap", "gnews", "hankyung", "mk", "ft", "anthropic", "openai", "hn"):
+        if keyword in source:
+            return keyword
+    return source
+
+
+def _diverse_cap(items: list[dict], cap: int) -> list[dict]:
+    """소스 다양성 우선 + cap 적용.
+
+    1순위: 소스 그룹별 1개씩 선택 (같은 언론사 2개 연속 방지).
+    2순위: 여분 슬롯은 curation 순서로 채움.
+    """
+    seen: set[str] = set()
+    result: list[dict] = []
+    remainder: list[dict] = []
+    for item in items:
+        grp = _source_group(item.get("source", ""))
+        if grp not in seen:
+            seen.add(grp)
+            result.append(item)
+        else:
+            remainder.append(item)
+    return (result + remainder)[:cap]
+
+
 def _signal_to_dict(
     item: CollectedItem,
     score: int,
@@ -133,7 +160,7 @@ def build_briefing_json(
             _signal_to_dict(it, s, d, term_ids_by_id) for it, s, d in picks.foreign
         ]
 
-    # 시사 탭 — 카테고리별 그루핑 + curation 정렬 + cap
+    # 시사 탭 — 카테고리별 그루핑 + curation 정렬 + 소스 다양성 + cap
     current_grouped: dict[str, list[dict]] = {
         "politics": [],
         "society": [],
@@ -154,7 +181,7 @@ def build_briefing_json(
     for cat, arr in current_grouped.items():
         arr.sort(key=lambda x: x.get("curationScore", 0), reverse=True)
         cap = CURRENT_SECTION_CAPS.get(cat, 5)
-        current_grouped[cat] = arr[:cap]
+        current_grouped[cat] = _diverse_cap(arr, cap)
 
     # Week 5a (DECISIONS #13): picks 를 economy 내부로 이동
     indices_list = [
