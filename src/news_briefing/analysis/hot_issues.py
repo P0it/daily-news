@@ -122,17 +122,18 @@ def analyze_hot_issues(
         issues: list[dict] = json.loads(raw)
         validated: list[dict] = []
         for iss in issues[:3]:
-            asset = str(iss.get("asset", "")).strip()
+            # LLM이 title 또는 asset 중 하나를 쓸 수 있음 — 둘 다 수용
+            asset = str(iss.get("asset") or iss.get("title") or "").strip()
             if not asset:
                 continue
             validated.append({
                 "rank": int(iss.get("rank", len(validated) + 1)),
                 "asset": asset,
-                "assetType": iss.get("assetType", "theme"),
-                "direction": iss.get("direction", "mixed"),
-                "signal": str(iss.get("signal", "")).strip(),
-                "reason": str(iss.get("reason", "")).strip(),
-                "source": str(iss.get("source", "")).strip(),
+                "assetType": iss.get("assetType") or "theme",
+                "direction": iss.get("direction") or "mixed",
+                "signal": str(iss.get("signal") or "").strip(),
+                "reason": str(iss.get("reason") or "").strip(),
+                "source": str(iss.get("source") or "").strip(),
                 "url": iss.get("url") or None,
             })
         log.info("hot_issues: %d개 이슈 선정", len(validated))

@@ -26,54 +26,66 @@ export function HotIssuesCard({ issues }: { issues: HotIssue[] }) {
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
         {issues.map((issue, idx) => {
+          // 구버전 JSON은 title 필드 사용, 신버전은 asset
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const assetName = issue.asset || (issue as any).title || ''
           const dir = DIRECTION_CONFIG[issue.direction] ?? DIRECTION_CONFIG.mixed
+          const typeLabel = issue.assetType ? (ASSET_TYPE_LABEL[issue.assetType] ?? issue.assetType) : null
           const isLast = idx === issues.length - 1
 
           return (
             <div key={issue.rank}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {/* 상단 행: 순위 + 종목명 + 방향 칩 */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
                   <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-tertiary)', minWidth: 20 }}>
                     {issue.rank}위
                   </span>
 
                   {/* 자산명 */}
-                  <span style={{ fontSize: 20, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1 }}>
-                    {issue.asset}
-                  </span>
+                  {assetName && (
+                    <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em', lineHeight: 1.2 }}>
+                      {assetName}
+                    </span>
+                  )}
 
-                  {/* 방향 칩 */}
-                  <span style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 4,
-                    padding: '3px 8px', borderRadius: 999,
-                    background: 'var(--bg-inset)',
-                    fontSize: 11, fontWeight: 700, color: dir.textColor,
-                  }}>
-                    <span style={{ width: 5, height: 5, borderRadius: '50%', background: dir.dot, flexShrink: 0 }} />
-                    {dir.label}
-                  </span>
-                </div>
-
-                {/* 태그 행: 자산 유형 + 핵심 시그널 */}
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, paddingLeft: 28 }}>
-                  <span style={{
-                    padding: '4px 10px', borderRadius: 999,
-                    background: 'var(--bg-inset)',
-                    fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)',
-                  }}>
-                    {ASSET_TYPE_LABEL[issue.assetType] ?? issue.assetType}
-                  </span>
-                  {issue.signal && (
+                  {/* 방향 칩 — direction 있을 때만 */}
+                  {issue.direction && (
                     <span style={{
-                      padding: '4px 10px', borderRadius: 999,
+                      display: 'inline-flex', alignItems: 'center', gap: 4,
+                      padding: '3px 8px', borderRadius: 999,
                       background: 'var(--bg-inset)',
-                      fontSize: 12, fontWeight: 700, color: 'var(--text-primary)',
+                      fontSize: 11, fontWeight: 700, color: dir.textColor,
                     }}>
-                      {issue.signal}
+                      <span style={{ width: 5, height: 5, borderRadius: '50%', background: dir.dot, flexShrink: 0 }} />
+                      {dir.label}
                     </span>
                   )}
                 </div>
+
+                {/* 태그 행: 자산 유형 + 핵심 시그널 — 둘 다 있을 때만 렌더 */}
+                {(typeLabel || issue.signal) && (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, paddingLeft: 28 }}>
+                    {typeLabel && (
+                      <span style={{
+                        padding: '4px 10px', borderRadius: 999,
+                        background: 'var(--bg-inset)',
+                        fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)',
+                      }}>
+                        {typeLabel}
+                      </span>
+                    )}
+                    {issue.signal && (
+                      <span style={{
+                        padding: '4px 10px', borderRadius: 999,
+                        background: 'var(--bg-inset)',
+                        fontSize: 12, fontWeight: 700, color: 'var(--text-primary)',
+                      }}>
+                        {issue.signal}
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 {/* 근거 설명 */}
                 <p style={{
