@@ -486,7 +486,216 @@ Week 4까지 완료 후 "실시간 호가·체결 데이터"가 정말 필요할
 - 계좌 정보 조회·주문 권한이 같은 앱키에 묶여 있음. **읽기 전용 앱키 별도 발급 권장.** 자동매매는 하지 않으므로 주문 권한은 필요 없음
 - 앱키는 노출 시 매매도 가능하므로 `.env` 보안 필수
 
-## 8. 관측·운영
+## 8. 멀티 에이전트 분석 파이프라인
+
+### 8.1 왜 에이전트를 나누는가
+
+현재 `analysis/llm.py` 하나가 요약·시그널·테마·전략을 모두 처리한다.
+문제: 프롬프트가 너무 넓으면 LLM이 모든 역할을 어중간하게 수행한다.
+
+**전문화된 에이전트를 나누면:**
+- 각 에이전트가 자기 역할에만 집중 → 프롬프트가 짧고 정밀해짐
+- 병렬 실행 가능 (아이템 100개를 Analyst가 동시에 처리)
+- 에이전트별 독립 튜닝 가능
+- 하나가 실패해도 다른 에이전트는 계속 진행
+
+### 8.2 에이전트 구성
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    아침 브리핑 파이프라인                      │
+│                                                             │
+│  [CrawlerAgent ×N]  ←── 소스별 병렬 수집                     │
+│        ↓                                                    │
+│  [AggregatorAgent]  ←── 정규화·중복제거·점수 산정              │
+│        ↓                                                    │
+│  ┌─────────────────────────┐                                │
+│  │ SignalAnalystAgent ×M   │ ←── 아이템별 병렬 분석           │
+│  │ (공시·뉴스 개별 해석)     │                                │
+│  └─────────────────────────┘                                │
+│        ↓                                                    │
+│  [CatalystDetectorAgent]  ←── 오늘의 주요 촉매 탐지·분류      │
+│        ↓                                                    │
+│  ┌──────────────────────────────┐                           │
+│  │ CascadeResearcherAgent ×K   │ ←── 촉매별 병렬 심층 분석   │
+│  │ (2·3차 수혜, ETF, 사전포지션) │                           │
+│  └──────────────────────────────┘                           │
+│        ↓                                                    │
+│  [StrategistAgent]  ←── 전체 종합·오늘의 전략 수립            │
+│        ↓                                                    │
+│       Output (JSON → PWA + 카톡)                            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 8.3 에이전트별 역할 정의
+
+| 에이전트 | 입력 | 출력 | 핵심 질문 |
+|---------|------|------|---------|
+| **CrawlerAgent** | 소스 URL·API | 원시 항목 리스트 | "이 소스에서 오늘 뭐가 나왔나?" |
+| **AggregatorAgent** | 원시 항목들 | 정규화된 SignalItem[] + 기본 점수 | "중복 제거 후 어떤 항목이 남나?" |
+| **SignalAnalystAgent** | 단일 공시·뉴스 | 해석·요약·점수 보정·glossary | "이 항목 하나가 무슨 의미인가?" |
+| **CatalystDetectorAgent** | 오늘 전체 항목 | 촉매 유형·강도·타이밍 분류 | "오늘 중요한 사건이 뭐고, 어떤 유형인가?" |
+| **CascadeResearcherAgent** | 단일 촉매 | 2·3차 수혜·ETF·사전 포지셔닝 | "이 촉매에서 아직 안 보이는 기회는?" |
+| **StrategistAgent** | 모든 에이전트 출력 | 오늘의 전략 내러티브 + 우선순위 | "오늘 어디에 집중해야 하는가?" |
+
+### 8.4 에이전트별 페르소나 & 시스템 프롬프트
+
+각 에이전트는 **구체적인 인물 페르소나**를 가진다. 역할만 주는 것보다 페르소나를 부여하면 LLM이 그 관점에 맞는 언어·판단 기준으로 일관되게 동작한다.
+
+---
+
+**AggregatorAgent** — 퀀트 데이터 엔지니어
+```
+당신은 증권사 퀀트 리서치팀의 데이터 엔지니어다.
+감정 없이 숫자와 규칙만으로 판단한다. 모호한 것은 "확인 필요"로 플래그 처리하고
+절대 추측으로 채우지 않는다.
+
+역할: 수집된 원시 데이터를 정규화·중복제거하고, SIGNALS.md 규칙에 따라 기본 시그널 점수를 산정한다.
+출력에 주관적 해석 없음. 숫자·분류·플래그만.
+```
+
+---
+
+**SignalAnalystAgent** — 증권사 공시 전문 애널리스트
+```
+당신은 10년 경력의 증권사 애널리스트로 DART 공시 해석 전문가다.
+공시 원문에서 숫자(금액·지분율·기간)를 먼저 뽑고, 회계·법률적 맥락을 읽는다.
+"통상 이렇게 해석됩니다"가 기본 어조지만, 방향이 명확하면 "단기 매수 관점에서 유효"처럼
+직접적으로 말한다. 애매하면 애매하다고 솔직히 쓴다.
+
+역할: 하나의 공시·뉴스 항목만 받아 깊게 해석한다. 다른 항목과 연결짓지 않는다.
+출력: 2줄 요약, 호재·악재 강도(HIGH/MEDIUM/LOW), 점수 보정 근거, 주의사항 1줄.
+```
+
+---
+
+**CatalystDetectorAgent** — 이벤트 드리븐 펀드 리서처
+```
+당신은 이벤트 드리븐 헤지펀드의 수석 리서처다.
+뉴스 더미에서 "시장이 아직 완전히 반영하지 못한 촉매"를 찾는 게 일이다.
+뻔한 것(이미 뉴스 헤드라인에 다 나온 것)은 LOW로 내리고,
+묻혀있는 것(공시 사이에 낀 중요한 사실, 2차 파급이 큰 사건)을 HIGH로 끌어올린다.
+
+역할: 오늘 수집된 전체 항목을 보고 투자 촉매를 탐지·분류한다.
+SIGNALS.md 6.3의 촉매 유형 분류표 사용.
+핵심 질문: "이 중 아직 시장에 덜 반영된 촉매는 무엇인가?"
+출력: 촉매 리스트 (유형·강도·반영도·우선순위).
+```
+
+---
+
+**CascadeResearcherAgent** — 테마 펀드 포트폴리오 매니저
+```
+당신은 테마 ETF 운용사의 포트폴리오 매니저다.
+하나의 촉매를 받으면 "어떤 경로로 돈이 흐를 것인가"를 밸류체인 따라 추적한다.
+직접 수혜(1차, 누구나 아는 것)는 빠르게 처리하고,
+2·3차 수혜(간접 노출 ETF, 비상장 지분 보유 펀드, 공급망 upstream)에 시간을 쓴다.
+국내 ISA·연금 투자자 관점을 항상 유지: 해외 ETF 제시 시 국내 추종 상품 병기.
+
+역할: 단일 촉매를 받아 사전 포지셔닝 기회와 cascade 수혜 경로를 탐색한다.
+SIGNALS.md 6.3 범용 촉매 분석 프롬프트 사용.
+출력: pre_event_vehicles, value_chain_cascade, domestic_alternatives, AI 분석 요약.
+```
+
+---
+
+**StrategistAgent** — 매크로 헤지펀드 CIO
+```
+당신은 15년 경력의 매크로 헤지펀드 CIO다.
+아래 팀원들(SignalAnalyst, CatalystDetector, CascadeResearcher)의 보고를 받아
+오늘 어디에 집중할지 최종 판단을 내린다.
+디테일에 빠지지 않는다. 큰 그림과 우선순위가 일이다.
+모든 주장은 팀원 보고에 근거해야 한다 — 데이터 없이 추론하지 않는다.
+말은 짧고 명확하게. 불필요한 수식어 없음.
+
+역할: 모든 에이전트 결과를 종합해 오늘의 브리핑 결론을 작성한다.
+출력:
+  1. 오늘의 핵심 메시지 (1~2줄, 투자 관점)
+  2. 액션 우선순위: HIGH → MEDIUM → LOW (각각 근거 포함)
+  3. 주목 테마·ETF 3개 이내 (국내 ISA·연금 가능 상품 포함)
+  4. 오늘의 주요 리스크 1개
+  5. 내일 주시할 이벤트 (있으면)
+```
+
+### 8.5 구현 파일 구조 (목표)
+
+```
+analysis/
+├── agents/
+│   ├── __init__.py
+│   ├── base.py              # 공통 LLM 호출 래퍼
+│   ├── crawler.py           # CrawlerAgent
+│   ├── aggregator.py        # AggregatorAgent
+│   ├── signal_analyst.py    # SignalAnalystAgent
+│   ├── catalyst_detector.py # CatalystDetectorAgent
+│   ├── cascade_researcher.py# CascadeResearcherAgent
+│   └── strategist.py        # StrategistAgent
+└── pipeline.py              # 에이전트 오케스트레이터
+```
+
+`pipeline.py`는 에이전트들을 순서에 맞게 실행하고, 가능한 단계는 `concurrent.futures.ThreadPoolExecutor`로 병렬 처리한다.
+
+### 8.6 설치된 플러그인 & MCP 현황
+
+#### 플러그인 (Claude Code 세션에 자동 로드)
+
+| 플러그인 | 마켓플레이스 | 스킬 수 | 주요 활용 에이전트 |
+|---------|-----------|--------|----------------|
+| `equity-research` | claude-for-financial-services | 18 | CatalystDetectorAgent, CascadeResearcherAgent |
+| `financial-analysis` | claude-for-financial-services | 20 | SignalAnalystAgent (DCF, 실적 비교) |
+| `wealth-management` | finance-skills | 32 | StrategistAgent (tax-efficiency, rebalancing, ISA 최적화) |
+| `core` | finance-skills | - | 모든 에이전트 공통 수학·통계 기반 |
+
+**핵심 스킬 매핑:**
+- `/earnings-analysis`, `/catalysts`, `/morning-note` → CatalystDetectorAgent
+- `/screen`, `/idea-generation`, `/thesis` → CascadeResearcherAgent
+- `/tax-efficiency`, `/tax-loss-harvesting`, `/asset-allocation` → StrategistAgent (ISA·연금 최적화)
+- `/competitive-analysis`, `/comps` → SignalAnalystAgent
+
+#### MCP 서버
+
+| 서버 | URL | 인증 | 용도 |
+|-----|-----|-----|-----|
+| `financial-datasets` | https://mcp.financialdatasets.ai/api | OAuth (첫 사용 시 브라우저 인증) | 미국 주식·ETF 실시간 데이터, 100 req/일 무료 |
+
+**financial-datasets 첫 사용:**
+세션에서 `/mcp` 입력 → 브라우저 OAuth 창 → financialdatasets.ai 계정 연결 (무료 가입)
+
+#### 토큰 비용 주의
+
+플러그인은 세션마다 always-on 토큰이 추가됨. 합산:
+- equity-research: ~957 tok
+- financial-analysis: ~1,282 tok
+- wealth-management: ~4,134 tok
+
+**총 ~6,400 tok/세션 추가.** Max 플랜($100) 한도 안에서 관리 필요.
+아침 브리핑 파이프라인(`claude -p` subprocess 호출)은 플러그인 로드 없이 실행되므로 영향 없음.
+플러그인 always-on 비용은 **Claude Code 대화 세션**에서만 발생.
+
+### 8.7 병렬 처리 전략
+
+```python
+# 예시: SignalAnalystAgent를 아이템별 병렬 실행
+with ThreadPoolExecutor(max_workers=5) as executor:
+    analyst_results = list(executor.map(
+        signal_analyst.analyze,
+        aggregated_items
+    ))
+
+# CascadeResearcherAgent는 촉매별 병렬
+with ThreadPoolExecutor(max_workers=3) as executor:
+    cascade_results = list(executor.map(
+        cascade_researcher.research,
+        detected_catalysts
+    ))
+
+# StrategistAgent는 마지막에 단독 실행 (전체 context 필요)
+strategy = strategist.synthesize(analyst_results, cascade_results)
+```
+
+Max 플랜 CLI 호출은 동시성 제한 있을 수 있음 → `max_workers`는 실험적으로 조정.
+
+## 9. 관측·운영
 
 - **로깅**: Python `logging`, stdout + `data/briefing.log`. launchd가 stdout을 파일로 리다이렉트
 - **상태 확인**: `python -m news_briefing.cli status` — 마지막 실행 시각, 미처리 큐 사이즈

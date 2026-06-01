@@ -8,27 +8,76 @@
 
 매일 아침 6:00 카톡 브리핑 + 주 단위 테마 분석 (Week 4+). 개인 투자자(시스템 소유자 1명)가 흩어진 정보원을 한 페이지로 모으기 위해 구축한다.실시간 알림·트레이딩 도구가 아니라 **아침 배치 브리핑**이 본질.
 
+## 신규 머신 초기 설정 (최초 1회)
+
+새 머신에서 처음 clone할 때 아래 명령어를 순서대로 실행한다.
+`.claude/settings.json`에 플러그인 목록은 이미 있지만, 마켓플레이스 소스는 user-level이라 별도 등록 필요.
+
+```bash
+# 1. 마켓플레이스 등록 (2개)
+claude plugin marketplace add https://github.com/anthropics/financial-services
+claude plugin marketplace add https://github.com/JoelLewis/finance_skills
+
+# 2. 플러그인 설치 (settings.json에 명시된 4개)
+claude plugin install equity-research@claude-for-financial-services
+claude plugin install financial-analysis@claude-for-financial-services
+claude plugin install core@finance-skills
+claude plugin install wealth-management@finance-skills
+
+# 3. financialdatasets MCP 인증 (브라우저 OAuth)
+# Claude Code 세션에서 /mcp 입력 후 financial-datasets 인증
+```
+
+### subprocess에서 스킬 사용
+
+파이프라인 에이전트에서 플러그인 스킬을 호출할 때:
+
+```python
+result = subprocess.run(
+    ["claude", "-p", "/catalysts\n\n{context}"],
+    capture_output=True, text=True, timeout=60
+)
+```
+
+사용 가능한 주요 slash commands:
+- `/catalysts` — 촉매 탐지·분류
+- `/earnings-analysis` — 실적 분석
+- `/morning-note` — 아침 브리핑 노트 생성
+- `/screen` — 종목 스크리닝
+- `/idea-generation` — 투자 아이디어 발굴
+- `/thesis` — 투자 thesis 작성
+- `/tax-efficiency` — ISA·연금 세금 효율 분석
+- `/asset-allocation` — 자산 배분
+
 ## 필수 사전 읽기
 
 작업 시작 전 반드시 읽는다:
 - [`docs/PRD.md`](docs/PRD.md) — 기능 요구사항, 특히 2.4 Non-goals
 - [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — 시스템 설계, 디렉토리 구조
 - [`docs/ROADMAP.md`](docs/ROADMAP.md) — 현재 주차 목표와 DoD
-- [`docs/SIGNALS.md`](docs/SIGNALS.md) — 도메인 지식, 특히 5절 선 긋기
+- [`docs/SIGNALS.md`](docs/SIGNALS.md) — 도메인 지식, 시그널 체계, 테마·ETF 분석 방법론
 - [`docs/DESIGN.md`](docs/DESIGN.md) — UI/UX 디자인 시스템 (Week 2 이상 웹 작업 시 필수)
-- [`docs/DECISIONS.md`](docs/DECISIONS.md) — 주요 결정 기록 (왜 자동매매가 없는지 등)
+- [`docs/DECISIONS.md`](docs/DECISIONS.md) — 주요 결정 기록
 
+### P1. 개인 용도 분석·추천 방침
 
+이 시스템은 **본인(1명) 전용** 자동화 도구다. 외부 배포·공유는 하지 않는다.
+개인 투자 판단을 돕는 것이 목적이므로 LLM 분석 출력은 **구체적이고 방향성이 명확할수록 좋다.**
 
-허용되는 것:
-- 이벤트의 **통상적 해석** 교육 ("내부자 매수는 통상 긍정 신호로 해석됩니다")
-- **시그널 점수**에 따른 우선순위 표시
-- **밸류체인 분해**와 관련 기업 **포지셔닝 정보** 제공
-- **TradingView 차트 위젯 임베드** — 판단 재료
-- **증권사 앱 딥링크** — 주문 화면까지 이동, 체결은 사용자 손
-- **"Today's Pick" 섹션 (종목 탭, `docs/DECISIONS.md` #12)** — 시그널 점수 상위 자동 노출. 사람·LLM의 판단이 개입하지 않는 **기계적 우선순위 표시**이므로 "추천 종목 TOP 10" 금지 조항과 구별. UI·카피에 "추천" 단어 사용 금지, "주목" / "Pick" 만 사용.
+분석에서 허용·권장되는 것:
+- **종목·테마·ETF 매수/매도 방향 제시** ("이 시그널은 단기 매수 관점에서 유효해 보입니다")
+- **목표가·지지/저항 수준 언급** (공개된 애널리스트 리포트 기반)
+- **테마 상승 가능성 예측** ("현재 밸류체인 시그널 밀도 기준 로봇 테마 단기 우위")
+- **증권사 리포트 요약 및 컨센서스 방향성 정리**
+- **호재/악재 강도 등급화** (High / Medium / Low)
+- **ETF 흐름 분석** — 해외 ETF 제시 시 반드시 **ISA·연금계좌용 국내 추종 ETF** 병기 (예: ITA → "관련 국내 ETF: KODEX 미국방산항공우주 379800"). 국내 추종 상품이 없으면 "국내 추종 상품 없음" 명시
+- 밸류체인 분해 + 관련 기업 포지셔닝 정보
+- TradingView 차트 위젯 임베드
+- 증권사 앱 딥링크 (주문 화면까지 이동)
 
-LLM 프롬프트 작성 시 항상 이 경계를 명시하고, 출력에 금칙어(`매수`, `매도`, `목표가`, `유망주` 등) 포함 여부를 후처리 검증한다. 상세는 `docs/SIGNALS.md` 5절.
+하지 않는 것 (개인 사용과 무관한 기술·운영 이유):
+- **자동 매매 연결** — 시그널 감지 시 증권사 API로 주문 자동 집행 (`DECISIONS.md` #1 참조)
+- **외부 사용자에게 제공·공유** — 개인 자동화 시스템이므로 타인 배포 없음
 
 
 ### P2. Max 플랜 할당량 사용, API 과금 금지

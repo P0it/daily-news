@@ -1,0 +1,8 @@
+{
+  "enabledPlugins": {
+    "equity-research@claude-for-financial-services": true,
+    "financial-analysis@claude-for-financial-services": true,
+    "core@finance-skills": true,
+    "wealth-management@finance-skills": true
+  }
+}
