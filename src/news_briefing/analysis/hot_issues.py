@@ -257,7 +257,7 @@ def analyze_hot_issues(
     prompt = _PROMPT_SYSTEM + "\n\n---\n\n" + "\n".join(lines)
 
     try:
-        raw = _call_claude(prompt, timeout=60).strip()
+        raw = _call_claude(prompt, timeout=120).strip()
         result = _parse_issues(raw)
         log.info("hot_issues(foreign): %d개 이슈 선정", len(result))
         return result
@@ -295,7 +295,7 @@ def analyze_hot_issues_domestic(
     prompt = _PROMPT_SYSTEM_DOMESTIC + "\n\n---\n\n" + "\n".join(lines)
 
     try:
-        raw = _call_claude(prompt, timeout=60).strip()
+        raw = _call_claude(prompt, timeout=120).strip()
         result = _parse_issues(raw)
         log.info("hot_issues(domestic): %d개 이슈 선정", len(result))
         return result

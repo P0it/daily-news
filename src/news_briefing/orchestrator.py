@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+import sys
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -327,7 +328,7 @@ def run_morning(
             )
             sent = _send_discord(cfg, message)
         else:
-            print(text)  # dry-run: stdout 에 전체 디지스트 출력
+            sys.stdout.buffer.write((text + "\n").encode("utf-8", errors="replace"))
 
         return MorningResult(
             new_items=len(new_items),
