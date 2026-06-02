@@ -230,7 +230,7 @@ def _parse_issues(raw: str) -> list[dict]:
 def analyze_hot_issues(
     candidates: list[tuple[CollectedItem, int]],
     *,
-    max_items: int = 60,
+    max_items: int = 30,
 ) -> list[dict]:
     """해외 소스 기반 오늘 주목할 종목·테마 Top 3 선정.
 
