@@ -10,8 +10,8 @@ import logging
 import re
 import urllib.parse
 from dataclasses import dataclass
-from datetime import datetime
-from time import mktime
+import calendar
+from datetime import datetime, timezone
 from typing import Literal
 
 import feedparser
@@ -110,6 +110,25 @@ RSS_FEEDS: list[RssFeedSpec] = [
         "international",
     ),
     RssFeedSpec("rss:ft-markets", "https://www.ft.com/markets?format=rss", "foreign", "stock"),
+    # 미국 주식 시장 특화 (TradingView news flow 수준 커버리지 보완)
+    RssFeedSpec(
+        "rss:gnews-us-stocks-en",
+        _gnews_search("earnings OR Fed Reserve OR interest rate OR S&P500 OR NASDAQ", hl="en", gl="US"),
+        "foreign",
+        "stock",
+    ),
+    RssFeedSpec(
+        "rss:gnews-us-markets-en",
+        _gnews_search("Wall Street OR IPO OR merger acquisition OR analyst upgrade downgrade", hl="en", gl="US"),
+        "foreign",
+        "stock",
+    ),
+    RssFeedSpec(
+        "rss:marketwatch",
+        "https://feeds.content.dowjones.io/public/rss/mw_topstories",
+        "foreign",
+        "stock",
+    ),
     # 연합뉴스 국제 (한국 관점 해외 보도)
     RssFeedSpec(
         "rss:yonhap-intl",
@@ -251,10 +270,11 @@ def parse_rss_feed(
         ext_id = entry.get("id") or entry.get("guid") or entry.get("link", "")
         if not ext_id:
             continue
-        published = datetime.now()
+        published = datetime.now(tz=timezone.utc)
         if getattr(entry, "published_parsed", None):
             try:
-                published = datetime.fromtimestamp(mktime(entry.published_parsed))
+                # published_parsed는 UTC struct_time — calendar.timegm으로 UTC 그대로 변환
+                published = datetime.fromtimestamp(calendar.timegm(entry.published_parsed), tz=timezone.utc)
             except Exception:
                 pass
 
