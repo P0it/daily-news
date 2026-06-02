@@ -1,7 +1,4 @@
 {
-  "buildCommand": "cd frontend && npm install && npm run build",
-  "outputDirectory": "frontend/out",
-  "framework": null,
   "headers": [
     {
       "source": "/sw.js",
