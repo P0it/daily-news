@@ -12,6 +12,7 @@ dependencies = [
     "beautifulsoup4>=4.12",
     "psycopg2-binary>=2.9.9",
     "supabase>=2.30.1",
+    "pytrends>=4.9.2",
 ]
 
 [project.optional-dependencies]

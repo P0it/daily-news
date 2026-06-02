@@ -8,6 +8,7 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
+from news_briefing.analysis.attention_phase import AttentionPhase, PHASE_EXCLUDE_THRESHOLD
 from news_briefing.collectors.base import CollectedItem
 from news_briefing.collectors.rss import SOURCE_META
 
@@ -67,9 +68,11 @@ def _signal_to_dict(
     score: int,
     direction: str,
     term_ids_by_id: dict[str, str] | None = None,
+    thesis_check: dict | None = None,
+    phase: AttentionPhase | None = None,
 ) -> dict:
     summary = item.body or ""
-    return {
+    d: dict = {
         "id": item.ext_id,
         "source": item.source.split(":")[0],  # 'dart', 'edgar', 'research' 등
         "company": item.company or "",
@@ -87,6 +90,13 @@ def _signal_to_dict(
         "url": item.url,
         "glossaryTermId": (term_ids_by_id or {}).get(item.ext_id),
     }
+    if phase is not None:
+        d["attentionPhase"] = phase.phase
+        d["attentionLabel"] = phase.label
+        d["priceLead"] = round(phase.price_lead, 4)
+    if thesis_check:
+        d["thesisCheck"] = thesis_check
+    return d
 
 
 def _news_to_dict(
@@ -141,17 +151,30 @@ def build_briefing_json(
     macro_indices: list | None = None,
     research_scored: list[tuple[CollectedItem, int, str]] | None = None,
     etf_snapshots: list | None = None,
+    phase_map: dict[str, AttentionPhase] | None = None,
 ) -> dict:
+    pm = phase_map or {}
+
+    def _phase_sort_key(t: tuple) -> tuple:
+        """Phase 1 → Phase 2 → Phase 3 → Phase 4 순, 같은 위상 내 점수 내림차순."""
+        item, score, _ = t
+        ph = pm[item.ext_id].phase if item.ext_id in pm else 2
+        return (ph, -score)
+
     filtered_for_economy = [
         s for s in scored_signals if s[1] >= ECONOMY_SIGNAL_THRESHOLD
     ]
-    filtered_for_economy.sort(key=lambda t: t[1], reverse=True)
+    # 위상 기반 정렬: Phase 1~2 우선, Phase 4 하단
+    filtered_for_economy.sort(key=_phase_sort_key)
 
     hero = None
-    if filtered_for_economy and filtered_for_economy[0][1] >= HERO_THRESHOLD:
-        it, score, direction = filtered_for_economy[0]
-        hero = _signal_to_dict(it, score, direction, term_ids_by_id)
-        filtered_for_economy = filtered_for_economy[1:]
+    # 히어로는 점수 기준 유지 (가장 중요한 단일 시그널)
+    score_sorted = sorted(filtered_for_economy, key=lambda t: t[1], reverse=True)
+    if score_sorted and score_sorted[0][1] >= HERO_THRESHOLD:
+        it, score, direction = score_sorted[0]
+        ph = pm.get(it.ext_id)
+        hero = _signal_to_dict(it, score, direction, term_ids_by_id, phase=ph)
+        filtered_for_economy = [s for s in filtered_for_economy if s[0].ext_id != it.ext_id]
 
     # 시사 탭 — 카테고리별 그루핑 + curation 정렬 + 소스 다양성 + cap
     current_grouped: dict[str, list[dict]] = {
@@ -191,7 +214,7 @@ def build_briefing_json(
     economy_tab: dict = {
         "indices": indices_list,
         "signals": [
-            _signal_to_dict(it, s, d, term_ids_by_id)
+            _signal_to_dict(it, s, d, term_ids_by_id, phase=pm.get(it.ext_id))
             for it, s, d in filtered_for_economy
         ],
         "news": [

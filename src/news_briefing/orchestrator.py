@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 
+from news_briefing.analysis.attention_phase import build_phase_map
 from news_briefing.analysis.curation import curation_score
 from news_briefing.analysis.glossary import detect_term, ensure_glossary_entry
 from news_briefing.analysis.llm import summarize_batch, translate_batch
@@ -15,6 +16,8 @@ from news_briefing.analysis.hot_issues import analyze_hot_issues, analyze_hot_is
 from news_briefing.collectors.base import CollectedItem
 from news_briefing.collectors.dart import fetch_dart_list
 from news_briefing.collectors.edgar import fetch_all_edgar
+from news_briefing.collectors.gov_contracts import fetch_gov_contracts
+from news_briefing.collectors.insider_cluster import fetch_insider_clusters
 from news_briefing.collectors.krx_etf import ETFSnapshot, fetch_krx_etf
 from news_briefing.collectors.macro import fetch_macro
 from news_briefing.collectors.research import fetch_research_reports
@@ -75,7 +78,22 @@ def run_morning(
         macro_indices = fetch_macro()
         research_raw = fetch_research_reports()
         etf_snapshots: list[ETFSnapshot] = fetch_krx_etf()
-        all_items = disclosures + news + edgar_items + research_raw
+
+        # 선행 지표 수집기 (실패해도 파이프라인 계속)
+        gov_items: list = []
+        try:
+            gov_items = fetch_gov_contracts()
+        except Exception as e:
+            log.warning("gov_contracts 수집 실패 (건너뜀): %s", e)
+
+        cluster_items: list = []
+        try:
+            if cfg.edgar_user_agent:
+                cluster_items = fetch_insider_clusters(cfg.edgar_user_agent)
+        except Exception as e:
+            log.warning("insider_cluster 수집 실패 (건너뜀): %s", e)
+
+        all_items = disclosures + news + edgar_items + research_raw + gov_items + cluster_items
 
         # 2. 중복 제거 (배치 조회) + DART tickers 매핑 자동 수집
         unseen_pairs = set(batch_filter_unseen(conn, [(i.source, i.ext_id) for i in all_items]))
@@ -105,7 +123,11 @@ def run_morning(
             if it.kind != "disclosure":
                 continue
 
-            if it.source == "edgar":
+            if it.source in ("gov_contracts", "edgar_cluster"):
+                # 선행 지표 수집기 — 수집 시점에 이미 점수 산정
+                s = int((it.extra or {}).get("pre_scored", 70))
+                d = "positive"
+            elif it.source == "edgar":
                 form_type = (it.extra or {}).get("form_type", "")
                 items_str = (it.extra or {}).get("items", "")
                 s, d = score_edgar(form_type=form_type, items=items_str)
@@ -271,19 +293,32 @@ def run_morning(
         )
         digest_path = write_digest(digests_dir=cfg.digests_dir, date=now, text=text)
 
-        # 6. 오늘의 핵심 이슈 선정 — 해외 (EDGAR·FT·BBC) + 국내 (DART·리서치·한경) 분리 실행 오늘의 핵심 이슈 선정 — 해외 (EDGAR·FT·BBC) + 국내 (DART·리서치·한경) 분리 실행
+        # 6. 주목도 위상 분류 — hot_issues 선정에 P1·P2 우선 기준으로 사용
+        phase_map: dict = {}
+        try:
+            phase_map = build_phase_map(scored, enable_price=True, enable_gtrends=False)
+            log.info("attention phase 분류 완료: %d건", len(phase_map))
+        except Exception as e:
+            log.warning("attention phase 분류 실패 (건너뜀): %s", e)
+
+        # phase_map을 {ext_id: phase_int} 형태로 변환
+        phase_int_map: dict[str, int] = {
+            k: v.phase for k, v in phase_map.items()
+        }
+
+        # 7. 오늘의 핵심 이슈 선정 — 해외·국내 분리, phase 정보 반영
         hot_issues_foreign: list[dict] = []
         try:
             foreign_candidates: list[tuple[CollectedItem, int]] = []
             for it, s, _d in scored:
-                if it.source == "edgar":
+                if it.source in ("edgar", "gov_contracts", "edgar_cluster"):
                     foreign_candidates.append((it, s))
             for it in stock_news_foreign:
                 foreign_candidates.append((it, 50))
             for it, cs in current_candidates:
                 if (it.extra or {}).get("category") == "international":
                     foreign_candidates.append((it, cs))
-            hot_issues_foreign = analyze_hot_issues(foreign_candidates)
+            hot_issues_foreign = analyze_hot_issues(foreign_candidates, phase_map=phase_int_map)
         except Exception as e:
             log.warning("hot_issues(foreign) 분석 실패: %s", e)
 
@@ -297,7 +332,7 @@ def run_morning(
                 domestic_candidates.append((it, s))
             for it in stock_news_domestic:
                 domestic_candidates.append((it, 40))
-            hot_issues_domestic = analyze_hot_issues_domestic(domestic_candidates)
+            hot_issues_domestic = analyze_hot_issues_domestic(domestic_candidates, phase_map=phase_int_map)
         except Exception as e:
             log.warning("hot_issues(domestic) 분석 실패: %s", e)
 
@@ -317,6 +352,7 @@ def run_morning(
             macro_indices=macro_indices,
             research_scored=research_scored,
             etf_snapshots=etf_snapshots,
+            phase_map=phase_map,
         )
         briefing_json_path = write_briefing(
             public_briefings_dir=cfg.public_briefings_dir, briefing=briefing
@@ -330,6 +366,19 @@ def run_morning(
             log.info("briefing upserted to Supabase: %s", briefing["date"])
         except Exception as e:
             log.warning("briefing Supabase 저장 실패: %s", e)
+
+        # 7d. picks 성과 히스토리 갱신
+        try:
+            from news_briefing.analysis.picks_tracker import (  # noqa: PLC0415
+                load_briefings_from_supabase,
+                update_history,
+            )
+
+            recent_briefings = load_briefings_from_supabase(limit=30)
+            update_history(recent_briefings)
+            log.info("picks_history.json 갱신 완료")
+        except Exception as e:
+            log.warning("picks 히스토리 갱신 실패: %s", e)
 
         # 8. RAG 자동 인덱싱 (Week 4) — 실패해도 morning 전체 중단 X
         try:
