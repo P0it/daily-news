@@ -5,6 +5,7 @@ import { useSearchParams } from 'next/navigation'
 import {
   parseScopeFromSearch,
   parseDateFromSearch,
+  parseTabFromSearch,
   scopeHref,
   type Scope,
 } from '@/lib/tabs'
@@ -14,9 +15,14 @@ export function ScopeFilter({ lang }: { lang: Lang }) {
   const sp = useSearchParams()
   const scope = parseScopeFromSearch(sp)
   const date = parseDateFromSearch(sp)
+  const tab = parseTabFromSearch(sp)
   const dict = t(lang)
 
-  const options: Scope[] = ['foreign', 'domestic']
+  const options: { key: Scope; label: string }[] = [
+    { key: 'foreign', label: dict['scope.foreign'] },
+    { key: 'domestic', label: dict['scope.domestic'] },
+    { key: 'picks', label: '성과' },
+  ]
 
   return (
     <div className="px-5 py-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
@@ -29,15 +35,13 @@ export function ScopeFilter({ lang }: { lang: Lang }) {
           gap: 2,
         }}
       >
-        {options.map((s) => {
-          const active = scope === s
-          const label =
-            s === 'domestic' ? dict['scope.domestic'] : dict['scope.foreign']
-          const emoji = s === 'domestic' ? '🇰🇷' : '🌐'
+        {options.map(({ key, label }) => {
+          const active = scope === key
+          const emoji = key === 'domestic' ? '🇰🇷' : key === 'foreign' ? '🌐' : '📈'
           return (
             <Link
-              key={s}
-              href={scopeHref(s, date)}
+              key={key}
+              href={scopeHref(key, date, tab)}
               className="flex-1 text-center"
               style={{
                 fontSize: 14,

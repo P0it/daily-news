@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import type { HotIssue, Scope, TickerPick } from '@/lib/types'
 import { resolveTickerToSymbol } from '@/lib/tradingview'
+import { PhaseTag } from '@/components/PhaseTag'
 import { buildTickerLinks } from '@/lib/deeplinks'
 import { TradingViewWidget } from '@/components/TradingViewWidget'
 
@@ -133,6 +134,19 @@ function PickRow({ pick, isForeign }: { pick: TickerPick; isForeign: boolean }) 
           lineHeight: 1.6,
         }}>
           {pick.description}
+        </p>
+      )}
+
+      {/* 미발굴 근거 */}
+      {pick.why_undiscovered && (
+        <p style={{
+          margin: '4px 0 0',
+          fontSize: 11,
+          color: 'var(--text-tertiary)',
+          lineHeight: 1.5,
+          fontStyle: 'italic',
+        }}>
+          {pick.why_undiscovered}
         </p>
       )}
 
@@ -282,11 +296,16 @@ export function HotIssuesCard({ issues, scope }: { issues: HotIssue[]; scope: Sc
                       {dir.label}
                     </span>
                   )}
+                  {(() => {
+                    const risks = (issue.picks ?? []).map((p: { consensus_risk?: string }) => p.consensus_risk).filter(Boolean)
+                    const risk = risks.includes('low') ? 'low' : risks.includes('medium') ? 'medium' : null
+                    return risk ? <PhaseTag risk={risk} /> : null
+                  })()}
                 </div>
 
-                {/* 핵심 시그널 — 부제목 */}
+                {/* 부제목 */}
                 {issue.signal && (
-                  <span style={{ fontSize: 12, color: 'var(--text-tertiary)', fontWeight: 500 }}>
+                  <span style={{ fontSize: 13, color: 'var(--text-secondary)', fontWeight: 600 }}>
                     {issue.signal}
                   </span>
                 )}

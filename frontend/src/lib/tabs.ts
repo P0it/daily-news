@@ -1,4 +1,4 @@
-export type Scope = 'domestic' | 'foreign'
+export type Scope = 'domestic' | 'foreign' | 'picks'
 
 export type Tab = 'ai' | 'current' | 'economy'
 
@@ -18,7 +18,7 @@ export function tabHref(tab: Tab, date?: string | null): string {
   return p.size > 0 ? `/?${p.toString()}` : '/'
 }
 
-const SCOPES_SET: ReadonlySet<string> = new Set(['domestic', 'foreign'])
+const SCOPES_SET: ReadonlySet<string> = new Set(['domestic', 'foreign', 'picks'])
 const DEFAULT_SCOPE: Scope = 'foreign'
 
 export function parseScopeFromSearch(search: URLSearchParams | string): Scope {
@@ -33,9 +33,10 @@ export function parseDateFromSearch(search: URLSearchParams | string): string | 
   return v && /^\d{4}-\d{2}-\d{2}$/.test(v) ? v : null
 }
 
-export function scopeHref(scope: Scope, date?: string | null): string {
+export function scopeHref(scope: Scope, date?: string | null, tab?: Tab | null): string {
   const p = new URLSearchParams()
   if (date) p.set('date', date)
   if (scope !== DEFAULT_SCOPE) p.set('scope', scope)
+  if (tab && tab !== DEFAULT_TAB) p.set('tab', tab)
   return p.size > 0 ? `/?${p.toString()}` : '/'
 }

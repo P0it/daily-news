@@ -1,54 +1,55 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { fetchBriefingIndex } from '@/lib/fetchBriefing'
+import { parseDateFromSearch } from '@/lib/tabs'
 
-function EconomicCalendarWidget() {
-  const containerRef = useRef<HTMLDivElement>(null)
+function formatDate(dateStr: string, today: string): string {
+  const [, m, d] = dateStr.split('-').map(Number)
+  const date = new Date(dateStr + 'T00:00:00')
+  const dayNames = ['일', '월', '화', '수', '목', '금', '토']
+  const day = dayNames[date.getDay()]
 
-  useEffect(() => {
-    const el = containerRef.current
-    if (!el) return
-    el.innerHTML = ''
-
-    const isDark = document.documentElement.classList.contains('dark')
-    const script = document.createElement('script')
-    script.src =
-      'https://s3.tradingview.com/external-embedding/embed-widget-events.js'
-    script.async = true
-    script.innerHTML = JSON.stringify({
-      colorTheme: isDark ? 'dark' : 'light',
-      isTransparent: true,
-      width: '100%',
-      height: 500,
-      locale: 'ko',
-      importanceFilter: '0,1',
-      countryFilter: 'us,eu,gb,jp,cn,kr',
-    })
-    el.appendChild(script)
-    return () => {
-      if (el) el.innerHTML = ''
-    }
-  }, [])
-
-  return (
-    <div
-      ref={containerRef}
-      className="tradingview-widget-container"
-      style={{ height: 500 }}
-      aria-label="경제 캘린더"
-    />
-  )
+  if (dateStr === today) return `오늘 · ${m}월 ${d}일 (${day})`
+  return `${m}월 ${d}일 (${day})`
 }
 
 export function CalendarButton() {
   const [open, setOpen] = useState(false)
+  const [dates, setDates] = useState<string[]>([])
+  const router = useRouter()
+  const sp = useSearchParams()
+  const currentDate = parseDateFromSearch(sp) ?? new Date().toISOString().slice(0, 10)
+  const modalRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+    fetchBriefingIndex().then(({ dates }) => setDates(dates))
+  }, [open])
+
+  useEffect(() => {
+    if (!open) return
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setOpen(false)
+    }
+    document.addEventListener('keydown', onKey)
+    return () => document.removeEventListener('keydown', onKey)
+  }, [open])
+
+  function handleSelect(date: string) {
+    router.push(`/?date=${date}`)
+    setOpen(false)
+  }
+
+  const today = new Date().toISOString().slice(0, 10)
 
   return (
     <>
       <button
         onClick={() => setOpen(true)}
-        aria-label="경제 일정 보기"
-        title="경제 일정"
+        aria-label="브리핑 날짜 선택"
+        title="브리핑 날짜 선택"
         className="flex items-center justify-center rounded-full"
         style={{ width: 36, height: 36, color: 'var(--text-secondary, #8B95A1)' }}
       >
@@ -75,57 +76,78 @@ export function CalendarButton() {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0,0,0,0.5)',
+            background: 'rgba(0,0,0,0.45)',
             zIndex: 50,
             display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '20px',
+            alignItems: 'flex-start',
+            justifyContent: 'flex-end',
+            paddingTop: 56,
+            paddingRight: 16,
           }}
           onClick={() => setOpen(false)}
         >
           <div
+            ref={modalRef}
             style={{
-              width: '100%',
-              maxWidth: 680,
+              width: 240,
+              maxHeight: 420,
+              overflowY: 'auto',
               background: 'var(--surface-1, #fff)',
               borderRadius: 16,
-              overflow: 'hidden',
+              padding: '8px 0',
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                padding: '20px 22px 12px',
-              }}
-            >
-              <span style={{ fontSize: 17, fontWeight: 700 }}>경제 일정</span>
-              <button
-                onClick={() => setOpen(false)}
-                aria-label="닫기"
-                style={{
-                  width: 32,
-                  height: 32,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  borderRadius: '50%',
-                  color: 'var(--text-secondary, #8B95A1)',
-                  background: 'transparent',
-                  border: 'none',
-                  cursor: 'pointer',
-                }}
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" aria-hidden>
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
+            <div style={{ padding: '14px 22px 10px', fontSize: 13, fontWeight: 700, color: 'var(--text-secondary, #8B95A1)', letterSpacing: '0.02em' }}>
+              브리핑 날짜
             </div>
-            <EconomicCalendarWidget />
+
+            {dates.length === 0 && (
+              <div style={{ padding: '12px 22px', fontSize: 15, color: 'var(--text-secondary, #8B95A1)' }}>
+                불러오는 중...
+              </div>
+            )}
+
+            {dates.map((d) => {
+              const isSelected = d === currentDate
+              return (
+                <button
+                  key={d}
+                  onClick={() => handleSelect(d)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    width: '100%',
+                    padding: '11px 22px',
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    fontSize: 15,
+                    fontWeight: isSelected ? 700 : 400,
+                    color: isSelected ? 'var(--text-primary, #191F28)' : 'var(--text-secondary, #8B95A1)',
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background = 'var(--surface-2, #F9FAFB)'
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLButtonElement).style.background = 'transparent'
+                  }}
+                >
+                  <span
+                    style={{
+                      width: 6,
+                      height: 6,
+                      borderRadius: '50%',
+                      background: isSelected ? 'var(--text-primary, #191F28)' : 'transparent',
+                      flexShrink: 0,
+                    }}
+                  />
+                  {formatDate(d, today)}
+                </button>
+              )
+            })}
           </div>
         </div>
       )}

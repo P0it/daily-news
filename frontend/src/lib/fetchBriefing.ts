@@ -1,4 +1,4 @@
-import type { Briefing } from '@/lib/types'
+import type { Briefing, PickRecord } from '@/lib/types'
 import { supabase } from '@/lib/supabase'
 
 function todayKey(): string {
@@ -29,6 +29,17 @@ export async function fetchBriefingIndex(): Promise<{ dates: string[] }> {
 
   if (error || !data) return { dates: [] }
   return { dates: data.map((r) => r.date) }
+}
+
+export async function fetchPicksHistory(): Promise<PickRecord[]> {
+  try {
+    const res = await fetch('/picks_history.json', { cache: 'no-store' })
+    if (!res.ok) return []
+    const json = await res.json()
+    return (json.records ?? []) as PickRecord[]
+  } catch {
+    return []
+  }
 }
 
 export async function fetchLatestBriefing(): Promise<Briefing | null> {

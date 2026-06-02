@@ -13,8 +13,8 @@ import type { Briefing, NewsItem } from '@/lib/types'
 import { AiCard } from '@/components/AiCard'
 import { CurrentNewsCard } from '@/components/CurrentNewsCard'
 import { HeroCard } from '@/components/HeroCard'
-import { SignalCard } from '@/components/SignalCard'
 import { HotIssuesCard } from '@/components/HotIssuesCard'
+import { PicksHistoryView } from '@/components/PicksHistoryView'
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -83,6 +83,10 @@ function HomeInner() {
 
   const dict = t(lang)
 
+  if (scope === 'picks') {
+    return <PicksHistoryView />
+  }
+
   if (error) {
     return (
       <p className="px-5 py-20 text-center" style={{ color: 'var(--text-secondary)' }}>
@@ -100,7 +104,10 @@ function HomeInner() {
   }
 
   const economy = briefing.tabs.economy
-  const signals = economy.signals.filter((s) => s.scope === scope && s.direction === 'positive')
+  // Phase 4 제외, 해당 scope의 positive 시그널 — Phase 1 우선 정렬
+  const signals = economy.signals.filter(
+    (s) => s.scope === scope && s.direction === 'positive' && (s.attentionPhase ?? 2) < 4
+  )
   const showHero = briefing.hero !== null && briefing.hero.scope === scope
 
   const aiTab = briefing.tabs.ai ?? { domestic: [], foreign: [] }
@@ -134,13 +141,6 @@ function HomeInner() {
         )
       )}
 
-      {signals.length > 0 && (
-        <div style={{ marginTop: 4 }}>
-          {signals.map((s) => (
-            <SignalCard key={s.id} signal={s} dict={dict} />
-          ))}
-        </div>
-      )}
 
 {/* ── 뉴스 섹션 ── */}
       {(aiItems.length > 0 || hasCurrentNews) && (
