@@ -1,5 +1,4 @@
 {
-  "outputDirectory": "out",
   "headers": [
     {
       "source": "/sw.js",

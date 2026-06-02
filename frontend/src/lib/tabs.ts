@@ -19,7 +19,7 @@ export function tabHref(tab: Tab, date?: string | null): string {
 }
 
 const SCOPES_SET: ReadonlySet<string> = new Set(['domestic', 'foreign'])
-const DEFAULT_SCOPE: Scope = 'domestic'
+const DEFAULT_SCOPE: Scope = 'foreign'
 
 export function parseScopeFromSearch(search: URLSearchParams | string): Scope {
   const p = typeof search === 'string' ? new URLSearchParams(search) : search

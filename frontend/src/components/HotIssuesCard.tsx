@@ -4,7 +4,7 @@ import { useState } from 'react'
 import type { HotIssue, Scope, TickerPick } from '@/lib/types'
 import { resolveTickerToSymbol } from '@/lib/tradingview'
 import { buildTickerLinks } from '@/lib/deeplinks'
-import { TradingViewWidget } from './TradingViewWidget'
+import { TradingViewWidget } from '@/components/TradingViewWidget'
 
 const DIRECTION_CONFIG = {
   positive: { emoji: '📈', label: '상승 기대', dot: '#F04452', textColor: '#F04452', bg: 'rgba(240,68,82,0.1)' },
@@ -12,16 +12,64 @@ const DIRECTION_CONFIG = {
   mixed:    { emoji: '↔️',  label: '방향 혼재', dot: '#F5A623', textColor: '#F5A623', bg: 'rgba(245,166,35,0.1)' },
 }
 
+type StockQuote = { price: string; change: string; changeRate: string; isUp: boolean; currency?: string }
+
 function PickRow({ pick, isForeign }: { pick: TickerPick; isForeign: boolean }) {
   const [open, setOpen] = useState(false)
+  const [quote, setQuote] = useState<StockQuote | null>(null)
   const symbol = resolveTickerToSymbol(pick.ticker)
+  const isKrx = symbol?.startsWith('KRX:') ?? false
+  const chartUrl = isKrx
+    ? `https://finance.naver.com/item/main.naver?code=${pick.ticker}`
+    : null
   const alts = pick.domestic
     ? Array.isArray(pick.domestic) ? pick.domestic : [pick.domestic]
     : []
 
+  function handleChartClick(e: React.MouseEvent) {
+    e.stopPropagation()
+    if (!symbol) return
+    const next = !open
+    setOpen(next)
+    if (next && !quote) {
+      if (isKrx) {
+        fetch(`/api/naver-stock/${pick.ticker}/`)
+          .then((r) => r.json())
+          .then((d) => {
+            if (!d.closePrice) return
+            setQuote({
+              price: d.closePrice,
+              change: d.compareToPreviousClosePrice,
+              changeRate: d.fluctuationsRatio,
+              isUp: d.compareToPreviousPrice?.code === '2',
+            })
+          })
+          .catch(() => null)
+      } else {
+        fetch(`/api/yahoo-stock/${pick.ticker}/`)
+          .then((r) => r.json())
+          .then((d) => {
+            const meta = d?.chart?.result?.[0]?.meta
+            if (!meta) return
+            const price = meta.regularMarketPrice
+            const prev = meta.chartPreviousClose ?? meta.previousClose
+            if (!price || !prev) return
+            const diff = price - prev
+            setQuote({
+              price: price.toFixed(2),
+              change: Math.abs(diff).toFixed(2),
+              changeRate: Math.abs((diff / prev) * 100).toFixed(2),
+              isUp: diff >= 0,
+              currency: meta.currency ?? 'USD',
+            })
+          })
+          .catch(() => null)
+      }
+    }
+  }
+
   return (
     <div
-      onClick={() => symbol && setOpen((v) => !v)}
       style={{
         background: 'var(--bg-inset)',
         borderRadius: 10,
@@ -29,10 +77,9 @@ function PickRow({ pick, isForeign }: { pick: TickerPick; isForeign: boolean }) 
         display: 'flex',
         flexDirection: 'column',
         gap: 8,
-        cursor: symbol ? 'pointer' : 'default',
       }}
     >
-      {/* 종목명 + 티커 코드 칩 + 펼침 힌트 */}
+      {/* 종목명 + 티커 코드 칩 + 차트 버튼 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
         <span style={{
           fontSize: 14,
@@ -45,8 +92,8 @@ function PickRow({ pick, isForeign }: { pick: TickerPick; isForeign: boolean }) 
         <span style={{
           fontSize: 11,
           fontWeight: 700,
-          color: 'var(--text-primary)',
-          background: '#E5E8EB',
+          color: 'var(--badge-text)',
+          background: 'var(--badge-bg)',
           padding: '2px 7px',
           borderRadius: 5,
           letterSpacing: '0.02em',
@@ -55,14 +102,25 @@ function PickRow({ pick, isForeign }: { pick: TickerPick; isForeign: boolean }) 
           {pick.ticker}
         </span>
         {symbol && (
-          <span style={{
-            marginLeft: 'auto',
-            fontSize: 11,
-            color: 'var(--text-tertiary)',
-            flexShrink: 0,
-          }}>
-            {open ? '▲' : '1D ▼'}
-          </span>
+          <button
+            onClick={handleChartClick}
+            title={open ? '차트 닫기' : isKrx ? '네이버 증권 차트' : '차트 보기'}
+            style={{
+              marginLeft: 'auto',
+              background: open ? 'var(--bg-card)' : 'transparent',
+              border: 'none',
+              borderRadius: 6,
+              padding: '2px 6px',
+              cursor: 'pointer',
+              fontSize: 15,
+              lineHeight: 1,
+              flexShrink: 0,
+              display: 'inline-flex',
+              alignItems: 'center',
+            }}
+          >
+            📊
+          </button>
         )}
       </div>
 
@@ -81,14 +139,67 @@ function PickRow({ pick, isForeign }: { pick: TickerPick; isForeign: boolean }) 
       {/* 차트 펼침 */}
       {open && symbol && (
         <div
-          onClick={(e) => e.stopPropagation()}
           style={{
             marginTop: 4,
             paddingTop: 12,
             borderTop: '1px solid var(--border-subtle)',
           }}
         >
-          <TradingViewWidget symbol={symbol} height={240} />
+          {isKrx ? (() => {
+            const color = quote ? (quote.isUp ? '#F04452' : '#3182F6') : 'var(--text-tertiary)'
+            return (
+              <a href={`https://finance.naver.com/item/main.naver?code=${pick.ticker}`}
+                target="_blank" rel="noopener noreferrer"
+                style={{ display: 'block', borderRadius: 10, overflow: 'hidden', textDecoration: 'none' }}>
+                {quote && (
+                  <div style={{ padding: '12px 16px 10px', background: 'var(--bg-card)' }}>
+                    <div style={{ fontSize: 24, fontWeight: 700, color, lineHeight: 1.2 }}>
+                      {quote.price}원
+                    </div>
+                    <div style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>전일대비</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color }}>
+                        {quote.isUp ? '▲' : '▼'} {quote.change.replace('-', '')}
+                      </span>
+                      <span style={{ fontSize: 13, color }}>
+                        ({quote.changeRate.replace('-', '')}%)
+                      </span>
+                    </div>
+                  </div>
+                )}
+                <img
+                  src={`https://ssl.pstatic.net/imgfinance/chart/item/candle/day/${pick.ticker}.png`}
+                  alt={`${pick.name} 차트`}
+                  width="100%"
+                  style={{ display: 'block' }}
+                />
+              </a>
+            )
+          })() : (() => {
+            const color = quote ? (quote.isUp ? '#00B341' : '#F04452') : 'var(--text-tertiary)'
+            const unit = quote?.currency ?? 'USD'
+            return (
+              <>
+                {quote && (
+                  <div style={{ padding: '12px 16px 10px', background: 'var(--bg-card)', borderRadius: 10 }}>
+                    <div style={{ fontSize: 24, fontWeight: 700, color, lineHeight: 1.2 }}>
+                      {quote.price} {unit}
+                    </div>
+                    <div style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+                      <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>전일대비</span>
+                      <span style={{ fontSize: 13, fontWeight: 600, color }}>
+                        {quote.isUp ? '▲' : '▼'} {quote.change}
+                      </span>
+                      <span style={{ fontSize: 13, color }}>
+                        ({quote.changeRate}%)
+                      </span>
+                    </div>
+                  </div>
+                )}
+                <TradingViewWidget symbol={symbol} height={280} />
+              </>
+            )
+          })()}
         </div>
       )}
 

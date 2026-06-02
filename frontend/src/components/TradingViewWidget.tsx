@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react'
 
 export function TradingViewWidget({
   symbol,
-  height = 360,
+  height = 400,
 }: {
   symbol: string
   height?: number
@@ -19,18 +19,24 @@ export function TradingViewWidget({
     const isDark = document.documentElement.classList.contains('dark')
     const script = document.createElement('script')
     script.src =
-      'https://s3.tradingview.com/external-embedding/embed-widget-mini-symbol-overview.js'
+      'https://s3.tradingview.com/external-embedding/embed-widget-advanced-chart.js'
     script.async = true
     script.innerHTML = JSON.stringify({
       symbol,
       width: '100%',
       height,
       locale: 'ko',
-      dateRange: '1W',
-      colorTheme: isDark ? 'dark' : 'light',
-      isTransparent: false,
-      autosize: false,
-      noTimeScale: false,
+      interval: 'D',
+      timezone: 'Asia/Seoul',
+      theme: isDark ? 'dark' : 'light',
+      style: '1',
+      hide_side_toolbar: true,
+      hide_top_toolbar: true,
+      hide_legend: true,
+      allow_symbol_change: false,
+      save_image: false,
+      calendar: false,
+      hide_volume: false,
     })
     el.appendChild(script)
 

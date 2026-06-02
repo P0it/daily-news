@@ -16,7 +16,7 @@ export function ScopeFilter({ lang }: { lang: Lang }) {
   const date = parseDateFromSearch(sp)
   const dict = t(lang)
 
-  const options: Scope[] = ['domestic', 'foreign']
+  const options: Scope[] = ['foreign', 'domestic']
 
   return (
     <div className="px-5 py-3" style={{ borderBottom: '1px solid var(--border-subtle)' }}>
