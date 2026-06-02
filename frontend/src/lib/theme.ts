@@ -25,5 +25,5 @@ export function applyTheme(t: Theme) {
 export function resolveInitialTheme(): Theme {
   const stored = getStoredTheme()
   if (stored) return stored
-  return systemPrefersDark() ? 'dark' : 'light'
+  return 'light'
 }
