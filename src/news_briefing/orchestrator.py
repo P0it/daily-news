@@ -201,14 +201,25 @@ def run_morning(
         ai_title_translations: dict[str, str] = {}
         from news_briefing.collectors.rss import SOURCE_META as _AI_META
 
+        # 영어로 발행되는 해외 RSS 소스 (번역 필요)
+        _ENGLISH_SOURCES = {
+            "rss:bbc-world", "rss:bbc-business", "rss:ft-markets", "rss:marketwatch",
+            "rss:gnews-world-en", "rss:gnews-business-en", "rss:gnews-tech-en",
+            "rss:gnews-us-stocks-en", "rss:gnews-us-markets-en",
+        }
+
         ai_items_limited = ai_news[:40]
         foreign_ai = [(it.ext_id, it.title, it.body or "") for it in ai_items_limited
                       if _AI_META.get(it.source, ("foreign",))[0] == "foreign"]
         domestic_ai = [(it.ext_id, it.title) for it in ai_items_limited
                        if _AI_META.get(it.source, ("foreign",))[0] != "foreign"]
 
-        # 경제 뉴스 요약 + 국내 AI 요약 → 한 배치
-        summarize_items = [(it.ext_id, it.title) for it in fresh_news] + domestic_ai
+        # fresh_news 중 영어 소스 → translate, 나머지 → summarize
+        fresh_news_en = [it for it in fresh_news if it.source in _ENGLISH_SOURCES]
+        fresh_news_ko = [it for it in fresh_news if it.source not in _ENGLISH_SOURCES]
+
+        # 경제 뉴스(국문) + AI 국내 뉴스 요약 → 한 배치
+        summarize_items = [(it.ext_id, it.title) for it in fresh_news_ko] + domestic_ai
         if summarize_items:
             summaries = summarize_batch(
                 conn, summarize_items,
@@ -217,18 +228,42 @@ def run_morning(
             )
             news_summaries.update(summaries)
 
-        # 해외 AI 뉴스 번역+요약 → 배치
-        if foreign_ai:
-            translations = translate_batch(
-                conn, foreign_ai,
-                ollama_enabled=cfg.ollama_enabled,
-                ollama_model=cfg.ollama_model,
-            )
+        def _apply_translations(translations: dict[str, tuple[str, str]]) -> None:
             for ext_id, (title_ko, summary_ko) in translations.items():
                 if title_ko:
                     ai_title_translations[ext_id] = title_ko
                 if summary_ko:
                     news_summaries[ext_id] = summary_ko
+
+        # 해외 영문 경제 뉴스 번역+요약
+        if fresh_news_en:
+            _apply_translations(translate_batch(
+                conn,
+                [(it.ext_id, it.title, it.body or "") for it in fresh_news_en],
+                ollama_enabled=cfg.ollama_enabled,
+                ollama_model=cfg.ollama_model,
+            ))
+
+        # 해외 AI 뉴스 번역+요약
+        if foreign_ai:
+            _apply_translations(translate_batch(
+                conn, foreign_ai,
+                ollama_enabled=cfg.ollama_enabled,
+                ollama_model=cfg.ollama_model,
+            ))
+
+        # 해외 영문 시사 뉴스(international/tech/politics) 번역+요약
+        foreign_current_en = [
+            (it.ext_id, it.title, it.body or "")
+            for it, _ in current_candidates
+            if it.source in _ENGLISH_SOURCES
+        ]
+        if foreign_current_en:
+            _apply_translations(translate_batch(
+                conn, foreign_current_en,
+                ollama_enabled=cfg.ollama_enabled,
+                ollama_model=cfg.ollama_model,
+            ))
 
         # 5. 디지스트 텍스트 백업 (Week 1 그대로)
         text = format_digest(

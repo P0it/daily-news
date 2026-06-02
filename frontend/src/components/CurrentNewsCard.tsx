@@ -22,7 +22,12 @@ export function CurrentNewsCard({
   void dict
   const publisher = news.publisher || news.source.replace(/^rss:/, '')
   const summary = news.summary.replace(/<[^>]*>/g, '').trim()
-  const categoryMeta = news.category ? CATEGORY_META[news.category] : null
+  const categoryMeta =
+    news.scope === 'foreign' && news.category === 'international'
+      ? { label: '세계', color: '#1A56A0', bg: '#EBF3FF' }
+      : news.category
+        ? CATEGORY_META[news.category]
+        : null
 
   return (
     <a
