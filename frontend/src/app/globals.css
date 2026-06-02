@@ -42,6 +42,8 @@
   --text-secondary: #4E5968;
   --text-tertiary: #6B7684;
   --border-subtle: #F2F4F6;
+  --badge-bg: #E5E8EB;
+  --badge-text: #191F28;
 }
 
 .dark {
@@ -52,6 +54,8 @@
   --text-secondary: #B0B8C1;
   --text-tertiary: #8B95A1;
   --border-subtle: #2F2F34;
+  --badge-bg: #3A3A40;
+  --badge-text: #B0B8C1;
 }
 
 html {
