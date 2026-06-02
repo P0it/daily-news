@@ -9,7 +9,7 @@ from pathlib import Path
 
 from news_briefing.analysis.curation import curation_score
 from news_briefing.analysis.glossary import detect_term, ensure_glossary_entry
-from news_briefing.analysis.llm import summarize, translate_news_ko
+from news_briefing.analysis.llm import summarize_batch, translate_batch
 from news_briefing.analysis.scoring import score_consensus, score_edgar, score_report
 from news_briefing.analysis.hot_issues import analyze_hot_issues, analyze_hot_issues_domestic
 from news_briefing.collectors.base import CollectedItem
@@ -196,47 +196,39 @@ def run_morning(
         overflow = stock_news_domestic[10:] + stock_news_foreign[5:]
         fresh_news.extend(overflow[: max(0, 15 - len(fresh_news))])
         fresh_news = fresh_news[:15]
-        # Week 5a (F36): 경제 뉴스 2줄 LLM 요약을 JSON 에 기록 → UI 표시
+        # 경제 뉴스 + AI 국내 뉴스 요약 (배치)
         news_summaries: dict[str, str] = {}
         ai_title_translations: dict[str, str] = {}
-        for it in fresh_news:
-            summary_text = summarize(
-                conn,
-                it.title,
+        from news_briefing.collectors.rss import SOURCE_META as _AI_META
+
+        ai_items_limited = ai_news[:40]
+        foreign_ai = [(it.ext_id, it.title, it.body or "") for it in ai_items_limited
+                      if _AI_META.get(it.source, ("foreign",))[0] == "foreign"]
+        domestic_ai = [(it.ext_id, it.title) for it in ai_items_limited
+                       if _AI_META.get(it.source, ("foreign",))[0] != "foreign"]
+
+        # 경제 뉴스 요약 + 국내 AI 요약 → 한 배치
+        summarize_items = [(it.ext_id, it.title) for it in fresh_news] + domestic_ai
+        if summarize_items:
+            summaries = summarize_batch(
+                conn, summarize_items,
                 ollama_enabled=cfg.ollama_enabled,
                 ollama_model=cfg.ollama_model,
             )
-            if summary_text:
-                news_summaries[it.ext_id] = summary_text
+            news_summaries.update(summaries)
 
-        # Week 5b: AI 뉴스 한국어 처리
-        # - 해외 AI (영문): 제목 번역 + 2줄 요약 (한 번의 LLM 호출)
-        # - 국내 AI (한국어): 본문 기반 2줄 요약만
-        from news_briefing.collectors.rss import SOURCE_META as _AI_META
-
-        for it in ai_news[:40]:  # 과도한 LLM 호출 방지 (국내 20 + 해외 20)
-            scope, _cat = _AI_META.get(it.source, ("foreign", "ai"))
-            if scope == "foreign":
-                title_ko, summary_ko = translate_news_ko(
-                    conn,
-                    it.title,
-                    it.body or "",
-                    ollama_enabled=cfg.ollama_enabled,
-                    ollama_model=cfg.ollama_model,
-                )
+        # 해외 AI 뉴스 번역+요약 → 배치
+        if foreign_ai:
+            translations = translate_batch(
+                conn, foreign_ai,
+                ollama_enabled=cfg.ollama_enabled,
+                ollama_model=cfg.ollama_model,
+            )
+            for ext_id, (title_ko, summary_ko) in translations.items():
                 if title_ko:
-                    ai_title_translations[it.ext_id] = title_ko
+                    ai_title_translations[ext_id] = title_ko
                 if summary_ko:
-                    news_summaries[it.ext_id] = summary_ko
-            else:
-                summary_text = summarize(
-                    conn,
-                    it.title,
-                    ollama_enabled=cfg.ollama_enabled,
-                    ollama_model=cfg.ollama_model,
-                )
-                if summary_text:
-                    news_summaries[it.ext_id] = summary_text
+                    news_summaries[ext_id] = summary_ko
 
         # 5. 디지스트 텍스트 백업 (Week 1 그대로)
         text = format_digest(

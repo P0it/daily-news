@@ -90,6 +90,186 @@ def _call_ollama(prompt: str, model: str, timeout: int = 60) -> str:
     return (result.stdout or "").strip()
 
 
+_SUMMARIZE_BATCH_SYSTEM = (
+    "너는 금융·경제 뉴스 요약가다. 아래 번호가 붙은 기사 제목들을 각각 2줄 이내 한국어로 요약한다.\n"
+    "규칙: ① 매수/매도 권유·목표가·확률 예측 금지. ② '~요'체 존댓말. ③ 느낌표 금지.\n"
+    "④ 이벤트의 통상적 해석만 기술하고 투자 판단은 사용자에게 맡긴다.\n\n"
+    "반드시 JSON 배열만 반환. 마크다운·설명 텍스트 없이 배열 그대로.\n"
+    '[{"idx": 1, "summary": "..."}, {"idx": 2, "summary": "..."}, ...]'
+)
+
+_TRANSLATE_BATCH_SYSTEM = (
+    "아래 번호가 붙은 영문 AI/IT 뉴스들의 제목을 한국어로 번역하고 본문을 2줄 이내로 요약한다.\n"
+    "규칙: ① 고유명사(제품명·회사명·모델명)는 원문 유지. ② '~요'체 존댓말. ③ 느낌표 금지.\n\n"
+    "반드시 JSON 배열만 반환. 마크다운·설명 텍스트 없이 배열 그대로.\n"
+    '[{"idx": 1, "title_ko": "...", "summary_ko": "..."}, ...]'
+)
+
+
+def summarize_batch(
+    conn: sqlite3.Connection,
+    items: list[tuple[str, str]],
+    *,
+    batch_size: int = 15,
+    timeout: int = 90,
+    ollama_enabled: bool = False,
+    ollama_model: str = "qwen2.5:14b",
+) -> dict[str, str]:
+    """기사 제목 목록을 배치로 요약. 캐시 히트 항목은 LLM 호출 없이 반환.
+
+    items: [(ext_id, text), ...]
+    반환: {ext_id: summary_text}
+    """
+    result: dict[str, str] = {}
+    uncached: list[tuple[str, str]] = []
+
+    for ext_id, text in items:
+        cached = cache_get(conn, SUMMARIZE_TASK, text)
+        if cached is not None:
+            result[ext_id] = cached
+        else:
+            uncached.append((ext_id, text))
+
+    if not uncached:
+        return result
+
+    def _call_batch(batch: list[tuple[str, str]]) -> dict[str, str]:
+        numbered = "\n".join(f"[{i+1}] {text}" for i, (_, text) in enumerate(batch))
+        prompt = f"{_SUMMARIZE_BATCH_SYSTEM}\n\n---\n\n{numbered}"
+
+        def _parse(raw: str) -> list[dict]:
+            raw = raw.strip()
+            if raw.startswith("```"):
+                raw = "\n".join(l for l in raw.splitlines() if not l.strip().startswith("```")).strip()
+            try:
+                parsed = json.loads(raw)
+                if isinstance(parsed, list):
+                    return [r for r in parsed if isinstance(r, dict) and "idx" in r and "summary" in r]
+            except Exception:
+                pass
+            return []
+
+        out: dict[str, str] = {}
+        try:
+            raw = _call_claude(prompt, timeout=timeout)
+            for r in _parse(raw):
+                idx = int(r["idx"]) - 1
+                if 0 <= idx < len(batch):
+                    ext_id, text = batch[idx]
+                    summary = str(r["summary"]).strip()
+                    cache_put(conn, SUMMARIZE_TASK, text, summary, "claude-cli")
+                    out[ext_id] = summary
+        except Exception as e:
+            log.warning("summarize_batch claude 실패 (batch_size=%d): %s", len(batch), e)
+            if ollama_enabled:
+                try:
+                    raw = _call_ollama(prompt, ollama_model, timeout=timeout)
+                    for r in _parse(raw):
+                        idx = int(r["idx"]) - 1
+                        if 0 <= idx < len(batch):
+                            ext_id, text = batch[idx]
+                            summary = str(r["summary"]).strip()
+                            cache_put(conn, SUMMARIZE_TASK, text, summary, f"ollama:{ollama_model}")
+                            out[ext_id] = summary
+                except Exception as e2:
+                    log.error("summarize_batch ollama 실패: %s", e2)
+        return out
+
+    for i in range(0, len(uncached), batch_size):
+        batch = uncached[i : i + batch_size]
+        result.update(_call_batch(batch))
+        log.info("summarize_batch: %d/%d 완료", min(i + batch_size, len(uncached)), len(uncached))
+
+    return result
+
+
+def translate_batch(
+    conn: sqlite3.Connection,
+    items: list[tuple[str, str, str]],
+    *,
+    batch_size: int = 15,
+    timeout: int = 90,
+    ollama_enabled: bool = False,
+    ollama_model: str = "qwen2.5:14b",
+) -> dict[str, tuple[str, str]]:
+    """영문 AI/IT 뉴스 제목·본문을 배치로 번역+요약. 캐시 히트 항목은 LLM 호출 없이 반환.
+
+    items: [(ext_id, title, body), ...]
+    반환: {ext_id: (title_ko, summary_ko)}
+    """
+    result: dict[str, tuple[str, str]] = {}
+    uncached: list[tuple[str, str, str]] = []
+
+    for ext_id, title, body in items:
+        cache_key = f"{title}\n---\n{body[:500]}"
+        cached = cache_get(conn, TRANSLATE_NEWS_TASK, cache_key)
+        if cached is not None:
+            result[ext_id] = _parse_title_summary(cached)
+        else:
+            uncached.append((ext_id, title, body))
+
+    if not uncached:
+        return result
+
+    def _call_batch(batch: list[tuple[str, str, str]]) -> dict[str, tuple[str, str]]:
+        lines = []
+        for i, (_, title, body) in enumerate(batch):
+            lines.append(f"[{i+1}] 제목: {title}\n    본문: {body[:300] or '(없음)'}")
+        prompt = f"{_TRANSLATE_BATCH_SYSTEM}\n\n---\n\n" + "\n\n".join(lines)
+
+        def _parse(raw: str) -> list[dict]:
+            raw = raw.strip()
+            if raw.startswith("```"):
+                raw = "\n".join(l for l in raw.splitlines() if not l.strip().startswith("```")).strip()
+            try:
+                parsed = json.loads(raw)
+                if isinstance(parsed, list):
+                    return [r for r in parsed if isinstance(r, dict) and "idx" in r]
+            except Exception:
+                pass
+            return []
+
+        out: dict[str, tuple[str, str]] = {}
+        try:
+            raw = _call_claude(prompt, timeout=timeout)
+            for r in _parse(raw):
+                idx = int(r["idx"]) - 1
+                if 0 <= idx < len(batch):
+                    ext_id, title, body = batch[idx]
+                    title_ko = str(r.get("title_ko") or "").strip()
+                    summary_ko = str(r.get("summary_ko") or "").strip()
+                    cache_key = f"{title}\n---\n{body[:500]}"
+                    # 개별 캐시 포맷(TITLE:/SUMMARY:)으로 저장해 translate_news_ko 와 호환
+                    cache_put(conn, TRANSLATE_NEWS_TASK, cache_key,
+                              f"TITLE: {title_ko}\nSUMMARY: {summary_ko}", "claude-cli")
+                    out[ext_id] = (title_ko, summary_ko)
+        except Exception as e:
+            log.warning("translate_batch claude 실패 (batch_size=%d): %s", len(batch), e)
+            if ollama_enabled:
+                try:
+                    raw = _call_ollama(prompt, ollama_model, timeout=timeout)
+                    for r in _parse(raw):
+                        idx = int(r["idx"]) - 1
+                        if 0 <= idx < len(batch):
+                            ext_id, title, body = batch[idx]
+                            title_ko = str(r.get("title_ko") or "").strip()
+                            summary_ko = str(r.get("summary_ko") or "").strip()
+                            cache_key = f"{title}\n---\n{body[:500]}"
+                            cache_put(conn, TRANSLATE_NEWS_TASK, cache_key,
+                                      f"TITLE: {title_ko}\nSUMMARY: {summary_ko}", f"ollama:{ollama_model}")
+                            out[ext_id] = (title_ko, summary_ko)
+                except Exception as e2:
+                    log.error("translate_batch ollama 실패: %s", e2)
+        return out
+
+    for i in range(0, len(uncached), batch_size):
+        batch = uncached[i : i + batch_size]
+        result.update(_call_batch(batch))
+        log.info("translate_batch: %d/%d 완료", min(i + batch_size, len(uncached)), len(uncached))
+
+    return result
+
+
 def summarize(
     conn: sqlite3.Connection,
     input_text: str,
