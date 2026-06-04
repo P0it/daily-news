@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 import logging
+import time
 
 from news_briefing.collectors.base import CollectedItem
 
@@ -342,8 +343,10 @@ def _pool_to_prompt_lines(
         display = source_display(item.source)
         phase = (phase_map or {}).get(item.ext_id)
         phase_tag = f"[P{phase}] " if phase else ""
+        # 기업명이 있으면 제목 앞에 붙여 LLM이 분석할 수 있도록 함
+        company_part = f"{item.company} · " if item.company else ""
         url_part = f" | {item.url}" if item.url else ""
-        lines.append(f"{idx}. {phase_tag}[{display}] {item.title}{url_part}")
+        lines.append(f"{idx}. {phase_tag}[{display}] {company_part}{item.title}{url_part}")
     return lines
 
 
@@ -415,11 +418,16 @@ def analyze_hot_issues_domestic(
              sum(1 for *_, t in pool if t == 2),
              sum(1 for *_, t in pool if t == 3))
 
-    try:
-        raw = _call_claude(prompt, timeout=300).strip()
-        result = _parse_issues(raw)
-        log.info("hot_issues(domestic): %d개 이슈 선정", len(result))
-        return result
-    except Exception as e:
-        log.error("hot_issues(domestic) LLM 분석 실패: %s", e)
-        return []
+    for attempt in range(2):
+        try:
+            raw = _call_claude(prompt, timeout=300).strip()
+            result = _parse_issues(raw)
+            log.info("hot_issues(domestic): %d개 이슈 선정", len(result))
+            return result
+        except Exception as e:
+            if attempt == 0:
+                log.warning("hot_issues(domestic) 1차 실패, 30초 후 재시도: %s", e)
+                time.sleep(30)
+            else:
+                log.error("hot_issues(domestic) LLM 분석 최종 실패: %s", e)
+    return []

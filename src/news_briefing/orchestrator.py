@@ -3,6 +3,9 @@ from __future__ import annotations
 
 import logging
 import sys
+import time
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
@@ -35,6 +38,16 @@ log = logging.getLogger(__name__)
 MIN_SIGNAL_SCORE = 60  # SIGNALS.md 2.2
 
 
+@contextmanager
+def _timed(label: str):
+    t0 = time.perf_counter()
+    try:
+        yield
+    finally:
+        elapsed = time.perf_counter() - t0
+        log.info("[TIMER] %-40s %.1fs", label, elapsed)
+
+
 @dataclass(frozen=True, slots=True)
 class MorningResult:
     new_items: int
@@ -61,6 +74,7 @@ def run_morning(
     cfg: Config, *, dry_run: bool = False, now: datetime | None = None
 ) -> MorningResult:
     now = now or datetime.now()
+    t_total = time.perf_counter()
     log.info("morning start date=%s dry_run=%s", now.date(), dry_run)
 
     conn = get_client(cfg.supabase_url, cfg.supabase_service_key)
@@ -68,52 +82,65 @@ def run_morning(
         # 0. 오래된 데이터 정리 (일회성 데이터, 매일 실행)
         from news_briefing.storage.cleanup import run_cleanup
 
-        run_cleanup(conn, digests_dir=cfg.digests_dir, briefings_dir=cfg.public_briefings_dir, today=now.date())
+        with _timed("0. cleanup"):
+            run_cleanup(conn, digests_dir=cfg.digests_dir, briefings_dir=cfg.public_briefings_dir, today=now.date())
 
         # 1. 수집 (DART + RSS + EDGAR + 거시지표 + 리서치 + KRX ETF)
         date_key = now.strftime("%Y%m%d")
-        disclosures = fetch_dart_list(cfg.dart_api_key, date_key)
-        news = fetch_all_rss()
-        edgar_items = fetch_all_edgar(cfg.edgar_user_agent) if cfg.edgar_user_agent else []
-        macro_indices = fetch_macro()
-        research_raw = fetch_research_reports()
-        etf_snapshots: list[ETFSnapshot] = fetch_krx_etf()
+        with _timed("1. collect DART"):
+            disclosures = fetch_dart_list(cfg.dart_api_key, date_key)
+        with _timed("1. collect RSS"):
+            news = fetch_all_rss()
+        with _timed("1. collect EDGAR"):
+            edgar_items = fetch_all_edgar(cfg.edgar_user_agent) if cfg.edgar_user_agent else []
+        with _timed("1. collect macro"):
+            macro_indices = fetch_macro()
+        with _timed("1. collect research"):
+            research_raw = fetch_research_reports()
+        with _timed("1. collect KRX ETF"):
+            etf_snapshots = fetch_krx_etf()
 
         # 선행 지표 수집기 (실패해도 파이프라인 계속)
         gov_items: list = []
-        try:
-            gov_items = fetch_gov_contracts()
-        except Exception as e:
-            log.warning("gov_contracts 수집 실패 (건너뜀): %s", e)
+        with _timed("1. collect gov_contracts"):
+            try:
+                gov_items = fetch_gov_contracts()
+            except Exception as e:
+                log.warning("gov_contracts 수집 실패 (건너뜀): %s", e)
 
         cluster_items: list = []
-        try:
-            if cfg.edgar_user_agent:
-                cluster_items = fetch_insider_clusters(cfg.edgar_user_agent)
-        except Exception as e:
-            log.warning("insider_cluster 수집 실패 (건너뜀): %s", e)
+        with _timed("1. collect insider_cluster"):
+            try:
+                if cfg.edgar_user_agent:
+                    cluster_items = fetch_insider_clusters(cfg.edgar_user_agent)
+            except Exception as e:
+                log.warning("insider_cluster 수집 실패 (건너뜀): %s", e)
 
         all_items = disclosures + news + edgar_items + research_raw + gov_items + cluster_items
 
         # 2. 중복 제거 (배치 조회) + DART tickers 매핑 자동 수집
-        unseen_pairs = set(batch_filter_unseen(conn, [(i.source, i.ext_id) for i in all_items]))
-        new_items: list[CollectedItem] = [i for i in all_items if (i.source, i.ext_id) in unseen_pairs]
-        batch_mark_seen(conn, list(unseen_pairs))
+        with _timed("2. dedup + seen"):
+            unseen_pairs = set(batch_filter_unseen(conn, [(i.source, i.ext_id) for i in all_items]))
+            new_items: list[CollectedItem] = [i for i in all_items if (i.source, i.ext_id) in unseen_pairs]
+            batch_mark_seen(conn, list(unseen_pairs))
+
+        log.info("2. new_items=%d (total=%d)", len(new_items), len(all_items))
 
         # DART tickers 배치 upsert
-        for item in new_items:
-            if item.source == "dart" and item.company_code:
-                corp_code = (item.extra or {}).get("corp_code", "")
-                if corp_code:
-                    upsert_ticker(
-                        conn,
-                        TickerRow(
-                            stock_code=item.company_code,
-                            corp_code=corp_code,
-                            corp_name=item.company or "",
-                            market=None,
-                        ),
-                    )
+        with _timed("2. upsert tickers"):
+            for item in new_items:
+                if item.source == "dart" and item.company_code:
+                    corp_code = (item.extra or {}).get("corp_code", "")
+                    if corp_code:
+                        upsert_ticker(
+                            conn,
+                            TickerRow(
+                                stock_code=item.company_code,
+                                corp_code=corp_code,
+                                corp_name=item.company or "",
+                                market=None,
+                            ),
+                        )
 
         # 3. 점수 + glossary term 감지 (DART + EDGAR 분기)
         scored: list[tuple[CollectedItem, int, str]] = []
@@ -240,16 +267,6 @@ def run_morning(
         fresh_news_en = [it for it in fresh_news if it.source in _ENGLISH_SOURCES]
         fresh_news_ko = [it for it in fresh_news if it.source not in _ENGLISH_SOURCES]
 
-        # 경제 뉴스(국문) + AI 국내 뉴스 요약 → 한 배치
-        summarize_items = [(it.ext_id, it.title) for it in fresh_news_ko] + domestic_ai
-        if summarize_items:
-            summaries = summarize_batch(
-                conn, summarize_items,
-                ollama_enabled=cfg.ollama_enabled,
-                ollama_model=cfg.ollama_model,
-            )
-            news_summaries.update(summaries)
-
         def _apply_translations(translations: dict[str, tuple[str, str]]) -> None:
             for ext_id, (title_ko, summary_ko) in translations.items():
                 if title_ko:
@@ -257,22 +274,35 @@ def run_morning(
                 if summary_ko:
                     news_summaries[ext_id] = summary_ko
 
+        # 경제 뉴스(국문) + AI 국내 뉴스 요약 → 한 배치
+        summarize_items = [(it.ext_id, it.title) for it in fresh_news_ko] + domestic_ai
+        if summarize_items:
+            with _timed(f"4. summarize_batch ({len(summarize_items)}건)"):
+                summaries = summarize_batch(
+                    conn, summarize_items,
+                    ollama_enabled=cfg.ollama_enabled,
+                    ollama_model=cfg.ollama_model,
+                )
+            news_summaries.update(summaries)
+
         # 해외 영문 경제 뉴스 번역+요약
         if fresh_news_en:
-            _apply_translations(translate_batch(
-                conn,
-                [(it.ext_id, it.title, it.body or "") for it in fresh_news_en],
-                ollama_enabled=cfg.ollama_enabled,
-                ollama_model=cfg.ollama_model,
-            ))
+            with _timed(f"4. translate_batch economy ({len(fresh_news_en)}건)"):
+                _apply_translations(translate_batch(
+                    conn,
+                    [(it.ext_id, it.title, it.body or "") for it in fresh_news_en],
+                    ollama_enabled=cfg.ollama_enabled,
+                    ollama_model=cfg.ollama_model,
+                ))
 
         # 해외 AI 뉴스 번역+요약
         if foreign_ai:
-            _apply_translations(translate_batch(
-                conn, foreign_ai,
-                ollama_enabled=cfg.ollama_enabled,
-                ollama_model=cfg.ollama_model,
-            ))
+            with _timed(f"4. translate_batch AI ({len(foreign_ai)}건)"):
+                _apply_translations(translate_batch(
+                    conn, foreign_ai,
+                    ollama_enabled=cfg.ollama_enabled,
+                    ollama_model=cfg.ollama_model,
+                ))
 
         # 해외 영문 시사 뉴스(international/tech/politics) 번역+요약
         foreign_current_en = [
@@ -281,120 +311,142 @@ def run_morning(
             if it.source in _ENGLISH_SOURCES
         ]
         if foreign_current_en:
-            _apply_translations(translate_batch(
-                conn, foreign_current_en,
-                ollama_enabled=cfg.ollama_enabled,
-                ollama_model=cfg.ollama_model,
-            ))
+            with _timed(f"4. translate_batch current ({len(foreign_current_en)}건)"):
+                _apply_translations(translate_batch(
+                    conn, foreign_current_en,
+                    ollama_enabled=cfg.ollama_enabled,
+                    ollama_model=cfg.ollama_model,
+                ))
 
         # 5. 디지스트 텍스트 백업 (Week 1 그대로)
-        text = format_digest(
-            date=now, scored_signals=scored, news=fresh_news, min_score=MIN_SIGNAL_SCORE
-        )
-        digest_path = write_digest(digests_dir=cfg.digests_dir, date=now, text=text)
+        with _timed("5. digest write"):
+            text = format_digest(
+                date=now, scored_signals=scored, news=fresh_news, min_score=MIN_SIGNAL_SCORE
+            )
+            digest_path = write_digest(digests_dir=cfg.digests_dir, date=now, text=text)
 
         # 6. 주목도 위상 분류 — hot_issues 선정에 P1·P2 우선 기준으로 사용
         phase_map: dict = {}
-        try:
-            phase_map = build_phase_map(scored, enable_price=True, enable_gtrends=False)
-            log.info("attention phase 분류 완료: %d건", len(phase_map))
-        except Exception as e:
-            log.warning("attention phase 분류 실패 (건너뜀): %s", e)
+        with _timed("6. attention phase"):
+            try:
+                phase_map = build_phase_map(scored, enable_price=True, enable_gtrends=False)
+                log.info("attention phase 분류 완료: %d건", len(phase_map))
+            except Exception as e:
+                log.warning("attention phase 분류 실패 (건너뜀): %s", e)
 
         # phase_map을 {ext_id: phase_int} 형태로 변환
         phase_int_map: dict[str, int] = {
             k: v.phase for k, v in phase_map.items()
         }
 
-        # 7. 오늘의 핵심 이슈 선정 — 해외·국내 분리, phase 정보 반영
-        hot_issues_foreign: list[dict] = []
-        try:
-            foreign_candidates: list[tuple[CollectedItem, int]] = []
-            for it, s, _d in scored:
-                if it.source in ("edgar", "gov_contracts", "edgar_cluster"):
-                    foreign_candidates.append((it, s))
-            for it in stock_news_foreign:
-                foreign_candidates.append((it, 50))
-            for it, cs in current_candidates:
-                if (it.extra or {}).get("category") == "international":
-                    foreign_candidates.append((it, cs))
-            hot_issues_foreign = analyze_hot_issues(foreign_candidates, phase_map=phase_int_map)
-        except Exception as e:
-            log.warning("hot_issues(foreign) 분석 실패: %s", e)
+        # 7. 오늘의 핵심 이슈 선정 — 해외·국내 병렬 실행
+        foreign_candidates: list[tuple[CollectedItem, int]] = []
+        for it, s, _d in scored:
+            if it.source in ("edgar", "gov_contracts", "edgar_cluster"):
+                foreign_candidates.append((it, s))
+        for it in stock_news_foreign:
+            foreign_candidates.append((it, 50))
+        for it, cs in current_candidates:
+            if (it.extra or {}).get("category") == "international":
+                foreign_candidates.append((it, cs))
 
-        hot_issues_domestic: list[dict] = []
-        try:
-            domestic_candidates: list[tuple[CollectedItem, int]] = []
-            for it, s, _d in scored:
-                if it.source == "dart":
-                    domestic_candidates.append((it, s))
-            for it, s, _d in research_scored:
+        domestic_candidates: list[tuple[CollectedItem, int]] = []
+        for it, s, _d in scored:
+            if it.source == "dart":
                 domestic_candidates.append((it, s))
-            for it in stock_news_domestic:
-                domestic_candidates.append((it, 40))
-            hot_issues_domestic = analyze_hot_issues_domestic(domestic_candidates, phase_map=phase_int_map)
-        except Exception as e:
-            log.warning("hot_issues(domestic) 분석 실패: %s", e)
+        for it, s, _d in research_scored:
+            domestic_candidates.append((it, s))
+        for it in stock_news_domestic:
+            domestic_candidates.append((it, 40))
+
+        hot_issues_foreign: list[dict] = []
+        hot_issues_domestic: list[dict] = []
+
+        def _run_foreign() -> list[dict]:
+            return analyze_hot_issues(foreign_candidates, phase_map=phase_int_map)
+
+        def _run_domestic() -> list[dict]:
+            return analyze_hot_issues_domestic(domestic_candidates, phase_map=phase_int_map)
+
+        with _timed("7. hot_issues (foreign+domestic 병렬)"):
+            with ThreadPoolExecutor(max_workers=2) as pool:
+                fut_foreign = pool.submit(_run_foreign)
+                fut_domestic = pool.submit(_run_domestic)
+                for fut in as_completed([fut_foreign, fut_domestic]):
+                    label = "foreign" if fut is fut_foreign else "domestic"
+                    try:
+                        result = fut.result()
+                        if fut is fut_foreign:
+                            hot_issues_foreign = result
+                        else:
+                            hot_issues_domestic = result
+                    except Exception as e:
+                        log.warning("hot_issues(%s) 분석 실패: %s", label, e)
 
         # 7b. Briefing JSON
-        briefing = build_briefing_json(
-            date=now,
-            scored_signals=scored,
-            economy_news=fresh_news,
-            current_news=current_candidates,
-            ai_news=ai_news,
-            glossary=glossary_map,
-            term_ids_by_id=term_ids_by_id,
-            hot_issues_foreign=hot_issues_foreign,
-            hot_issues_domestic=hot_issues_domestic,
-            news_summaries=news_summaries,
-            ai_title_translations=ai_title_translations,
-            macro_indices=macro_indices,
-            research_scored=research_scored,
-            etf_snapshots=etf_snapshots,
-            phase_map=phase_map,
-        )
-        briefing_json_path = write_briefing(
-            public_briefings_dir=cfg.public_briefings_dir, briefing=briefing
-        )
+        with _timed("7b. build+write briefing JSON"):
+            briefing = build_briefing_json(
+                date=now,
+                scored_signals=scored,
+                economy_news=fresh_news,
+                current_news=current_candidates,
+                ai_news=ai_news,
+                glossary=glossary_map,
+                term_ids_by_id=term_ids_by_id,
+                hot_issues_foreign=hot_issues_foreign,
+                hot_issues_domestic=hot_issues_domestic,
+                news_summaries=news_summaries,
+                ai_title_translations=ai_title_translations,
+                macro_indices=macro_indices,
+                research_scored=research_scored,
+                etf_snapshots=etf_snapshots,
+                phase_map=phase_map,
+            )
+            briefing_json_path = write_briefing(
+                public_briefings_dir=cfg.public_briefings_dir, briefing=briefing
+            )
 
         # 7c. Supabase briefings 테이블에 저장 (프론트엔드 직접 읽기)
-        try:
-            from news_briefing.storage.briefings import upsert_briefing
+        with _timed("7c. upsert Supabase briefing"):
+            try:
+                from news_briefing.storage.briefings import upsert_briefing
 
-            upsert_briefing(conn, briefing["date"], briefing)
-            log.info("briefing upserted to Supabase: %s", briefing["date"])
-        except Exception as e:
-            log.warning("briefing Supabase 저장 실패: %s", e)
+                upsert_briefing(conn, briefing["date"], briefing)
+                log.info("briefing upserted to Supabase: %s", briefing["date"])
+            except Exception as e:
+                log.warning("briefing Supabase 저장 실패: %s", e)
 
         # 7d. picks 성과 히스토리 갱신
-        try:
-            from news_briefing.analysis.picks_tracker import (  # noqa: PLC0415
-                load_briefings_from_supabase,
-                update_history,
-            )
+        with _timed("7d. picks history update"):
+            try:
+                from news_briefing.analysis.picks_tracker import (  # noqa: PLC0415
+                    load_briefings_from_supabase,
+                    update_history,
+                )
 
-            recent_briefings = load_briefings_from_supabase(limit=30)
-            update_history(recent_briefings)
-            log.info("picks_history.json 갱신 완료")
-        except Exception as e:
-            log.warning("picks 히스토리 갱신 실패: %s", e)
+                recent_briefings = load_briefings_from_supabase(limit=30)
+                update_history(recent_briefings)
+                log.info("picks_history.json 갱신 완료")
+            except Exception as e:
+                log.warning("picks 히스토리 갱신 실패: %s", e)
 
         # 8. RAG 자동 인덱싱 (Week 4) — 실패해도 morning 전체 중단 X
-        try:
-            from news_briefing.analysis.rag import index_briefing
+        with _timed("8. RAG indexing"):
+            try:
+                from news_briefing.analysis.rag import index_briefing
 
-            indexed = index_briefing(
-                conn, briefing_json_path, embed_model=cfg.ollama_embed_model
-            )
-            if indexed > 0:
-                log.info("RAG 인덱싱: %d 신규 문서", indexed)
-        except Exception as e:
-            log.warning("RAG 인덱싱 실패: %s", e)
+                indexed = index_briefing(
+                    conn, briefing_json_path, embed_model=cfg.ollama_embed_model
+                )
+                if indexed > 0:
+                    log.info("RAG 인덱싱: %d 신규 문서", indexed)
+            except Exception as e:
+                log.warning("RAG 인덱싱 실패: %s", e)
 
         # 9. 카톡 전송 (dry-run 아닐 때)
         sent = False
         sig_above = sum(1 for _, s, _ in scored if s >= MIN_SIGNAL_SCORE)
+        log.info("[TIMER] %-40s %.1fs", "TOTAL", time.perf_counter() - t_total)
         if not dry_run:
             link_url = f"{cfg.vercel_base_url}/?date={now.strftime('%Y-%m-%d')}&tab=ai"
             message = (

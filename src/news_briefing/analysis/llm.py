@@ -73,9 +73,13 @@ def _call_claude(prompt: str, timeout: int = 45) -> str:
         )
     if result.returncode != 0:
         raise RuntimeError(
-            f"claude cli returncode={result.returncode} stderr={result.stderr}"
+            f"claude cli returncode={result.returncode} stderr={result.stderr[:500]}"
         )
-    return (result.stdout or "").strip()
+    output = (result.stdout or "").strip()
+    if not output:
+        stderr_hint = (result.stderr or "").strip()[:300]
+        raise RuntimeError(f"claude cli returned empty stdout (stderr={stderr_hint!r})")
+    return output
 
 
 def _call_ollama(prompt: str, model: str, timeout: int = 60) -> str:
