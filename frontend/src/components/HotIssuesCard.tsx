@@ -27,6 +27,7 @@ function PickRow({ pick, isForeign }: { pick: TickerPick; isForeign: boolean }) 
   const alts = pick.domestic
     ? Array.isArray(pick.domestic) ? pick.domestic : [pick.domestic]
     : []
+  const relatedEtf = pick.related_etf ?? null
 
   function handleChartClick(e: React.MouseEvent) {
     e.stopPropagation()
@@ -219,7 +220,32 @@ function PickRow({ pick, isForeign }: { pick: TickerPick; isForeign: boolean }) 
         </div>
       )}
 
-      {/* 국내 대안 — 해외 종목일 때만 표시 */}
+      {/* 관련 ETF — 종목을 많이 담은 동일 시장 ETF (양 스코프 모두, 데이터 있을 때만) */}
+      {relatedEtf && (
+        <div style={{
+          paddingTop: 8,
+          borderTop: '1px solid var(--border-subtle)',
+          marginTop: 2,
+        }}>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
+            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-tertiary)' }}>
+              📦 {isForeign ? '관련 해외 ETF' : '관련 국내 ETF'}
+            </span>
+            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)' }}>
+                {relatedEtf.name}
+              </span>
+              {relatedEtf.ticker && (
+                <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
+                  {relatedEtf.ticker}
+                </span>
+              )}
+            </span>
+          </div>
+        </div>
+      )}
+
+      {/* 국내 추종 ETF — 해외 종목일 때만 표시 (ISA·연금 계좌용) */}
       {isForeign && (
         <div style={{
           paddingTop: 8,
@@ -228,7 +254,9 @@ function PickRow({ pick, isForeign }: { pick: TickerPick; isForeign: boolean }) 
         }}>
           {alts.length > 0 ? (
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
-              <span style={{ fontSize: 13 }}>🇰🇷</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-tertiary)' }}>
+                🇰🇷 국내 추종 ETF
+              </span>
               {alts.map((alt) => (
                 <span key={alt.ticker} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
                   <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)' }}>

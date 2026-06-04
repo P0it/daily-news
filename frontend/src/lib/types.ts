@@ -108,6 +108,7 @@ export interface TickerPick {
   description: string         // 추천 이유 1~2문장
   why_undiscovered?: string | null
   consensus_risk?: 'low' | 'medium' | 'high'
+  related_etf?: DomesticEtf | null   // 종목을 많이 담은 동일 시장 ETF 1개 (해외 종목→해외 ETF, 국내 종목→국내 ETF)
   domestic: DomesticEtf | DomesticEtf[] | null
 }
 

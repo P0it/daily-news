@@ -155,6 +155,7 @@ picks 작성 원칙 (★ 핵심 — 가장 중요):
         "description": "이 종목을 추천하는 이유와 수혜 메커니즘 1~2문장, 자연스러운 한국어 경어체 (에요/예요/해요/거예요 등 — 명사 바로 뒤에 '요'만 단독으로 붙이는 방식 금지. 예: '시그널이요' ✗ → '시그널이에요' ✓)",
         "why_undiscovered": "왜 아직 시장이 이 연결고리를 파악하지 못했는지 1문장",
         "consensus_risk": "low" | "medium",
+        "related_etf": 이 종목을 많이 담은 해외(미국 상장) ETF 1개 또는 null (규칙 아래 참고),
         "domestic": 국내 ISA·연금계좌용 ETF 배열 또는 null (규칙 아래 참고)
       }
     ],
@@ -162,6 +163,13 @@ picks 작성 원칙 (★ 핵심 — 가장 중요):
     "url": "원문 URL 또는 null"
   }
   picks 배열은 2~3개. consensus_risk="high"는 포함 금지.
+
+related_etf 필드 작성 규칙 (★ 필수, domestic과 별개):
+- 의미: 이 종목을 비중 있게 보유한 **해외(미국 상장) ETF** 1개. (domestic은 국내 추종 ETF로 별개 필드)
+- 형식: {"ticker": "ETF심볼", "name": "ETF명"} 또는 null (배열 아님, 단일 객체)
+- 선택 기준: 동일 종목·테마를 담은 ETF가 운용사별로 여러 개면, **거래량 많고 대중적이며 운용보수(expense ratio)가 가장 낮은** 1개를 고른다 (예: 반도체 → SMH 또는 SOXX, S&P500 → VOO/IVV, 빅테크 → QQQ).
+- 해당 종목을 직접 담은 ETF가 없으면 동일 섹터·테마 대표 ETF로 대체. 그래도 없으면 null.
+- 심볼이 불확실하면 {"ticker": "", "name": "ETF명"} 형태로 이름만 반환.
 
 domestic 필드 작성 규칙 (★ 필수):
 - 형식: [{"ticker": "ETF코드", "name": "ETF명"}, ...] 또는 null
@@ -217,6 +225,7 @@ picks 작성 원칙 (★ 핵심 — 가장 중요):
 
 - consensus_risk="high" 종목은 picks 배열에 포함 금지
 - ticker는 한국 종목코드(6자리 숫자, 예: 005930) 또는 ETF 코드
+- related_etf: 이 종목을 비중 있게 담은 국내 상장 ETF 1개를 병기 (규칙 아래 참고)
 - domestic 필드는 반드시 null (picks 자체가 국내 종목)
 - direction=negative이면 수혜받는 국내 종목을 picks로 제시
 
@@ -239,6 +248,7 @@ picks 작성 원칙 (★ 핵심 — 가장 중요):
         "description": "이 종목을 추천하는 이유와 수혜 메커니즘 1~2문장, 자연스러운 한국어 경어체 (에요/예요/해요/거예요 등 — 명사 바로 뒤에 '요'만 단독으로 붙이는 방식 금지. 예: '시그널이요' ✗ → '시그널이에요' ✓)",
         "why_undiscovered": "왜 아직 시장이 이 연결고리를 파악하지 못했는지 1문장",
         "consensus_risk": "low" | "medium",
+        "related_etf": 이 종목을 많이 담은 국내 상장 ETF 1개 또는 null (규칙 아래 참고),
         "domestic": null
       }
     ],
@@ -246,6 +256,13 @@ picks 작성 원칙 (★ 핵심 — 가장 중요):
     "url": "원문 URL 또는 null"
   }
   picks 배열은 2~3개. domestic은 항상 null.
+
+related_etf 필드 작성 규칙 (★ 필수):
+- 의미: 이 국내 종목을 비중 있게 담은 **국내 상장 ETF** 1개 (TIGER·KODEX·KBSTAR·ACE·HANARO 계열).
+- 형식: {"ticker": "ETF코드", "name": "ETF명"} 또는 null (배열 아님, 단일 객체)
+- 선택 기준: 동일 종목·테마를 담은 ETF가 운용사별로 여러 개면, **순자산·거래량 많고 대중적이며 운용보수가 가장 낮은** 1개를 고른다.
+- 해당 종목을 직접 담은 ETF가 없으면 동일 섹터·테마 대표 ETF로 대체. 그래도 없으면 null.
+- 코드가 불확실하면 {"ticker": "", "name": "ETF명"} 형태로 이름만 반환.
 """
 
 
@@ -278,6 +295,13 @@ def _parse_issues(raw: str) -> list[dict]:
                 d_name = str(domestic_raw.get("name") or "").strip()
                 if d_ticker and d_name:
                     domestic = {"ticker": d_ticker, "name": d_name}
+            related_raw = p.get("related_etf")
+            related = None
+            if isinstance(related_raw, dict):
+                r_ticker = str(related_raw.get("ticker") or "").strip()
+                r_name = str(related_raw.get("name") or "").strip()
+                if r_name:  # 이름만 있어도 채택 (코드 불확실 허용)
+                    related = {"ticker": r_ticker, "name": r_name}
             picks.append(
                 {
                     "ticker": ticker,
@@ -285,6 +309,7 @@ def _parse_issues(raw: str) -> list[dict]:
                     "description": str(p.get("description") or "").strip(),
                     "why_undiscovered": str(p.get("why_undiscovered") or "").strip() or None,
                     "consensus_risk": str(p.get("consensus_risk") or "medium").strip(),
+                    "related_etf": related,
                     "domestic": domestic,
                 }
             )
