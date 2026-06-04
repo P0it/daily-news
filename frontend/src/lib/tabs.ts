@@ -36,7 +36,8 @@ export function parseDateFromSearch(search: URLSearchParams | string): string | 
 export function scopeHref(scope: Scope, date?: string | null, tab?: Tab | null): string {
   const p = new URLSearchParams()
   if (date) p.set('date', date)
-  if (scope !== DEFAULT_SCOPE) p.set('scope', scope)
+  // scope는 항상 명시적으로 포함 — 생략하면 /?scope=picks→/ 전환 시 useSearchParams가 갱신되지 않는 static export 이슈 발생
+  p.set('scope', scope)
   if (tab && tab !== DEFAULT_TAB) p.set('tab', tab)
-  return p.size > 0 ? `/?${p.toString()}` : '/'
+  return `/?${p.toString()}`
 }
