@@ -4,6 +4,7 @@
 국내(domestic): DART 공시·증권사 리포트·한경·매경 소스 우선.
 뉴스 나열 대신 투자 대상(종목·테마)을 먼저 제시하고 근거 기사를 함께 반환한다.
 """
+
 from __future__ import annotations
 
 import json
@@ -16,52 +17,52 @@ log = logging.getLogger(__name__)
 
 # ── 해외용 소스 티어 ─────────────────────────────────────────────
 _TIER_MAP_FOREIGN: dict[str, int] = {
-    "edgar":                  1,
-    "rss:ft-markets":         1,
-    "rss:bbc-business":       1,
-    "rss:bbc-world":          1,
-    "rss:gnews-world-en":     2,
-    "rss:gnews-business-en":  2,
-    "rss:gnews-tech-en":      2,
+    "edgar": 1,
+    "rss:ft-markets": 1,
+    "rss:bbc-business": 1,
+    "rss:bbc-world": 1,
+    "rss:gnews-world-en": 2,
+    "rss:gnews-business-en": 2,
+    "rss:gnews-tech-en": 2,
     "rss:gnews-us-stocks-en": 2,
-    "rss:gnews-us-markets-en":2,
-    "rss:marketwatch":        2,
+    "rss:gnews-us-markets-en": 2,
+    "rss:marketwatch": 2,
 }
 
 # ── 국내용 소스 티어 ─────────────────────────────────────────────
 _TIER_MAP_DOMESTIC: dict[str, int] = {
-    "dart":                  1,  # DART 공시 최우선
-    "research":              1,  # 증권사 리포트
-    "rss:hankyung":          2,
-    "rss:mk":                2,
-    "rss:yonhap-kr":         2,
-    "rss:yonhap-intl":       2,  # 연합뉴스 국제 — 국내 시사 Tier 2
+    "dart": 1,  # DART 공시 최우선
+    "research": 1,  # 증권사 리포트
+    "rss:hankyung": 2,
+    "rss:mk": 2,
+    "rss:yonhap-kr": 2,
+    "rss:yonhap-intl": 2,  # 연합뉴스 국제 — 국내 시사 Tier 2
     "rss:gnews-business-kr": 3,
-    "rss:gnews-stock-kr":    3,
+    "rss:gnews-stock-kr": 3,
 }
 
 _DEFAULT_TIER = 3
 
 # ── 표시용 언론사명 ──────────────────────────────────────────────
 _DISPLAY_MAP: dict[str, str] = {
-    "edgar":                 "SEC EDGAR",
-    "dart":                  "DART",
-    "research":              "증권사 리포트",
-    "rss:ft-markets":        "Financial Times",
-    "rss:bbc-business":      "BBC Business",
-    "rss:bbc-world":         "BBC World",
-    "rss:gnews-world-en":    "Google News (World)",
+    "edgar": "SEC EDGAR",
+    "dart": "DART",
+    "research": "증권사 리포트",
+    "rss:ft-markets": "Financial Times",
+    "rss:bbc-business": "BBC Business",
+    "rss:bbc-world": "BBC World",
+    "rss:gnews-world-en": "Google News (World)",
     "rss:gnews-business-en": "Google News (Business)",
-    "rss:gnews-tech-en":     "Google News (Tech)",
-    "rss:yonhap-intl":       "연합뉴스 국제",
-    "rss:yonhap-kr":         "연합뉴스",
-    "rss:hankyung":          "한국경제",
-    "rss:mk":                "매일경제",
-    "rss:gnews-business-kr":  "Google News (경제)",
-    "rss:gnews-stock-kr":     "Google News (증시)",
+    "rss:gnews-tech-en": "Google News (Tech)",
+    "rss:yonhap-intl": "연합뉴스 국제",
+    "rss:yonhap-kr": "연합뉴스",
+    "rss:hankyung": "한국경제",
+    "rss:mk": "매일경제",
+    "rss:gnews-business-kr": "Google News (경제)",
+    "rss:gnews-stock-kr": "Google News (증시)",
     "rss:gnews-us-stocks-en": "Google News (미국 증시)",
-    "rss:gnews-us-markets-en":"Google News (미국 시장)",
-    "rss:marketwatch":        "MarketWatch",
+    "rss:gnews-us-markets-en": "Google News (미국 시장)",
+    "rss:marketwatch": "MarketWatch",
 }
 
 
@@ -75,6 +76,21 @@ def source_tier_domestic(source: str) -> int:
 
 def source_display(source: str) -> str:
     return _DISPLAY_MAP.get(source, source)
+
+
+def foreign_news_weight(source: str) -> int:
+    """해외 뉴스(비공시) 소스의 신뢰도 기반 기본 점수.
+
+    EDGAR·gov_contracts 같은 공시는 내용 기반 점수(45~95)를 따로 받으므로 이 함수 대상이 아니다.
+    뉴스에는 '내용 점수'가 없어 소스 신뢰도를 점수로 환산한다.
+    curation_score(시간 감쇠) 대신 사용 — 방금 올라온 기사가 신뢰도 높은 소스를
+    제치고 picks 상위를 차지하던 문제를 막는다.
+
+    - Tier 1 (FT·BBC): 65 — EDGAR 평균(70)보다 살짝 아래
+    - Tier 2 (MarketWatch·Google News 영문): 50
+    - 그 외: 42 (score_floor 40 바로 위 — EDGAR 없는 날 fallback으로만 생존)
+    """
+    return {1: 65, 2: 50}.get(source_tier_foreign(source), 42)
 
 
 _PROMPT_SYSTEM = """\
@@ -262,14 +278,16 @@ def _parse_issues(raw: str) -> list[dict]:
                 d_name = str(domestic_raw.get("name") or "").strip()
                 if d_ticker and d_name:
                     domestic = {"ticker": d_ticker, "name": d_name}
-            picks.append({
-                "ticker": ticker,
-                "name": str(p.get("name") or "").strip(),
-                "description": str(p.get("description") or "").strip(),
-                "why_undiscovered": str(p.get("why_undiscovered") or "").strip() or None,
-                "consensus_risk": str(p.get("consensus_risk") or "medium").strip(),
-                "domestic": domestic,
-            })
+            picks.append(
+                {
+                    "ticker": ticker,
+                    "name": str(p.get("name") or "").strip(),
+                    "description": str(p.get("description") or "").strip(),
+                    "why_undiscovered": str(p.get("why_undiscovered") or "").strip() or None,
+                    "consensus_risk": str(p.get("consensus_risk") or "medium").strip(),
+                    "domestic": domestic,
+                }
+            )
         cautions_raw = iss.get("cautions")
         cautions = str(cautions_raw).strip() if cautions_raw and str(cautions_raw).strip() else None
 
@@ -308,9 +326,7 @@ def _build_pool(
     """
     # 1. 점수 하한 + Tier 계산
     tagged = [
-        (item, score, tier_fn(item.source))
-        for item, score in candidates
-        if score >= score_floor
+        (item, score, tier_fn(item.source)) for item, score in candidates if score >= score_floor
     ]
     tagged.sort(key=lambda x: (x[2], -x[1]))
 
@@ -373,11 +389,13 @@ def analyze_hot_issues(
 
     lines = _pool_to_prompt_lines(pool, phase_map)
     prompt = _PROMPT_SYSTEM + "\n\n---\n\n" + "\n".join(lines)
-    log.info("hot_issues(foreign): 프롬프트 %d개 항목 (Tier1=%d Tier2=%d Tier3=%d)",
-             len(pool),
-             sum(1 for *_, t in pool if t == 1),
-             sum(1 for *_, t in pool if t == 2),
-             sum(1 for *_, t in pool if t == 3))
+    log.info(
+        "hot_issues(foreign): 프롬프트 %d개 항목 (Tier1=%d Tier2=%d Tier3=%d)",
+        len(pool),
+        sum(1 for *_, t in pool if t == 1),
+        sum(1 for *_, t in pool if t == 2),
+        sum(1 for *_, t in pool if t == 3),
+    )
 
     try:
         raw = _call_claude(prompt, timeout=300).strip()
@@ -404,7 +422,9 @@ def analyze_hot_issues_domestic(
     """
     from news_briefing.analysis.llm import _call_claude  # noqa: PLC0415
 
-    pool = _build_pool(candidates, source_tier_domestic, tier1_cap=15, tier2_cap=8, tier3_cap=3, score_floor=75)
+    pool = _build_pool(
+        candidates, source_tier_domestic, tier1_cap=15, tier2_cap=8, tier3_cap=3, score_floor=75
+    )
 
     if not pool:
         log.warning("hot_issues(domestic): 후보 아이템 없음, 분석 건너뜀")
@@ -412,11 +432,13 @@ def analyze_hot_issues_domestic(
 
     lines = _pool_to_prompt_lines(pool, phase_map)
     prompt = _PROMPT_SYSTEM_DOMESTIC + "\n\n---\n\n" + "\n".join(lines)
-    log.info("hot_issues(domestic): 프롬프트 %d개 항목 (Tier1=%d Tier2=%d Tier3=%d)",
-             len(pool),
-             sum(1 for *_, t in pool if t == 1),
-             sum(1 for *_, t in pool if t == 2),
-             sum(1 for *_, t in pool if t == 3))
+    log.info(
+        "hot_issues(domestic): 프롬프트 %d개 항목 (Tier1=%d Tier2=%d Tier3=%d)",
+        len(pool),
+        sum(1 for *_, t in pool if t == 1),
+        sum(1 for *_, t in pool if t == 2),
+        sum(1 for *_, t in pool if t == 3),
+    )
 
     for attempt in range(2):
         try:

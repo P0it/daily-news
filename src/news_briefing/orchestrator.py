@@ -1,4 +1,5 @@
 """아침 브리핑 파이프라인 전체 플로우."""
+
 from __future__ import annotations
 
 import logging
@@ -15,7 +16,11 @@ from news_briefing.analysis.curation import curation_score
 from news_briefing.analysis.glossary import detect_term, ensure_glossary_entry
 from news_briefing.analysis.llm import summarize_batch, translate_batch
 from news_briefing.analysis.scoring import score_consensus, score_edgar, score_report
-from news_briefing.analysis.hot_issues import analyze_hot_issues, analyze_hot_issues_domestic
+from news_briefing.analysis.hot_issues import (
+    analyze_hot_issues,
+    analyze_hot_issues_domestic,
+    foreign_news_weight,
+)
 from news_briefing.collectors.base import CollectedItem
 from news_briefing.collectors.dart import fetch_dart_list
 from news_briefing.collectors.edgar import fetch_all_edgar
@@ -54,7 +59,7 @@ class MorningResult:
     signal_count: int
     news_count: int
     current_count: int  # 시사 뉴스 수집 건수 (Week 3)
-    ai_count: int       # AI 뉴스 수집 건수 (Week 5b)
+    ai_count: int  # AI 뉴스 수집 건수 (Week 5b)
     picks_domestic: int
     picks_foreign: int
     digest_path: Path
@@ -83,7 +88,12 @@ def run_morning(
         from news_briefing.storage.cleanup import run_cleanup
 
         with _timed("0. cleanup"):
-            run_cleanup(conn, digests_dir=cfg.digests_dir, briefings_dir=cfg.public_briefings_dir, today=now.date())
+            run_cleanup(
+                conn,
+                digests_dir=cfg.digests_dir,
+                briefings_dir=cfg.public_briefings_dir,
+                today=now.date(),
+            )
 
         # 1. 수집 (DART + RSS + EDGAR + 거시지표 + 리서치 + KRX ETF)
         date_key = now.strftime("%Y%m%d")
@@ -121,7 +131,9 @@ def run_morning(
         # 2. 중복 제거 (배치 조회) + DART tickers 매핑 자동 수집
         with _timed("2. dedup + seen"):
             unseen_pairs = set(batch_filter_unseen(conn, [(i.source, i.ext_id) for i in all_items]))
-            new_items: list[CollectedItem] = [i for i in all_items if (i.source, i.ext_id) in unseen_pairs]
+            new_items: list[CollectedItem] = [
+                i for i in all_items if (i.source, i.ext_id) in unseen_pairs
+            ]
             batch_mark_seen(conn, list(unseen_pairs))
 
         log.info("2. new_items=%d (total=%d)", len(new_items), len(all_items))
@@ -252,16 +264,28 @@ def run_morning(
 
         # 영어로 발행되는 해외 RSS 소스 (번역 필요)
         _ENGLISH_SOURCES = {
-            "rss:bbc-world", "rss:bbc-business", "rss:ft-markets", "rss:marketwatch",
-            "rss:gnews-world-en", "rss:gnews-business-en", "rss:gnews-tech-en",
-            "rss:gnews-us-stocks-en", "rss:gnews-us-markets-en",
+            "rss:bbc-world",
+            "rss:bbc-business",
+            "rss:ft-markets",
+            "rss:marketwatch",
+            "rss:gnews-world-en",
+            "rss:gnews-business-en",
+            "rss:gnews-tech-en",
+            "rss:gnews-us-stocks-en",
+            "rss:gnews-us-markets-en",
         }
 
         ai_items_limited = ai_news[:40]
-        foreign_ai = [(it.ext_id, it.title, it.body or "") for it in ai_items_limited
-                      if _AI_META.get(it.source, ("foreign",))[0] == "foreign"]
-        domestic_ai = [(it.ext_id, it.title) for it in ai_items_limited
-                       if _AI_META.get(it.source, ("foreign",))[0] != "foreign"]
+        foreign_ai = [
+            (it.ext_id, it.title, it.body or "")
+            for it in ai_items_limited
+            if _AI_META.get(it.source, ("foreign",))[0] == "foreign"
+        ]
+        domestic_ai = [
+            (it.ext_id, it.title)
+            for it in ai_items_limited
+            if _AI_META.get(it.source, ("foreign",))[0] != "foreign"
+        ]
 
         # fresh_news 중 영어 소스 → translate, 나머지 → summarize
         fresh_news_en = [it for it in fresh_news if it.source in _ENGLISH_SOURCES]
@@ -279,7 +303,8 @@ def run_morning(
         if summarize_items:
             with _timed(f"4. summarize_batch ({len(summarize_items)}건)"):
                 summaries = summarize_batch(
-                    conn, summarize_items,
+                    conn,
+                    summarize_items,
                     ollama_enabled=cfg.ollama_enabled,
                     ollama_model=cfg.ollama_model,
                 )
@@ -288,21 +313,26 @@ def run_morning(
         # 해외 영문 경제 뉴스 번역+요약
         if fresh_news_en:
             with _timed(f"4. translate_batch economy ({len(fresh_news_en)}건)"):
-                _apply_translations(translate_batch(
-                    conn,
-                    [(it.ext_id, it.title, it.body or "") for it in fresh_news_en],
-                    ollama_enabled=cfg.ollama_enabled,
-                    ollama_model=cfg.ollama_model,
-                ))
+                _apply_translations(
+                    translate_batch(
+                        conn,
+                        [(it.ext_id, it.title, it.body or "") for it in fresh_news_en],
+                        ollama_enabled=cfg.ollama_enabled,
+                        ollama_model=cfg.ollama_model,
+                    )
+                )
 
         # 해외 AI 뉴스 번역+요약
         if foreign_ai:
             with _timed(f"4. translate_batch AI ({len(foreign_ai)}건)"):
-                _apply_translations(translate_batch(
-                    conn, foreign_ai,
-                    ollama_enabled=cfg.ollama_enabled,
-                    ollama_model=cfg.ollama_model,
-                ))
+                _apply_translations(
+                    translate_batch(
+                        conn,
+                        foreign_ai,
+                        ollama_enabled=cfg.ollama_enabled,
+                        ollama_model=cfg.ollama_model,
+                    )
+                )
 
         # 해외 영문 시사 뉴스(international/tech/politics) 번역+요약
         foreign_current_en = [
@@ -312,11 +342,14 @@ def run_morning(
         ]
         if foreign_current_en:
             with _timed(f"4. translate_batch current ({len(foreign_current_en)}건)"):
-                _apply_translations(translate_batch(
-                    conn, foreign_current_en,
-                    ollama_enabled=cfg.ollama_enabled,
-                    ollama_model=cfg.ollama_model,
-                ))
+                _apply_translations(
+                    translate_batch(
+                        conn,
+                        foreign_current_en,
+                        ollama_enabled=cfg.ollama_enabled,
+                        ollama_model=cfg.ollama_model,
+                    )
+                )
 
         # 5. 디지스트 텍스트 백업 (Week 1 그대로)
         with _timed("5. digest write"):
@@ -335,21 +368,24 @@ def run_morning(
                 log.warning("attention phase 분류 실패 (건너뜀): %s", e)
 
         # phase_map을 {ext_id: phase_int} 형태로 변환
-        phase_int_map: dict[str, int] = {
-            k: v.phase for k, v in phase_map.items()
-        }
+        phase_int_map: dict[str, int] = {k: v.phase for k, v in phase_map.items()}
 
         # 7. 오늘의 핵심 이슈 선정 — 해외·국내 병렬 실행
+        # 해외 종목 후보 — 점수 척도를 하나로 통일:
+        #   공시(EDGAR·gov)는 내용 기반 실제 점수, 뉴스는 소스 신뢰도 기반 점수.
+        #   curation_score(시간 감쇠)를 버려 '방금 올라온 기사'가 상위를 잠식하지 않는다.
         foreign_candidates: list[tuple[CollectedItem, int]] = []
         for it, s, _d in scored:
             if it.source in ("edgar", "gov_contracts", "edgar_cluster"):
                 foreign_candidates.append((it, s))
         for it in stock_news_foreign:
-            foreign_candidates.append((it, 50))
-        # 해외 종목 분석용: 영어권 소스만 허용 — 한국어 국제 뉴스(연합뉴스 국제·gnews-intl-kr)는 제외
-        for it, cs in current_candidates:
-            if (it.extra or {}).get("category") == "international" and it.source in _ENGLISH_SOURCES:
-                foreign_candidates.append((it, cs))
+            foreign_candidates.append((it, foreign_news_weight(it.source)))
+        # 영어권 국제 시사 뉴스(BBC World 등)만 — 한국어 소스(연합뉴스 국제·gnews-intl-kr) 제외
+        for it, _cs in current_candidates:
+            if (it.extra or {}).get(
+                "category"
+            ) == "international" and it.source in _ENGLISH_SOURCES:
+                foreign_candidates.append((it, foreign_news_weight(it.source)))
 
         domestic_candidates: list[tuple[CollectedItem, int]] = []
         for it, s, _d in scored:
