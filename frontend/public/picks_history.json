@@ -1,6 +1,96 @@
 {
-  "updatedAt": "2026-06-02T09:02:06.928728+00:00",
+  "updatedAt": "2026-06-04T01:56:46.045976+00:00",
   "records": [
+    {
+      "id": "2026-06-04-TTMI",
+      "date": "2026-06-04",
+      "ticker": "TTMI",
+      "name": "TTM Technologies",
+      "scope": "foreign",
+      "direction": "positive",
+      "theme": "TTMI",
+      "rationale": "미국 최대 PCB 제조사 중 하나로, AI 데이터센터·방산·통신 장비에 들어가는 고다층 PCB를 공급하고 있어요. AI 인프라 투자 확대가 직접적인 수주 증가로 이어지는 구조예요.",
+      "priceAtRec": null,
+      "currency": "USD",
+      "currentPrice": 189.60000610351562,
+      "currentPriceAt": "2026-06-04T01:56:22.304226+00:00",
+      "changePct": null
+    },
+    {
+      "id": "2026-06-04-LPTH",
+      "date": "2026-06-04",
+      "ticker": "LPTH",
+      "name": "LightPath Technologies",
+      "scope": "foreign",
+      "direction": "positive",
+      "theme": "TTMI",
+      "rationale": "방산·AI 센싱용 적외선 광학 부품 전문 제조사로, 오늘 8-K를 함께 공시했어요. 자율주행·드론·방산 열화상 시스템 수요 증가의 수혜가 기대되는 소형주예요.",
+      "priceAtRec": null,
+      "currency": "USD",
+      "currentPrice": 15.619999885559082,
+      "currentPriceAt": "2026-06-04T01:56:25.022776+00:00",
+      "changePct": null
+    },
+    {
+      "id": "2026-06-04-GS",
+      "date": "2026-06-04",
+      "ticker": "GS",
+      "name": "Goldman Sachs",
+      "scope": "foreign",
+      "direction": "positive",
+      "theme": "자본시장",
+      "rationale": "전환사채 주관 시장 점유율 1~2위 업체로, AI 기업발 CB 발행 호황에서 직접적인 수수료 수익 수혜를 받는 구조예요. 자본시장 부문 실적이 2~3분기 어닝 서프라이즈 요인이 될 수 있어요.",
+      "priceAtRec": null,
+      "currency": "USD",
+      "currentPrice": 1041.02001953125,
+      "currentPriceAt": "2026-06-04T01:56:26.960827+00:00",
+      "changePct": null
+    },
+    {
+      "id": "2026-06-04-KCE",
+      "date": "2026-06-04",
+      "ticker": "KCE",
+      "name": "SPDR S&P 자본시장 ETF",
+      "scope": "foreign",
+      "direction": "positive",
+      "theme": "자본시장",
+      "rationale": "Goldman Sachs, Morgan Stanley, Raymond James 등 자본시장 업무 비중이 높은 금융사들을 집중 편입한 ETF예요. CB 발행 붐이 지속되는 구간에서 단일 종목 리스크 없이 섹터 전반의 수혜를 받을 수 있어요.",
+      "priceAtRec": null,
+      "currency": "USD",
+      "currentPrice": 147.5399932861328,
+      "currentPriceAt": "2026-06-04T01:56:29.537529+00:00",
+      "changePct": null
+    },
+    {
+      "id": "2026-06-04-VRNS",
+      "date": "2026-06-04",
+      "ticker": "VRNS",
+      "name": "Varonis Systems",
+      "scope": "foreign",
+      "direction": "positive",
+      "theme": "내부위협 보안",
+      "rationale": "데이터 접근 모니터링·내부위협 탐지 전문 소프트웨어 기업으로, 비정상적인 데이터 접근 패턴을 실시간으로 탐지하는 핵심 솔루션을 보유하고 있어요. Five Eyes 경보 이후 정부·방산 계약 기업들의 RFP 수요가 증가할 가능성이 높아요.",
+      "priceAtRec": null,
+      "currency": "USD",
+      "currentPrice": 33.5099983215332,
+      "currentPriceAt": "2026-06-04T01:56:31.902122+00:00",
+      "changePct": null
+    },
+    {
+      "id": "2026-06-04-CACI",
+      "date": "2026-06-04",
+      "ticker": "CACI",
+      "name": "CACI International",
+      "scope": "foreign",
+      "direction": "positive",
+      "theme": "내부위협 보안",
+      "rationale": "미국 정보기관(CIA, NSA 등)과 국방부에 IT·정보 분석 서비스를 제공하는 방산 IT 기업으로, 방첩(counter-intelligence) 관련 정부 예산 증가의 직접 수혜자예요. 연간 매출의 약 75%가 정보·국방 부문에서 발생해요.",
+      "priceAtRec": null,
+      "currency": "USD",
+      "currentPrice": 528.0700073242188,
+      "currentPriceAt": "2026-06-04T01:56:34.168201+00:00",
+      "changePct": null
+    },
     {
       "id": "2026-06-02-WPM",
       "date": "2026-06-02",
@@ -10,11 +100,11 @@
       "direction": "positive",
       "theme": "금 로열티주",
       "rationale": "금·은 로열티 계약 기반으로 광산 운영 원가 리스크 없이 금값 상승에 직접 노출되어 있어요. 준비자산 전환이 구조화되면 EPS 레버리지가 GLD 대비 현저히 높아요.",
-      "priceAtRec": 128.82000732421875,
+      "priceAtRec": 130.30999755859375,
       "currency": "USD",
-      "currentPrice": 128.82000732421875,
-      "currentPriceAt": "2026-06-02T09:02:03.045562+00:00",
-      "changePct": 0.0
+      "currentPrice": 124.94999694824219,
+      "currentPriceAt": "2026-06-04T01:56:35.966673+00:00",
+      "changePct": -4.11
     },
     {
       "id": "2026-06-02-GDXJ",
@@ -25,11 +115,11 @@
       "direction": "positive",
       "theme": "금 로열티주",
       "rationale": "금 가격 상승 초기 사이클에서 대형 광산주 대비 2~3배 베타를 보이는 중소형 금광주 ETF예요. 준비자산 전환 확인 단계인 지금이 주니어 광산주 가격 미반영 구간에 해당해요.",
-      "priceAtRec": 114.94999694824219,
+      "priceAtRec": 115.9800033569336,
       "currency": "USD",
-      "currentPrice": 114.94999694824219,
-      "currentPriceAt": "2026-06-02T09:02:03.892948+00:00",
-      "changePct": 0.0
+      "currentPrice": 110.87999725341797,
+      "currentPriceAt": "2026-06-04T01:56:38.160140+00:00",
+      "changePct": -4.4
     },
     {
       "id": "2026-06-02-HIMS",
@@ -40,10 +130,10 @@
       "direction": "negative",
       "theme": "HIMS",
       "rationale": "기업형 의료 규제가 온라인 처방과 GLP-1 컴파운딩 모두를 동시에 압박하며, 고성장 프리미엄이 무너질 경우 밸류에이션 디레이팅 속도가 빠를 수 있어요. 현재 보유 중이라면 포지션 축소 검토가 유효해요.",
-      "priceAtRec": 27.760000228881836,
+      "priceAtRec": 27.510000228881836,
       "currency": "USD",
-      "currentPrice": 27.760000228881836,
-      "currentPriceAt": "2026-06-02T09:02:04.594778+00:00",
+      "currentPrice": 27.510000228881836,
+      "currentPriceAt": "2026-06-04T01:56:39.596560+00:00",
       "changePct": 0.0
     },
     {
@@ -55,11 +145,11 @@
       "direction": "negative",
       "theme": "HIMS",
       "rationale": "엔터프라이즈 중심이라 HIMS보다 직접 타격은 덜하지만, 주 단위 규제 확산이 텔레헬스 섹터 전반의 재평가를 촉발할 경우 동반 하락 압력이 있어요.",
-      "priceAtRec": 7.909999847412109,
+      "priceAtRec": 7.539999961853027,
       "currency": "USD",
-      "currentPrice": 7.909999847412109,
-      "currentPriceAt": "2026-06-02T09:02:05.235425+00:00",
-      "changePct": 0.0
+      "currentPrice": 7.090000152587891,
+      "currentPriceAt": "2026-06-04T01:56:41.676608+00:00",
+      "changePct": -5.97
     },
     {
       "id": "2026-06-02-SMFG",
@@ -70,11 +160,11 @@
       "direction": "positive",
       "theme": "일본 메가뱅크주",
       "rationale": "BoJ 금리인상 사이클에서 NIM 확대가 실적에 가장 빠르게 반영되는 메가뱅크 중 하나예요. 현재 P/B 0.8~0.9배로 글로벌 대형 은행 대비 저평가 구간이어서 밸류에이션 리레이팅 여지도 있어요.",
-      "priceAtRec": 22.1299991607666,
+      "priceAtRec": 22.739999771118164,
       "currency": "USD",
-      "currentPrice": 22.1299991607666,
-      "currentPriceAt": "2026-06-02T09:02:05.901503+00:00",
-      "changePct": 0.0
+      "currentPrice": 22.969999313354492,
+      "currentPriceAt": "2026-06-04T01:56:43.499209+00:00",
+      "changePct": 1.01
     },
     {
       "id": "2026-06-02-MUFG",
@@ -85,11 +175,11 @@
       "direction": "positive",
       "theme": "일본 메가뱅크주",
       "rationale": "일본 최대 은행으로 금리 정상화 사이클 수혜 규모가 가장 크고, 해외 자산 비중이 높아 글로벌 금리 환경 개선과 엔화 절상이 동시에 주가에 반영되는 구조예요.",
-      "priceAtRec": 18.889999389648438,
+      "priceAtRec": 19.170000076293945,
       "currency": "USD",
-      "currentPrice": 18.889999389648438,
-      "currentPriceAt": "2026-06-02T09:02:06.624621+00:00",
-      "changePct": 0.0
+      "currentPrice": 19.450000762939453,
+      "currentPriceAt": "2026-06-04T01:56:45.090692+00:00",
+      "changePct": 1.46
     }
   ]
 }
