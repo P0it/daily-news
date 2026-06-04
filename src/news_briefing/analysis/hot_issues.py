@@ -377,7 +377,7 @@ def analyze_hot_issues(
              sum(1 for *_, t in pool if t == 3))
 
     try:
-        raw = _call_claude(prompt, timeout=180).strip()
+        raw = _call_claude(prompt, timeout=300).strip()
         result = _parse_issues(raw)
         log.info("hot_issues(foreign): %d개 이슈 선정", len(result))
         return result
@@ -416,7 +416,7 @@ def analyze_hot_issues_domestic(
              sum(1 for *_, t in pool if t == 3))
 
     try:
-        raw = _call_claude(prompt, timeout=180).strip()
+        raw = _call_claude(prompt, timeout=300).strip()
         result = _parse_issues(raw)
         log.info("hot_issues(domestic): %d개 이슈 선정", len(result))
         return result
