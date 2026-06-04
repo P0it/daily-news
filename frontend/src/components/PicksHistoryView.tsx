@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import { fetchPicksHistory } from '@/lib/fetchBriefing'
 import type { PickRecord } from '@/lib/types'
+import { StockLogo } from '@/components/StockLogo'
 
 function fmtPct(pct: number | null): string {
   if (pct === null) return '—'
@@ -179,7 +180,9 @@ export function PicksHistoryView() {
                   }}
                 >
                   {/* 종목명 + 테마 */}
-                  <div style={{ minWidth: 0, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 7, minWidth: 0, overflow: 'hidden' }}>
+                    <StockLogo ticker={rec.ticker} name={rec.name} size={22} />
+                    <div style={{ minWidth: 0, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
                     <span style={{ fontSize: 14, fontWeight: 700, marginRight: 5 }}>
                       {rec.name}
                     </span>
@@ -188,6 +191,7 @@ export function PicksHistoryView() {
                         {rec.theme}
                       </span>
                     )}
+                    </div>
                   </div>
 
                   {/* 추천가 */}

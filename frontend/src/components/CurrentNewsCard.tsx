@@ -1,6 +1,12 @@
 import { CATEGORY_META } from '@/lib/categoryMeta'
 import type { NewsItem } from '@/lib/types'
 
+const EMOJI_RE = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu
+
+function stripEmoji(text: string): string {
+  return text.replace(EMOJI_RE, '').replace(/\s{2,}/g, ' ').trim()
+}
+
 function formatTime(iso: string): string {
   const d = new Date(iso)
   const now = new Date()
@@ -101,7 +107,7 @@ export function CurrentNewsCard({
           overflowWrap: 'break-word',
         }}
       >
-        {news.title}
+        {stripEmoji(news.title)}
       </h3>
 
       {/* 요약 — 3줄 clamp */}

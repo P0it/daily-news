@@ -1,7 +1,8 @@
 # Secrets (P3 원칙: 절대 커밋 금지)
 .env
 .env.local
-*.env.local*
+.env.local.vercel
+frontend/.env.local.vercel
 .kakao_tokens.json
 
 # Runtime data

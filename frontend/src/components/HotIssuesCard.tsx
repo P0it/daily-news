@@ -6,6 +6,7 @@ import { resolveTickerToSymbol } from '@/lib/tradingview'
 import { PhaseTag } from '@/components/PhaseTag'
 import { buildTickerLinks } from '@/lib/deeplinks'
 import { TradingViewWidget } from '@/components/TradingViewWidget'
+import { StockLogo } from '@/components/StockLogo'
 
 const DIRECTION_CONFIG = {
   positive: { emoji: '📈', label: '상승 기대', dot: '#F04452', textColor: '#F04452', bg: 'rgba(240,68,82,0.1)' },
@@ -82,6 +83,7 @@ function PickRow({ pick, isForeign }: { pick: TickerPick; isForeign: boolean }) 
     >
       {/* 종목명 + 티커 코드 칩 + 차트 버튼 */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+        <StockLogo ticker={pick.ticker} name={pick.name} size={24} />
         <span style={{
           fontSize: 14,
           fontWeight: 700,

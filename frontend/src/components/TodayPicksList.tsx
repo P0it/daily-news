@@ -1,6 +1,7 @@
 'use client'
 
 import type { SignalItem } from '@/lib/types'
+import { StockLogo } from '@/components/StockLogo'
 
 const SOURCE_LABEL: Record<string, string> = {
   dart: 'DART',
@@ -84,7 +85,8 @@ export function TodayPicksList({ signals }: Props) {
               }}
             />
 
-            {/* 종목명 */}
+            {/* 종목 로고 + 종목명 */}
+            <StockLogo ticker={s.companyCode} name={s.company || '—'} size={20} />
             <span
               style={{
                 fontSize: 15,

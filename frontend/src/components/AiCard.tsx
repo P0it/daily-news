@@ -1,6 +1,5 @@
 'use client'
 
-import { CATEGORY_META } from '@/lib/categoryMeta'
 import type { NewsItem } from '@/lib/types'
 
 function formatTime(iso: string): string {
@@ -25,6 +24,12 @@ function sourceLabel(news: NewsItem): string {
   return src
 }
 
+const EMOJI_RE = /[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu
+
+function stripEmoji(text: string): string {
+  return text.replace(EMOJI_RE, '').replace(/\s{2,}/g, ' ').trim()
+}
+
 export function AiCard({
   news,
   dict,
@@ -33,14 +38,10 @@ export function AiCard({
   dict: import('@/lib/i18n/ko').Dict
 }) {
   void dict
-  const isVideo = news.source.startsWith('rss:yt-')
-  const summary = news.summary.replace(/<[^>]*>/g, '').trim()
-  const categoryMeta =
-    news.scope === 'foreign' && news.category === 'international'
-      ? { label: '세계', color: '#1A56A0', bg: '#EBF3FF' }
-      : news.category
-        ? CATEGORY_META[news.category]
-        : null
+  const isVideo = news.source.startsWith('rss:yt-') || news.url.includes('youtube.com')
+  const rawSummary = news.summary.replace(/<[^>]*>/g, '').trim()
+  // YouTube 설명은 링크 나열이라 표시 안 함
+  const summary = isVideo ? '' : rawSummary
 
   return (
     <a
@@ -60,34 +61,37 @@ export function AiCard({
     >
       {/* 상단 메타 */}
       <div className="flex items-center" style={{ marginBottom: 9, gap: 6 }}>
-        {categoryMeta && (
-          <span
-            style={{
-              fontSize: 11,
-              fontWeight: 600,
-              color: categoryMeta.color,
-              background: categoryMeta.bg,
-              borderRadius: 4,
-              padding: '2px 6px',
-              letterSpacing: '-0.01em',
-            }}
-          >
-            {categoryMeta.label}
-          </span>
-        )}
+        {/* 소스 타입 뱃지 */}
+        <span
+          style={{
+            fontSize: 11,
+            fontWeight: 700,
+            color: isVideo ? '#C0392B' : 'var(--text-secondary)',
+            background: isVideo ? '#FFF0EE' : 'var(--bg-inset)',
+            borderRadius: 4,
+            padding: '2px 6px',
+            letterSpacing: '-0.01em',
+            flexShrink: 0,
+          }}
+        >
+          {isVideo ? '▶ YouTube' : '기사'}
+        </span>
         <span
           style={{
             fontSize: 12,
-            fontWeight: 700,
-            color: isVideo ? '#F04452' : 'var(--text-tertiary)',
+            fontWeight: 600,
+            color: 'var(--text-tertiary)',
             letterSpacing: '-0.01em',
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
           }}
         >
           {sourceLabel(news)}
         </span>
         <span
           className="ml-auto"
-          style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-tertiary)' }}
+          style={{ fontSize: 11, fontWeight: 500, color: 'var(--text-tertiary)', flexShrink: 0 }}
         >
           {formatTime(news.time)}
         </span>
@@ -106,7 +110,7 @@ export function AiCard({
           overflowWrap: 'break-word',
         }}
       >
-        {news.title}
+        {stripEmoji(news.title)}
       </h3>
 
       {/* 원문 제목 (번역된 경우) */}
