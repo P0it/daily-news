@@ -346,8 +346,9 @@ def run_morning(
                 foreign_candidates.append((it, s))
         for it in stock_news_foreign:
             foreign_candidates.append((it, 50))
+        # 해외 종목 분석용: 영어권 소스만 허용 — 한국어 국제 뉴스(연합뉴스 국제·gnews-intl-kr)는 제외
         for it, cs in current_candidates:
-            if (it.extra or {}).get("category") == "international":
+            if (it.extra or {}).get("category") == "international" and it.source in _ENGLISH_SOURCES:
                 foreign_candidates.append((it, cs))
 
         domestic_candidates: list[tuple[CollectedItem, int]] = []

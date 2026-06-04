@@ -26,7 +26,6 @@ _TIER_MAP_FOREIGN: dict[str, int] = {
     "rss:gnews-us-stocks-en": 2,
     "rss:gnews-us-markets-en":2,
     "rss:marketwatch":        2,
-    "rss:yonhap-intl":        2,
 }
 
 # ── 국내용 소스 티어 ─────────────────────────────────────────────
@@ -36,6 +35,7 @@ _TIER_MAP_DOMESTIC: dict[str, int] = {
     "rss:hankyung":          2,
     "rss:mk":                2,
     "rss:yonhap-kr":         2,
+    "rss:yonhap-intl":       2,  # 연합뉴스 국제 — 국내 시사 Tier 2
     "rss:gnews-business-kr": 3,
     "rss:gnews-stock-kr":    3,
 }

@@ -129,11 +129,11 @@ RSS_FEEDS: list[RssFeedSpec] = [
         "foreign",
         "stock",
     ),
-    # 연합뉴스 국제 (한국 관점 해외 보도)
+    # 연합뉴스 국제 (한국 관점 해외 보도 — 국내 시사 풀에만 포함)
     RssFeedSpec(
         "rss:yonhap-intl",
         "https://www.yna.co.kr/rss/international.xml",
-        "foreign",
+        "domestic",
         "international",
     ),
 
