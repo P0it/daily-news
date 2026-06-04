@@ -102,13 +102,19 @@ export interface DomesticEtf {
   name: string    // 국내 ETF명
 }
 
+export interface RelatedEtf {
+  ticker: string                  // ETF 코드·심볼 (불확실하면 빈 문자열)
+  name: string                    // ETF명
+  confidence?: 'high' | 'low'     // low면 UI에 ⚠️ 추가 확인 필요 표시 (LLM 추론 기반이라 검증용)
+}
+
 export interface TickerPick {
   ticker: string              // 미국 심볼 (코드)
   name: string                // 한국어 기업·펀드명
   description: string         // 추천 이유 1~2문장
   why_undiscovered?: string | null
   consensus_risk?: 'low' | 'medium' | 'high'
-  related_etf?: DomesticEtf | null   // 종목을 많이 담은 동일 시장 ETF 1개 (해외 종목→해외 ETF, 국내 종목→국내 ETF)
+  related_etf?: RelatedEtf | null   // 종목을 많이 담은 동일 시장 ETF 1개 (해외 종목→해외 ETF, 국내 종목→국내 ETF)
   domestic: DomesticEtf | DomesticEtf[] | null
 }
 

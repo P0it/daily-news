@@ -241,6 +241,11 @@ function PickRow({ pick, isForeign }: { pick: TickerPick; isForeign: boolean }) 
                 </span>
               )}
             </span>
+            {relatedEtf.confidence === 'low' && (
+              <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
+                ⚠️ 추가 확인 필요
+              </span>
+            )}
           </div>
         </div>
       )}

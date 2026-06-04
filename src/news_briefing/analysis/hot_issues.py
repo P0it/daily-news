@@ -166,10 +166,11 @@ picks 작성 원칙 (★ 핵심 — 가장 중요):
 
 related_etf 필드 작성 규칙 (★ 필수, domestic과 별개):
 - 의미: 이 종목을 비중 있게 보유한 **해외(미국 상장) ETF** 1개. (domestic은 국내 추종 ETF로 별개 필드)
-- 형식: {"ticker": "ETF심볼", "name": "ETF명"} 또는 null (배열 아님, 단일 객체)
+- 형식: {"ticker": "ETF심볼", "name": "ETF명", "confidence": "high"|"low"} 또는 null (배열 아님, 단일 객체)
 - 선택 기준: 동일 종목·테마를 담은 ETF가 운용사별로 여러 개면, **거래량 많고 대중적이며 운용보수(expense ratio)가 가장 낮은** 1개를 고른다 (예: 반도체 → SMH 또는 SOXX, S&P500 → VOO/IVV, 빅테크 → QQQ).
 - 해당 종목을 직접 담은 ETF가 없으면 동일 섹터·테마 대표 ETF로 대체. 그래도 없으면 null.
-- 심볼이 불확실하면 {"ticker": "", "name": "ETF명"} 형태로 이름만 반환.
+- 심볼이 불확실하면 {"ticker": "", "name": "ETF명", "confidence": "low"} 형태로 이름만 반환.
+- confidence: 이 ETF가 실제로 해당 종목을 비중 있게 담고 있다고 확신하면 "high", 추정·불확실하면 "low" (보유 사실이 애매하거나 심볼이 헷갈리면 반드시 "low").
 
 domestic 필드 작성 규칙 (★ 필수):
 - 형식: [{"ticker": "ETF코드", "name": "ETF명"}, ...] 또는 null
@@ -259,10 +260,11 @@ picks 작성 원칙 (★ 핵심 — 가장 중요):
 
 related_etf 필드 작성 규칙 (★ 필수):
 - 의미: 이 국내 종목을 비중 있게 담은 **국내 상장 ETF** 1개 (TIGER·KODEX·KBSTAR·ACE·HANARO 계열).
-- 형식: {"ticker": "ETF코드", "name": "ETF명"} 또는 null (배열 아님, 단일 객체)
+- 형식: {"ticker": "ETF코드", "name": "ETF명", "confidence": "high"|"low"} 또는 null (배열 아님, 단일 객체)
 - 선택 기준: 동일 종목·테마를 담은 ETF가 운용사별로 여러 개면, **순자산·거래량 많고 대중적이며 운용보수가 가장 낮은** 1개를 고른다.
 - 해당 종목을 직접 담은 ETF가 없으면 동일 섹터·테마 대표 ETF로 대체. 그래도 없으면 null.
-- 코드가 불확실하면 {"ticker": "", "name": "ETF명"} 형태로 이름만 반환.
+- 코드가 불확실하면 {"ticker": "", "name": "ETF명", "confidence": "low"} 형태로 이름만 반환.
+- confidence: 이 ETF가 실제로 해당 종목을 비중 있게 담고 있다고 확신하면 "high", 추정·불확실하면 "low" (보유 사실이 애매하거나 코드가 헷갈리면 반드시 "low").
 """
 
 
@@ -301,7 +303,10 @@ def _parse_issues(raw: str) -> list[dict]:
                 r_ticker = str(related_raw.get("ticker") or "").strip()
                 r_name = str(related_raw.get("name") or "").strip()
                 if r_name:  # 이름만 있어도 채택 (코드 불확실 허용)
-                    related = {"ticker": r_ticker, "name": r_name}
+                    r_conf = str(related_raw.get("confidence") or "").strip().lower()
+                    # LLM이 low로 표기했거나 코드가 비어 있으면 '추가 확인 필요'로 처리
+                    confidence = "low" if (r_conf == "low" or not r_ticker) else "high"
+                    related = {"ticker": r_ticker, "name": r_name, "confidence": confidence}
             picks.append(
                 {
                     "ticker": ticker,
