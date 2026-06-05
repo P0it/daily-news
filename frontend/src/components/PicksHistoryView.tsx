@@ -23,6 +23,46 @@ function fmtDate(dateStr: string): string {
   return `${m}월 ${d}일 ${dayNames[date.getDay()]}요일`
 }
 
+function fmtAsOf(iso: string): string {
+  const d = new Date(iso)
+  const h = d.getHours()
+  const min = d.getMinutes()
+  const ampm = h < 12 ? '오전' : '오후'
+  const h12 = h % 12 === 0 ? 12 : h % 12
+  return `${ampm} ${h12}시 ${String(min).padStart(2, '0')}분`
+}
+
+/**
+ * 조회 시점의 현재가를 가져온다.
+ *
+ * 정적 export라 서버 라우트를 못 쓰므로, vercel.json에 정의된 시세 프록시
+ * rewrite를 클라이언트에서 직접 호출한다(국내=네이버, 해외=야후). 프록시는
+ * 서버 사이드 rewrite라 CORS에 걸리지 않는다. 단 `next dev`에서는 rewrite가
+ * 적용되지 않아 로컬에선 실패할 수 있고, 그 경우 정적 값이 유지된다.
+ */
+async function fetchCurrentPrice(
+  ticker: string,
+  scope: 'domestic' | 'foreign',
+): Promise<number | null> {
+  try {
+    if (scope === 'domestic') {
+      const r = await fetch(`/api/naver-stock/${ticker}/`)
+      if (!r.ok) return null
+      const d = await r.json()
+      if (!d?.closePrice) return null
+      const n = Number(String(d.closePrice).replace(/,/g, ''))
+      return Number.isFinite(n) ? n : null
+    }
+    const r = await fetch(`/api/yahoo-stock/${ticker}/`)
+    if (!r.ok) return null
+    const d = await r.json()
+    const price = d?.chart?.result?.[0]?.meta?.regularMarketPrice
+    return typeof price === 'number' ? price : null
+  } catch {
+    return null
+  }
+}
+
 function groupByDate(records: PickRecord[]): [string, PickRecord[]][] {
   const map = new Map<string, PickRecord[]>()
   for (const r of records) {
@@ -70,9 +110,49 @@ function TableHeader() {
 
 export function PicksHistoryView() {
   const [records, setRecords] = useState<PickRecord[] | null>(null)
+  const [asOf, setAsOf] = useState<string | null>(null)
+  const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
-    fetchPicksHistory().then(setRecords)
+    let cancelled = false
+    fetchPicksHistory().then(async (recs) => {
+      if (cancelled) return
+      setRecords(recs) // 정적 데이터를 먼저 그려 빈 화면을 피한다
+      if (recs.length === 0) return
+
+      // 티커별 1회만 조회 (같은 종목이 여러 날 추천될 수 있음)
+      const uniq = new Map<string, 'domestic' | 'foreign'>()
+      for (const r of recs) if (!uniq.has(r.ticker)) uniq.set(r.ticker, r.scope)
+
+      setRefreshing(true)
+      const entries = await Promise.all(
+        [...uniq.entries()].map(async ([ticker, scope]) => {
+          const price = await fetchCurrentPrice(ticker, scope)
+          return [ticker, price] as const
+        }),
+      )
+      if (cancelled) return
+
+      const priceByTicker = new Map(entries.filter(([, p]) => p !== null))
+      const nowIso = new Date().toISOString()
+      setRecords(
+        (prev) =>
+          prev?.map((r) => {
+            const cur = priceByTicker.get(r.ticker)
+            if (cur == null) return r
+            const changePct =
+              r.priceAtRec != null && r.priceAtRec > 0
+                ? Math.round(((cur - r.priceAtRec) / r.priceAtRec) * 10000) / 100
+                : null
+            return { ...r, currentPrice: cur, changePct, currentPriceAt: nowIso }
+          }) ?? null,
+      )
+      if (priceByTicker.size > 0) setAsOf(nowIso)
+      if (!cancelled) setRefreshing(false)
+    })
+    return () => {
+      cancelled = true
+    }
   }, [])
 
   if (records === null) {
@@ -113,6 +193,20 @@ export function PicksHistoryView() {
 
   return (
     <div style={{ padding: '16px 20px 40px' }}>
+      <div
+        style={{
+          fontSize: 12,
+          color: 'var(--text-tertiary)',
+          marginBottom: 12,
+          paddingLeft: 4,
+        }}
+      >
+        {refreshing
+          ? '지금 시세 불러오는 중이에요'
+          : asOf
+          ? `${fmtAsOf(asOf)} 기준 시세예요`
+          : '저장된 시세예요'}
+      </div>
       {grouped.map(([date, rows]) => (
         <div key={date} style={{ marginBottom: 24 }}>
           {/* 날짜 헤더 */}

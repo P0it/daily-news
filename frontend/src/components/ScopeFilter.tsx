@@ -21,7 +21,7 @@ export function ScopeFilter({ lang }: { lang: Lang }) {
   const options: { key: Scope; label: string }[] = [
     { key: 'foreign', label: dict['scope.foreign'] },
     { key: 'domestic', label: dict['scope.domestic'] },
-    { key: 'picks', label: '성과' },
+    { key: 'picks', label: '성적' },
   ]
 
   return (
