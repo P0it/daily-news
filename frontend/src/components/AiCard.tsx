@@ -1,5 +1,6 @@
 'use client'
 
+import { resolveCategoryBadge } from '@/lib/categoryMeta'
 import type { NewsItem } from '@/lib/types'
 
 function formatTime(iso: string): string {
@@ -42,6 +43,8 @@ export function AiCard({
   const rawSummary = news.summary.replace(/<[^>]*>/g, '').trim()
   // YouTube 설명은 링크 나열이라 표시 안 함
   const summary = isVideo ? '' : rawSummary
+  // 주제 분류 뱃지로 통일 — 글/영상 구분은 sourceLabel 의 ▶ prefix 가 담당
+  const categoryMeta = resolveCategoryBadge(news)
 
   return (
     <a
@@ -61,21 +64,23 @@ export function AiCard({
     >
       {/* 상단 메타 */}
       <div className="flex items-center" style={{ marginBottom: 9, gap: 6 }}>
-        {/* 소스 타입 뱃지 */}
-        <span
-          style={{
-            fontSize: 11,
-            fontWeight: 700,
-            color: isVideo ? '#C0392B' : 'var(--text-secondary)',
-            background: isVideo ? '#FFF0EE' : 'var(--bg-inset)',
-            borderRadius: 4,
-            padding: '2px 6px',
-            letterSpacing: '-0.01em',
-            flexShrink: 0,
-          }}
-        >
-          {isVideo ? '▶ YouTube' : '기사'}
-        </span>
+        {/* 주제 분류 뱃지 */}
+        {categoryMeta && (
+          <span
+            style={{
+              fontSize: 11,
+              fontWeight: 600,
+              color: categoryMeta.color,
+              background: categoryMeta.bg,
+              borderRadius: 4,
+              padding: '2px 6px',
+              letterSpacing: '-0.01em',
+              flexShrink: 0,
+            }}
+          >
+            {categoryMeta.label}
+          </span>
+        )}
         <span
           style={{
             fontSize: 12,
