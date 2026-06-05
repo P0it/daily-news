@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import type { HotIssue, Scope, TickerPick } from '@/lib/types'
 import { resolveTickerToSymbol } from '@/lib/tradingview'
 import { PhaseTag } from '@/components/PhaseTag'
@@ -15,6 +15,18 @@ const DIRECTION_CONFIG = {
 }
 
 type StockQuote = { price: string; change: string; changeRate: string; isUp: boolean; currency?: string }
+
+// 코드 칩 — 종목 티커·ETF 코드 공용 (동일 스타일 유지)
+const CODE_CHIP_STYLE: CSSProperties = {
+  fontSize: 10,
+  fontWeight: 700,
+  color: 'var(--badge-text)',
+  background: 'var(--badge-bg)',
+  padding: '1px 6px',
+  borderRadius: 5,
+  letterSpacing: '0.02em',
+  flexShrink: 0,
+}
 
 function PickRow({ pick, isForeign }: { pick: TickerPick; isForeign: boolean }) {
   const [open, setOpen] = useState(false)
@@ -93,16 +105,7 @@ function PickRow({ pick, isForeign }: { pick: TickerPick; isForeign: boolean }) 
         }}>
           {pick.name}
         </span>
-        <span style={{
-          fontSize: 11,
-          fontWeight: 700,
-          color: 'var(--badge-text)',
-          background: 'var(--badge-bg)',
-          padding: '2px 7px',
-          borderRadius: 5,
-          letterSpacing: '0.02em',
-          flexShrink: 0,
-        }}>
+        <span style={CODE_CHIP_STYLE}>
           {pick.ticker}
         </span>
         {symbol && (
@@ -220,64 +223,56 @@ function PickRow({ pick, isForeign }: { pick: TickerPick; isForeign: boolean }) 
         </div>
       )}
 
-      {/* 관련 ETF — 종목을 많이 담은 동일 시장 ETF (양 스코프 모두, 데이터 있을 때만) */}
-      {relatedEtf && (
-        <div style={{
-          paddingTop: 8,
-          borderTop: '1px solid var(--border-subtle)',
-          marginTop: 2,
-        }}>
-          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-tertiary)' }}>
-              📦 {isForeign ? '관련 해외 ETF' : '관련 국내 ETF'}
-            </span>
-            <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)' }}>
+      {/* ETF 섹션 — 관련 ETF(양 스코프) + 추종 ETF(해외만). 구분선 하나, 두 줄은 좁게 */}
+      <div style={{
+        paddingTop: 8,
+        borderTop: '1px solid var(--border-subtle)',
+        marginTop: 2,
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 4,
+      }}>
+        {/* 관련 ETF — 종목을 많이 담은 동일 시장 ETF (해외→🇺🇸, 국내→🇰🇷). 없어도 항상 표시 */}
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, alignItems: 'center' }}>
+          <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-tertiary)' }}>
+            {isForeign ? '🇺🇸' : '🇰🇷'} ETF
+          </span>
+          {relatedEtf ? (
+            <>
+              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)' }}>
                 {relatedEtf.name}
               </span>
-              {relatedEtf.ticker && (
-                <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
-                  {relatedEtf.ticker}
-                </span>
+              {relatedEtf.ticker && <span style={CODE_CHIP_STYLE}>{relatedEtf.ticker}</span>}
+              {relatedEtf.confidence === 'low' && (
+                <span style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>⚠️ 추가 확인 필요</span>
               )}
-            </span>
-            {relatedEtf.confidence === 'low' && (
-              <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
-                ⚠️ 추가 확인 필요
-              </span>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* 국내 추종 ETF — 해외 종목일 때만 표시 (ISA·연금 계좌용) */}
-      {isForeign && (
-        <div style={{
-          paddingTop: 8,
-          borderTop: '1px solid var(--border-subtle)',
-          marginTop: 2,
-        }}>
-          {alts.length > 0 ? (
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6, alignItems: 'center' }}>
-              <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-tertiary)' }}>
-                🇰🇷 국내 추종 ETF
-              </span>
-              {alts.map((alt) => (
-                <span key={alt.ticker} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)' }}>
-                    {alt.name}
-                  </span>
-                  <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
-                    {alt.ticker}
-                  </span>
-                </span>
-              ))}
-            </div>
+            </>
           ) : (
-            <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>🚫 국내 추종 상품 없음</span>
+            <span style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>없음</span>
           )}
         </div>
-      )}
+
+        {/* 추종 ETF — 해외 종목일 때만 (ISA·연금 계좌용). 없어도 항상 표시 */}
+        {isForeign && (
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5, alignItems: 'center' }}>
+            <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-tertiary)' }}>
+              🇰🇷 ETF
+            </span>
+            {alts.length > 0 ? (
+              alts.map((alt) => (
+                <span key={alt.ticker} style={{ display: 'inline-flex', alignItems: 'center', gap: 5 }}>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-secondary)' }}>
+                    {alt.name}
+                  </span>
+                  {alt.ticker && <span style={CODE_CHIP_STYLE}>{alt.ticker}</span>}
+                </span>
+              ))
+            ) : (
+              <span style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>없음</span>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
