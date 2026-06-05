@@ -4,6 +4,7 @@
 `_call_claude` / `_call_ollama` 는 **prompt 를 그대로** 전달한다 (system 덧붙이지 않음).
 호출자(summarize, RAG, themes 등)가 자신의 프롬프트를 온전히 구성해서 넘겨야 한다.
 """
+
 from __future__ import annotations
 
 import json
@@ -48,7 +49,7 @@ TRANSLATE_NEWS_SYSTEM = (
 )
 
 
-def _call_claude(prompt: str, timeout: int = 45) -> str:
+def _call_claude(prompt: str, timeout: int = 45, model: str | None = None) -> str:
     """Claude CLI 를 호출해 prompt 를 그대로 전달. stdout 반환.
 
     Claude Code CLI 는 CWD 의 CLAUDE.md 를 자동으로 읽어 system prompt 화 한다.
@@ -58,10 +59,17 @@ def _call_claude(prompt: str, timeout: int = 45) -> str:
     Windows `.cmd` wrapper 는 개행이 포함된 argv 를 제대로 전달하지 못하므로
     prompt 는 **stdin 으로 전달** 한다. (argv 경로 사용 시 긴 한글/다줄 prompt 에서
     본문이 잘려 LLM 이 "기사가 포함되어 있지 않아요" 로 응답하는 버그 회피.)
+
+    model: "sonnet"|"opus" 등 별칭 또는 전체 모델명. None 이면 사용자 기본 모델.
+        요약·번역 등 가벼운 작업은 "sonnet" 으로 내려 속도를 확보하고,
+        hot_issues 같은 추론 작업은 "opus" 로 품질을 사수한다.
     """
+    cmd = [_resolve("claude"), "-p", "--output-format", "text"]
+    if model:
+        cmd += ["--model", model]
     with tempfile.TemporaryDirectory(prefix="news_briefing_llm_") as tmpdir:
         result = subprocess.run(
-            [_resolve("claude"), "-p", "--output-format", "text"],
+            cmd,
             input=prompt,
             capture_output=True,
             text=True,
@@ -145,24 +153,29 @@ def summarize_batch(
         return result
 
     def _call_batch(batch: list[tuple[str, str]]) -> dict[str, str]:
-        numbered = "\n".join(f"[{i+1}] {text}" for i, (_, text) in enumerate(batch))
+        numbered = "\n".join(f"[{i + 1}] {text}" for i, (_, text) in enumerate(batch))
         prompt = f"{_SUMMARIZE_BATCH_SYSTEM}\n\n---\n\n{numbered}"
 
         def _parse(raw: str) -> list[dict]:
             raw = raw.strip()
             if raw.startswith("```"):
-                raw = "\n".join(l for l in raw.splitlines() if not l.strip().startswith("```")).strip()
+                raw = "\n".join(
+                    l for l in raw.splitlines() if not l.strip().startswith("```")
+                ).strip()
             try:
                 parsed = json.loads(raw)
                 if isinstance(parsed, list):
-                    return [r for r in parsed if isinstance(r, dict) and "idx" in r and "summary" in r]
+                    return [
+                        r for r in parsed if isinstance(r, dict) and "idx" in r and "summary" in r
+                    ]
             except Exception:
                 pass
             return []
 
         out: dict[str, str] = {}
         try:
-            raw = _call_claude(prompt, timeout=timeout)
+            # 가벼운 요약 작업 → Sonnet 으로 속도 확보 (품질 충분)
+            raw = _call_claude(prompt, timeout=timeout, model="sonnet")
             for r in _parse(raw):
                 idx = int(r["idx"]) - 1
                 if 0 <= idx < len(batch):
@@ -225,13 +238,15 @@ def translate_batch(
     def _call_batch(batch: list[tuple[str, str, str]]) -> dict[str, tuple[str, str]]:
         lines = []
         for i, (_, title, body) in enumerate(batch):
-            lines.append(f"[{i+1}] 제목: {title}\n    본문: {body[:300] or '(없음)'}")
+            lines.append(f"[{i + 1}] 제목: {title}\n    본문: {body[:300] or '(없음)'}")
         prompt = f"{_TRANSLATE_BATCH_SYSTEM}\n\n---\n\n" + "\n\n".join(lines)
 
         def _parse(raw: str) -> list[dict]:
             raw = raw.strip()
             if raw.startswith("```"):
-                raw = "\n".join(l for l in raw.splitlines() if not l.strip().startswith("```")).strip()
+                raw = "\n".join(
+                    l for l in raw.splitlines() if not l.strip().startswith("```")
+                ).strip()
             try:
                 parsed = json.loads(raw)
                 if isinstance(parsed, list):
@@ -242,7 +257,8 @@ def translate_batch(
 
         out: dict[str, tuple[str, str]] = {}
         try:
-            raw = _call_claude(prompt, timeout=timeout)
+            # 가벼운 번역+요약 작업 → Sonnet 으로 속도 확보 (품질 충분)
+            raw = _call_claude(prompt, timeout=timeout, model="sonnet")
             for r in _parse(raw):
                 idx = int(r["idx"]) - 1
                 if 0 <= idx < len(batch):
@@ -251,8 +267,13 @@ def translate_batch(
                     summary_ko = str(r.get("summary_ko") or "").strip()
                     cache_key = f"{title}\n---\n{body[:500]}"
                     # 개별 캐시 포맷(TITLE:/SUMMARY:)으로 저장해 translate_news_ko 와 호환
-                    cache_put(conn, TRANSLATE_NEWS_TASK, cache_key,
-                              f"TITLE: {title_ko}\nSUMMARY: {summary_ko}", "claude-cli")
+                    cache_put(
+                        conn,
+                        TRANSLATE_NEWS_TASK,
+                        cache_key,
+                        f"TITLE: {title_ko}\nSUMMARY: {summary_ko}",
+                        "claude-cli",
+                    )
                     out[ext_id] = (title_ko, summary_ko)
         except Exception as e:
             log.warning("translate_batch claude 실패 (batch_size=%d): %s", len(batch), e)
@@ -266,8 +287,13 @@ def translate_batch(
                             title_ko = str(r.get("title_ko") or "").strip()
                             summary_ko = str(r.get("summary_ko") or "").strip()
                             cache_key = f"{title}\n---\n{body[:500]}"
-                            cache_put(conn, TRANSLATE_NEWS_TASK, cache_key,
-                                      f"TITLE: {title_ko}\nSUMMARY: {summary_ko}", f"ollama:{ollama_model}")
+                            cache_put(
+                                conn,
+                                TRANSLATE_NEWS_TASK,
+                                cache_key,
+                                f"TITLE: {title_ko}\nSUMMARY: {summary_ko}",
+                                f"ollama:{ollama_model}",
+                            )
                             out[ext_id] = (title_ko, summary_ko)
                 except Exception as e2:
                     log.error("translate_batch ollama 실패: %s", e2)
@@ -305,9 +331,7 @@ def summarize(
     if ollama_enabled:
         try:
             output = _call_ollama(prompt, ollama_model)
-            cache_put(
-                conn, SUMMARIZE_TASK, input_text, output, f"ollama:{ollama_model}"
-            )
+            cache_put(conn, SUMMARIZE_TASK, input_text, output, f"ollama:{ollama_model}")
             return output
         except Exception as e:
             log.error("ollama 호출 실패: %s", e)
@@ -412,14 +436,14 @@ def pick_foreign_news(
         # LLM이 ```json ... ``` 블록으로 감싸는 경우 제거
         if raw.startswith("```"):
             raw = "\n".join(
-                line for line in raw.splitlines()
-                if not line.strip().startswith("```")
+                line for line in raw.splitlines() if not line.strip().startswith("```")
             ).strip()
         try:
             result = json.loads(raw)
             if isinstance(result, list):
                 return [
-                    r for r in result
+                    r
+                    for r in result
                     if isinstance(r, dict) and r.get("ticker") and r.get("company")
                 ]
         except Exception:
@@ -439,8 +463,7 @@ def pick_foreign_news(
             output = _call_ollama(prompt, ollama_model, timeout=timeout)
             parsed = _parse(output)
             cache_put(
-                conn, PICK_FOREIGN_TASK, cache_key,
-                json.dumps(parsed), f"ollama:{ollama_model}"
+                conn, PICK_FOREIGN_TASK, cache_key, json.dumps(parsed), f"ollama:{ollama_model}"
             )
             return parsed
         except Exception as e:
@@ -479,10 +502,7 @@ def translate_news_ko(
     if cached is not None:
         return _parse_title_summary(cached)
 
-    prompt = (
-        f"{TRANSLATE_NEWS_SYSTEM}\n\n---\n\n"
-        f"제목: {title}\n본문: {body or '(본문 없음)'}"
-    )
+    prompt = f"{TRANSLATE_NEWS_SYSTEM}\n\n---\n\n제목: {title}\n본문: {body or '(본문 없음)'}"
 
     try:
         output = _call_claude(prompt)

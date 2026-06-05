@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import time
 
 from news_briefing.collectors.base import CollectedItem
@@ -276,7 +277,14 @@ def _parse_issues(raw: str) -> list[dict]:
         raw = "\n".join(raw.splitlines()[:-1])
     raw = raw.strip()
 
-    issues: list[dict] = json.loads(raw)
+    try:
+        issues: list[dict] = json.loads(raw)
+    except json.JSONDecodeError:
+        # 모델이 산문 서두/후미를 붙인 경우 — 첫 '[' ~ 마지막 ']' 배열만 추출해 복구
+        m = re.search(r"\[.*\]", raw, re.DOTALL)
+        if not m:
+            raise
+        issues = json.loads(m.group(0))
     validated: list[dict] = []
     for iss in issues[:3]:
         asset = str(iss.get("asset") or iss.get("title") or "").strip()
@@ -428,7 +436,8 @@ def analyze_hot_issues(
     )
 
     try:
-        raw = _call_claude(prompt, timeout=300).strip()
+        # 수혜주 추론 작업 → Opus + thinking 유지로 품질 사수 (단독 ~136s · 동시 2개 ~110s, timeout 420s)
+        raw = _call_claude(prompt, timeout=420, model="opus").strip()
         result = _parse_issues(raw)
         log.info("hot_issues(foreign): %d개 이슈 선정", len(result))
         return result
@@ -472,7 +481,8 @@ def analyze_hot_issues_domestic(
 
     for attempt in range(2):
         try:
-            raw = _call_claude(prompt, timeout=300).strip()
+            # 수혜주 추론 작업 → Opus + thinking 유지로 품질 사수 (단독 ~136s · 동시 2개 ~110s, timeout 420s)
+            raw = _call_claude(prompt, timeout=420, model="opus").strip()
             result = _parse_issues(raw)
             log.info("hot_issues(domestic): %d개 이슈 선정", len(result))
             return result
