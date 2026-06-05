@@ -1,5 +1,4 @@
 import type { Briefing, PickRecord } from '@/lib/types'
-import { supabase } from '@/lib/supabase'
 
 function todayKey(): string {
   const d = new Date()
@@ -8,27 +7,19 @@ function todayKey(): string {
 
 export async function fetchBriefing(date?: string): Promise<Briefing> {
   const key = date ?? todayKey()
-  const { data, error } = await supabase
-    .from('briefings')
-    .select('data')
-    .eq('date', key)
-    .single()
-
-  if (error || !data) {
-    throw new Error(`briefing fetch failed: ${error?.message ?? 'not found'}`)
-  }
-  return data.data as Briefing
+  const res = await fetch(`/briefings/${key}.json`, { cache: 'no-store' })
+  if (!res.ok) throw new Error(`briefing fetch failed: ${res.status}`)
+  return res.json() as Promise<Briefing>
 }
 
 export async function fetchBriefingIndex(): Promise<{ dates: string[] }> {
-  const { data, error } = await supabase
-    .from('briefings')
-    .select('date')
-    .order('date', { ascending: false })
-    .limit(30)
-
-  if (error || !data) return { dates: [] }
-  return { dates: data.map((r) => r.date) }
+  try {
+    const res = await fetch('/briefings/index.json', { cache: 'no-store' })
+    if (!res.ok) return { dates: [] }
+    return res.json()
+  } catch {
+    return { dates: [] }
+  }
 }
 
 export async function fetchPicksHistory(): Promise<PickRecord[]> {
