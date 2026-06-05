@@ -37,7 +37,7 @@ class PickRecord:
     direction: str  # "positive" | "negative" | ...
     theme: str  # hotIssue asset 이름
     rationale: str  # pick description
-    price_at_rec: float | None  # 추천일 종가
+    price_at_rec: float | None  # 진입 기준가 = 추천일 직전 거래일 종가
     currency: str  # "KRW" | "USD" | ...
     current_price: float | None
     current_price_at: str | None  # ISO8601
@@ -97,43 +97,74 @@ def _yf_ticker(ticker: str, scope: str) -> list[str]:
     return [f"{ticker}.KS", f"{ticker}.KQ"]
 
 
+def _close_at(df: Any, pos: int) -> float | None:
+    """yfinance 결과 df에서 pos 위치 종가를 추출.
+
+    yfinance는 멀티인덱스 컬럼 — ("Close", ticker) — 또는 단순 "Close"를
+    반환하므로 양쪽을 모두 대응한다. pos=0은 첫 행, pos=-1은 마지막 행.
+    """
+    if df is None or df.empty:
+        return None
+    try:
+        if hasattr(df.columns, "levels"):
+            # MultiIndex: ("Close", "005930.KS") 형태
+            val = df["Close"].iloc[pos]
+            if hasattr(val, "iloc"):  # 여전히 Series면 첫 값
+                val = val.iloc[0]
+            return float(val)
+        if "Close" not in df.columns:
+            return None
+        return float(df["Close"].iloc[pos])
+    except Exception:
+        return None
+
+
 def fetch_price(ticker: str, scope: str, date_str: str) -> float | None:
-    """지정 날짜 종가를 반환. 조회 실패 시 None."""
+    """지정 날짜(이후 첫 거래일) 종가를 반환. 조회 실패 시 None."""
     try:
         target = datetime.strptime(date_str, "%Y-%m-%d").date()
         # yfinance는 end를 exclusive로 받으므로 다음 날까지 범위로 조회
         start = target.strftime("%Y-%m-%d")
         end = (target + timedelta(days=4)).strftime("%Y-%m-%d")  # 휴장 대비 여유
 
-        candidates = _yf_ticker(ticker, scope)
-        for yt in candidates:
+        for yt in _yf_ticker(ticker, scope):
             try:
                 df = yf.download(yt, start=start, end=end, progress=False, auto_adjust=True)
-                if df.empty:
-                    continue
-                # yfinance는 멀티인덱스 컬럼 반환 — ("Close", ticker) 또는 단순 "Close"
-                if hasattr(df.columns, "levels"):
-                    # MultiIndex: ("Close", "005930.KS") 형태
-                    close_vals = df["Close"]
-                    if hasattr(close_vals, "iloc"):
-                        val = close_vals.iloc[0]
-                        if hasattr(val, "iloc"):
-                            val = float(val.iloc[0])
-                        else:
-                            val = float(val)
-                    else:
-                        continue
-                else:
-                    if "Close" not in df.columns:
-                        continue
-                    val = float(df["Close"].iloc[0])
-                price = val
-                log.debug("price %s on %s: %.4f", yt, date_str, price)
-                return price
+                price = _close_at(df, 0)
+                if price is not None:
+                    log.debug("price %s on %s: %.4f", yt, date_str, price)
+                    return price
             except Exception:
                 continue
     except Exception as e:
         log.warning("fetch_price 실패 (%s, %s): %s", ticker, date_str, e)
+    return None
+
+
+def fetch_prev_close(ticker: str, scope: str, date_str: str) -> float | None:
+    """추천일(date_str) **직전 거래일** 종가를 반환. 조회 실패 시 None.
+
+    추천은 한국 아침(미국장 개장 전)에 나오므로, 추천 시점에 알 수 있는
+    마지막 종가 = date_str 이전의 마지막 거래일 종가를 진입 기준가로 쓴다.
+    end를 date_str(exclusive)로 두면 그 이전 거래일까지만 조회되고,
+    그중 마지막 행이 직전 거래일이다(주말·휴장 자동 보정).
+    """
+    try:
+        target = datetime.strptime(date_str, "%Y-%m-%d").date()
+        start = (target - timedelta(days=10)).strftime("%Y-%m-%d")  # 연휴 대비 여유
+        end = target.strftime("%Y-%m-%d")  # exclusive → date_str 미포함
+
+        for yt in _yf_ticker(ticker, scope):
+            try:
+                df = yf.download(yt, start=start, end=end, progress=False, auto_adjust=True)
+                price = _close_at(df, -1)  # 직전 거래일 = 마지막 행
+                if price is not None:
+                    log.debug("prev_close %s before %s: %.4f", yt, date_str, price)
+                    return price
+            except Exception:
+                continue
+    except Exception as e:
+        log.warning("fetch_prev_close 실패 (%s, %s): %s", ticker, date_str, e)
     return None
 
 
@@ -235,15 +266,9 @@ def update_history(
     cutoff_date = cutoff.strftime("%Y-%m-%d")
 
     # 브리핑에 포함된 날짜는 기존 records를 완전히 교체 (재실행 시 중복 방지)
-    briefing_dates = {
-        b.get("date", "")
-        for b in briefings
-        if b.get("date", "") >= cutoff_date
-    }
+    briefing_dates = {b.get("date", "") for b in briefings if b.get("date", "") >= cutoff_date}
     records_by_id = {
-        rid: rec
-        for rid, rec in records_by_id.items()
-        if rec.date not in briefing_dates
+        rid: rec for rid, rec in records_by_id.items() if rec.date not in briefing_dates
     }
 
     # 최신 브리핑 picks 추가
@@ -265,9 +290,10 @@ def update_history(
         if rec.date < cutoff_date:
             continue
         try:
-            # 추천일 종가가 없으면 조회
+            # 진입 기준가 = 추천일 직전 거래일 종가(추천 시점에 알 수 있는 마지막 종가).
+            # 추천일 당일 종가를 쓰면 그날 등락이 통째로 사라져 첫날이 항상 0%가 된다.
             if rec.price_at_rec is None:
-                rec.price_at_rec = fetch_price(rec.ticker, rec.scope, rec.date)
+                rec.price_at_rec = fetch_prev_close(rec.ticker, rec.scope, rec.date)
 
             # 현재가 갱신
             cur_price, cur_at = fetch_current_price(rec.ticker, rec.scope)
