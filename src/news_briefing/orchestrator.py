@@ -14,13 +14,13 @@ from pathlib import Path
 from news_briefing.analysis.attention_phase import build_phase_map
 from news_briefing.analysis.curation import curation_score
 from news_briefing.analysis.glossary import detect_term, ensure_glossary_entry
-from news_briefing.analysis.llm import summarize_batch, translate_batch
-from news_briefing.analysis.scoring import score_consensus, score_edgar, score_report
 from news_briefing.analysis.hot_issues import (
     analyze_hot_issues,
     analyze_hot_issues_domestic,
     foreign_news_weight,
 )
+from news_briefing.analysis.llm import summarize_batch, translate_batch
+from news_briefing.analysis.scoring import score_consensus, score_edgar, score_report
 from news_briefing.collectors.base import CollectedItem
 from news_briefing.collectors.dart import fetch_dart_list
 from news_briefing.collectors.edgar import fetch_all_edgar
@@ -32,8 +32,12 @@ from news_briefing.collectors.research import fetch_research_reports
 from news_briefing.collectors.rss import fetch_all_rss
 from news_briefing.config import Config
 from news_briefing.delivery.digest import format_digest, write_digest
-from news_briefing.delivery.json_builder import build_briefing_json, write_briefing
 from news_briefing.delivery.discord import send_message as discord_send
+from news_briefing.delivery.json_builder import (
+    build_briefing_json,
+    select_displayed_current,
+    write_briefing,
+)
 from news_briefing.storage.db import get_client
 from news_briefing.storage.seen import batch_filter_unseen, batch_mark_seen
 from news_briefing.storage.tickers import TickerRow, upsert_ticker
@@ -334,11 +338,14 @@ def run_morning(
                     )
                 )
 
-        # 해외 영문 시사 뉴스(international/tech/politics) 번역+요약
+        # 해외 영문 시사 뉴스 번역+요약 — 노출될 항목만 사전 선별해 번역
+        # (json_builder 와 동일 기준으로 노출분만 추림. 전량 번역 → 노출분 번역 최적화:
+        #  영문 시사 후보 수백 건 중 실제 노출은 섹션 cap 합 십여 건뿐이라 대부분이 낭비였다.)
+        displayed_current_ids = {it.ext_id for it in select_displayed_current(current_candidates)}
         foreign_current_en = [
             (it.ext_id, it.title, it.body or "")
             for it, _ in current_candidates
-            if it.source in _ENGLISH_SOURCES
+            if it.source in _ENGLISH_SOURCES and it.ext_id in displayed_current_ids
         ]
         if foreign_current_en:
             with _timed(f"4. translate_batch current ({len(foreign_current_en)}건)"):
@@ -399,6 +406,11 @@ def run_morning(
         hot_issues_foreign: list[dict] = []
         hot_issues_domestic: list[dict] = []
 
+        # 병렬 실행: 두 Opus(+thinking) 호출을 동시에 던진다. 통제 측정 결과
+        # 동시 2개도 각 ~110s 로 단독(~136s)과 동등 — Max 처리량 경합은 이 규모에서
+        # 발생하지 않는다. 병렬이 순차(합 ~250s)보다 빠르므로 병렬을 유지한다.
+        # (과거 타임아웃은 병렬 탓이 아니라 일시적 서버 지연 + thinking 변동성이었고,
+        #  방어책은 _call_claude timeout 상향(420s)으로 둔다.)
         def _run_foreign() -> list[dict]:
             return analyze_hot_issues(foreign_candidates, phase_map=phase_int_map)
 

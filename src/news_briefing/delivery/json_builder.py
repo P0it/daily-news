@@ -2,6 +2,7 @@
 
 ARCHITECTURE.md 6.4 스키마 준수.
 """
+
 from __future__ import annotations
 
 import json
@@ -23,6 +24,7 @@ def _epoch(iso: str) -> float:
         return datetime.fromisoformat(iso.replace("Z", "+00:00")).timestamp()
     except Exception:
         return 0.0
+
 
 # PRD F31 — 시사 탭 섹션별 노출 cap
 CURRENT_SECTION_CAPS = {
@@ -61,6 +63,40 @@ def _diverse_cap(items: list[dict], cap: int) -> list[dict]:
         else:
             remainder.append(item)
     return (result + remainder)[:cap]
+
+
+def select_displayed_current(
+    current_news: list[tuple[CollectedItem, int]] | None,
+) -> list[CollectedItem]:
+    """시사 탭에 실제 노출될 항목만 미리 선별해 반환.
+
+    build_briefing_json 의 current 처리와 **동일한 기준**(카테고리별
+    CURRENT_SECTION_CAPS + curation 내림차순 + 소스 다양성)을 적용한다.
+    번역처럼 비용 큰 후처리를 '노출될 소수'에만 적용하기 위한 사전 선별 용도로,
+    결과 집합이 최종 노출분과 일치한다. (전량 번역 → 선별 후 번역 최적화)
+    """
+    grouped: dict[str, list[tuple[CollectedItem, int]]] = {cat: [] for cat in CURRENT_SECTION_CAPS}
+    for item, curation in current_news or []:
+        cat = (item.extra or {}).get("category", "")
+        if cat in grouped:
+            grouped[cat].append((item, curation))
+
+    displayed: list[CollectedItem] = []
+    for cat, arr in grouped.items():
+        arr.sort(key=lambda x: x[1], reverse=True)
+        cap = CURRENT_SECTION_CAPS.get(cat, 5)
+        seen_groups: set[str] = set()
+        primary: list[CollectedItem] = []
+        remainder: list[CollectedItem] = []
+        for item, _curation in arr:
+            grp = _source_group(item.source)
+            if grp not in seen_groups:
+                seen_groups.add(grp)
+                primary.append(item)
+            else:
+                remainder.append(item)
+        displayed.extend((primary + remainder)[:cap])
+    return displayed
 
 
 def _signal_to_dict(
@@ -161,9 +197,7 @@ def build_briefing_json(
         ph = pm[item.ext_id].phase if item.ext_id in pm else 2
         return (ph, -score)
 
-    filtered_for_economy = [
-        s for s in scored_signals if s[1] >= ECONOMY_SIGNAL_THRESHOLD
-    ]
+    filtered_for_economy = [s for s in scored_signals if s[1] >= ECONOMY_SIGNAL_THRESHOLD]
     # 위상 기반 정렬: Phase 1~2 우선, Phase 4 하단
     filtered_for_economy.sort(key=_phase_sort_key)
 
@@ -183,7 +217,7 @@ def build_briefing_json(
         "international": [],
         "tech": [],
     }
-    for item, curation in (current_news or []):
+    for item, curation in current_news or []:
         cat = (item.extra or {}).get("category", "")
         if cat in current_grouped:
             current_grouped[cat].append(
@@ -218,9 +252,7 @@ def build_briefing_json(
             for it, s, d in filtered_for_economy
         ],
         "news": [
-            _news_to_dict(
-                n, term_ids_by_id=term_ids_by_id, summaries=news_summaries
-            )
+            _news_to_dict(n, term_ids_by_id=term_ids_by_id, summaries=news_summaries)
             for n in economy_news
         ],
     }
@@ -320,9 +352,7 @@ def write_briefing(*, public_briefings_dir: Path, briefing: dict) -> Path:
     public_briefings_dir.mkdir(parents=True, exist_ok=True)
     date = briefing["date"]
     path = public_briefings_dir / f"{date}.json"
-    path.write_text(
-        json.dumps(briefing, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    path.write_text(json.dumps(briefing, ensure_ascii=False, indent=2), encoding="utf-8")
 
     # index.json 업데이트
     index_path = public_briefings_dir / "index.json"
@@ -333,8 +363,6 @@ def write_briefing(*, public_briefings_dir: Path, briefing: dict) -> Path:
     if date not in index["dates"]:
         index["dates"].append(date)
         index["dates"].sort(reverse=True)
-    index_path.write_text(
-        json.dumps(index, ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    index_path.write_text(json.dumps(index, ensure_ascii=False, indent=2), encoding="utf-8")
 
     return path
