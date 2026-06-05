@@ -12,7 +12,6 @@ import { parseDateFromSearch, parseScopeFromSearch } from '@/lib/tabs'
 import type { Briefing, NewsItem } from '@/lib/types'
 import { AiCard } from '@/components/AiCard'
 import { CurrentNewsCard } from '@/components/CurrentNewsCard'
-import { HeroCard } from '@/components/HeroCard'
 import { HotIssuesCard } from '@/components/HotIssuesCard'
 import { PicksHistoryView } from '@/components/PicksHistoryView'
 
@@ -108,8 +107,6 @@ function HomeInner() {
   const signals = economy.signals.filter(
     (s) => s.scope === scope && s.direction === 'positive' && (s.attentionPhase ?? 2) < 4
   )
-  const showHero = briefing.hero !== null && briefing.hero.scope === scope
-
   const aiTab = briefing.tabs.ai ?? { domestic: [], foreign: [] }
   const aiItems = scope === 'foreign' ? aiTab.foreign : aiTab.domestic
 
@@ -127,10 +124,6 @@ function HomeInner() {
     <div>
       {/* ── 경제 섹션 ── */}
       <SectionLabel>경제</SectionLabel>
-
-      {showHero && briefing.hero && (
-        <HeroCard signal={briefing.hero} dict={dict} />
-      )}
 
       {economy.hotIssues && (
         (scope === 'foreign' ? economy.hotIssues.foreign : economy.hotIssues.domestic).length > 0 && (
