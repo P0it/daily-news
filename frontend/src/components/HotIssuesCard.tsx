@@ -108,6 +108,14 @@ function PickRow({ pick, isForeign }: { pick: TickerPick; isForeign: boolean }) 
         <span style={CODE_CHIP_STYLE}>
           {pick.ticker}
         </span>
+        {pick.verifyStatus === 'review' && (
+          <span
+            title="티커 실존·테마 연결고리를 추가로 확인해 주세요"
+            style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-tertiary)' }}
+          >
+            ⚠️ 추가 확인 필요
+          </span>
+        )}
         {symbol && (
           <button
             onClick={handleChartClick}

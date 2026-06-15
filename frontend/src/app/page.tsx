@@ -9,40 +9,9 @@ import {
 import { setGlossary } from '@/lib/glossaryStore'
 import { getStoredLang, t, type Lang } from '@/lib/i18n'
 import { parseDateFromSearch, parseScopeFromSearch } from '@/lib/tabs'
-import type { Briefing, NewsItem } from '@/lib/types'
-import { AiCard } from '@/components/AiCard'
-import { CurrentNewsCard } from '@/components/CurrentNewsCard'
+import type { Briefing } from '@/lib/types'
 import { HotIssuesCard } from '@/components/HotIssuesCard'
 import { PicksHistoryView } from '@/components/PicksHistoryView'
-
-function SectionLabel({ children }: { children: React.ReactNode }) {
-  return (
-    <div
-      style={{
-        fontSize: 11,
-        fontWeight: 700,
-        letterSpacing: '0.08em',
-        textTransform: 'uppercase',
-        color: 'var(--text-tertiary)',
-        padding: '28px 20px 10px',
-      }}
-    >
-      {children}
-    </div>
-  )
-}
-
-function Divider() {
-  return (
-    <div
-      style={{
-        height: 1,
-        background: 'var(--border-subtle)',
-        margin: '8px 20px 0',
-      }}
-    />
-  )
-}
 
 function HomeInner() {
   const sp = useSearchParams()
@@ -69,7 +38,7 @@ function HomeInner() {
           return
         }
         setBriefing(b)
-        setGlossary(b.glossary)
+        setGlossary(b.glossary ?? {})
       } catch (e) {
         if (!cancelled) setError(String(e))
       }
@@ -82,6 +51,7 @@ function HomeInner() {
 
   const dict = t(lang)
 
+  // 성적(성과 추적) 탭
   if (scope === 'picks') {
     return <PicksHistoryView />
   }
@@ -102,64 +72,24 @@ function HomeInner() {
     )
   }
 
-  const economy = briefing.tabs.economy
-  // Phase 4 제외, 해당 scope의 positive 시그널 — Phase 1 우선 정렬
-  const signals = economy.signals.filter(
-    (s) => s.scope === scope && s.direction === 'positive' && (s.attentionPhase ?? 2) < 4
-  )
-  const aiTab = briefing.tabs.ai ?? { domestic: [], foreign: [] }
-  const aiItems = scope === 'foreign' ? aiTab.foreign : aiTab.domestic
+  const hotIssues = briefing.tabs.economy.hotIssues
+  const issues = hotIssues
+    ? scope === 'foreign'
+      ? hotIssues.foreign
+      : hotIssues.domestic
+    : []
 
-  const current = briefing.tabs.current
-  const filterScope = (arr: NewsItem[]) => arr.filter((n) => n.scope === scope)
-  const allCurrentNews = [
-    ...filterScope(current.politics),
-    ...filterScope(current.society),
-    ...filterScope(current.international),
-    ...filterScope(current.tech),
-  ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
-  const hasCurrentNews = allCurrentNews.length > 0
+  if (issues.length === 0) {
+    return (
+      <p className="px-5 py-20 text-center" style={{ color: 'var(--text-secondary)' }}>
+        오늘은 조용한 종목 라인업이에요
+      </p>
+    )
+  }
 
   return (
     <div>
-      {/* ── 경제 섹션 ── */}
-      <SectionLabel>경제</SectionLabel>
-
-      {economy.hotIssues && (
-        (scope === 'foreign' ? economy.hotIssues.foreign : economy.hotIssues.domestic).length > 0 && (
-          <HotIssuesCard
-            issues={scope === 'foreign' ? economy.hotIssues.foreign : economy.hotIssues.domestic}
-            scope={scope}
-          />
-        )
-      )}
-
-
-{/* ── 뉴스 섹션 ── */}
-      {(aiItems.length > 0 || hasCurrentNews) && (
-        <>
-          <Divider />
-          <SectionLabel>뉴스</SectionLabel>
-
-          {/* AI 소식 */}
-          {aiItems.length > 0 && (
-            <div style={{ paddingBottom: hasCurrentNews ? 8 : 0 }}>
-              {aiItems.map((n) => (
-                <AiCard key={n.id} news={n} dict={dict} />
-              ))}
-            </div>
-          )}
-
-          {/* 시사 뉴스 — 카테고리 태그와 함께 시간순 */}
-          {hasCurrentNews && (
-            <div style={{ paddingTop: 8 }}>
-              {allCurrentNews.map((n) => (
-                <CurrentNewsCard key={n.id} news={n} dict={dict} />
-              ))}
-            </div>
-          )}
-        </>
-      )}
+      <HotIssuesCard issues={issues} scope={scope} />
     </div>
   )
 }

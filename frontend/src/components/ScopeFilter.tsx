@@ -5,7 +5,6 @@ import { useSearchParams } from 'next/navigation'
 import {
   parseScopeFromSearch,
   parseDateFromSearch,
-  parseTabFromSearch,
   scopeHref,
   type Scope,
 } from '@/lib/tabs'
@@ -15,7 +14,6 @@ export function ScopeFilter({ lang }: { lang: Lang }) {
   const sp = useSearchParams()
   const scope = parseScopeFromSearch(sp)
   const date = parseDateFromSearch(sp)
-  const tab = parseTabFromSearch(sp)
   const dict = t(lang)
 
   const options: { key: Scope; label: string }[] = [
@@ -41,7 +39,7 @@ export function ScopeFilter({ lang }: { lang: Lang }) {
           return (
             <Link
               key={key}
-              href={scopeHref(key, date, tab)}
+              href={scopeHref(key, date)}
               className="flex-1 text-center"
               style={{
                 fontSize: 14,

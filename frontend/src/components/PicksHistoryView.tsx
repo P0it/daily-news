@@ -23,43 +23,70 @@ function fmtDate(dateStr: string): string {
   return `${m}월 ${d}일 ${dayNames[date.getDay()]}요일`
 }
 
-function fmtAsOf(iso: string): string {
-  const d = new Date(iso)
-  const h = d.getHours()
-  const min = d.getMinutes()
-  const ampm = h < 12 ? '오전' : '오후'
-  const h12 = h % 12 === 0 ? 12 : h % 12
-  return `${ampm} ${h12}시 ${String(min).padStart(2, '0')}분`
+type MarketRef = { asOfMs: number; tz: string | null }
+
+/** 현재가의 기준 시각을 시장 현지 시각으로 표기한다(예: "6월 12일 오후 4:00"). */
+function fmtMarketAsOf(ref: MarketRef): string {
+  try {
+    return new Intl.DateTimeFormat('ko-KR', {
+      timeZone: ref.tz ?? undefined,
+      month: 'long',
+      day: 'numeric',
+      hour: 'numeric',
+      minute: '2-digit',
+    }).format(new Date(ref.asOfMs))
+  } catch {
+    return ''
+  }
+}
+
+type Quote = {
+  price: number | null
+  asOfMs: number | null // 시세의 실제 기준 시각(epoch ms)
+  tz: string | null // 그 시각을 표기할 시장 타임존
 }
 
 /**
- * 조회 시점의 현재가를 가져온다.
+ * 조회 시점의 현재가와 그 시세의 기준 시각을 가져온다.
  *
  * 정적 export라 서버 라우트를 못 쓰므로, vercel.json에 정의된 시세 프록시
  * rewrite를 클라이언트에서 직접 호출한다(국내=네이버, 해외=야후). 프록시는
  * 서버 사이드 rewrite라 CORS에 걸리지 않는다. 단 `next dev`에서는 rewrite가
  * 적용되지 않아 로컬에선 실패할 수 있고, 그 경우 정적 값이 유지된다.
+ *
+ * asOfMs는 "현재가가 언제 시세인지"를 가리킨다. 해외는 야후 meta의
+ * regularMarketTime(마지막 정규장 체결 시각)이라, 한국 아침처럼 미국장이
+ * 닫혀 있으면 직전 거래일 종가 시각이 잡힌다 → 추천가와 같아 수익률이 0%인
+ * 이유가 라벨로 드러난다.
  */
-async function fetchCurrentPrice(
-  ticker: string,
-  scope: 'domestic' | 'foreign',
-): Promise<number | null> {
+async function fetchQuote(ticker: string, scope: 'domestic' | 'foreign'): Promise<Quote> {
+  const empty: Quote = { price: null, asOfMs: null, tz: null }
   try {
     if (scope === 'domestic') {
       const r = await fetch(`/api/naver-stock/${ticker}/`)
-      if (!r.ok) return null
+      if (!r.ok) return empty
       const d = await r.json()
-      if (!d?.closePrice) return null
+      if (!d?.closePrice) return empty
       const n = Number(String(d.closePrice).replace(/,/g, ''))
-      return Number.isFinite(n) ? n : null
+      if (!Number.isFinite(n)) return empty
+      const traded = d?.localTradedAt ? Date.parse(d.localTradedAt) : NaN
+      return { price: n, asOfMs: Number.isFinite(traded) ? traded : null, tz: 'Asia/Seoul' }
     }
     const r = await fetch(`/api/yahoo-stock/${ticker}/`)
-    if (!r.ok) return null
+    if (!r.ok) return empty
     const d = await r.json()
-    const price = d?.chart?.result?.[0]?.meta?.regularMarketPrice
-    return typeof price === 'number' ? price : null
+    const meta = d?.chart?.result?.[0]?.meta
+    const price = meta?.regularMarketPrice
+    if (typeof price !== 'number') return empty
+    const t = meta?.regularMarketTime
+    const tz = meta?.exchangeTimezoneName
+    return {
+      price,
+      asOfMs: typeof t === 'number' ? t * 1000 : null,
+      tz: typeof tz === 'string' ? tz : null,
+    }
   } catch {
-    return null
+    return empty
   }
 }
 
@@ -110,7 +137,7 @@ function TableHeader() {
 
 export function PicksHistoryView() {
   const [records, setRecords] = useState<PickRecord[] | null>(null)
-  const [asOf, setAsOf] = useState<string | null>(null)
+  const [marketRef, setMarketRef] = useState<{ domestic?: MarketRef; foreign?: MarketRef }>({})
   const [refreshing, setRefreshing] = useState(false)
 
   useEffect(() => {
@@ -125,15 +152,25 @@ export function PicksHistoryView() {
       for (const r of recs) if (!uniq.has(r.ticker)) uniq.set(r.ticker, r.scope)
 
       setRefreshing(true)
-      const entries = await Promise.all(
+      const quotes = await Promise.all(
         [...uniq.entries()].map(async ([ticker, scope]) => {
-          const price = await fetchCurrentPrice(ticker, scope)
-          return [ticker, price] as const
+          const q = await fetchQuote(ticker, scope)
+          return [ticker, scope, q] as const
         }),
       )
       if (cancelled) return
 
-      const priceByTicker = new Map(entries.filter(([, p]) => p !== null))
+      const priceByTicker = new Map<string, number>()
+      const refByScope: { domestic?: MarketRef; foreign?: MarketRef } = {}
+      for (const [ticker, scope, q] of quotes) {
+        if (q.price == null) continue
+        priceByTicker.set(ticker, q.price)
+        // 같은 시장은 기준 시각이 동일하므로 scope별 첫 유효 시세만 보관
+        if (!refByScope[scope] && q.asOfMs != null) {
+          refByScope[scope] = { asOfMs: q.asOfMs, tz: q.tz }
+        }
+      }
+
       const nowIso = new Date().toISOString()
       setRecords(
         (prev) =>
@@ -147,7 +184,7 @@ export function PicksHistoryView() {
             return { ...r, currentPrice: cur, changePct, currentPriceAt: nowIso }
           }) ?? null,
       )
-      if (priceByTicker.size > 0) setAsOf(nowIso)
+      if (Object.keys(refByScope).length > 0) setMarketRef(refByScope)
       if (!cancelled) setRefreshing(false)
     })
     return () => {
@@ -201,11 +238,7 @@ export function PicksHistoryView() {
           paddingLeft: 4,
         }}
       >
-        {refreshing
-          ? '지금 시세 불러오는 중이에요'
-          : asOf
-          ? `${fmtAsOf(asOf)} 기준 시세예요`
-          : '저장된 시세예요'}
+        {refreshing ? '지금 시세 불러오는 중이에요' : '추천가는 추천 전날 종가예요'}
       </div>
       {grouped.map(([date, rows]) => (
         <div key={date} style={{ marginBottom: 24 }}>
@@ -248,6 +281,13 @@ export function PicksHistoryView() {
                     }}
                   >
                     {scope === 'domestic' ? '🇰🇷 국내' : '🌐 해외'}
+                    {marketRef[scope] && (
+                      <span style={{ fontWeight: 400, letterSpacing: 0, opacity: 0.75 }}>
+                        {' · '}
+                        {fmtMarketAsOf(marketRef[scope]!)}
+                        {scope === 'foreign' ? ' 현지 기준' : ' 기준'}
+                      </span>
+                    )}
                   </div>
                   {scopeRows.map((rec) => {
               const hasPct = rec.changePct !== null

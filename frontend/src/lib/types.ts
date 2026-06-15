@@ -2,32 +2,43 @@ export interface Briefing {
   date: string
   generatedAt: string
   version: number
-  hero: SignalItem | null
   tabs: {
-    ai?: AiTab // Week 5b — default tab (DECISIONS #13)
-    current: CurrentTab
     economy: EconomyTab
   }
   glossary?: Record<string, GlossaryEntry>
 }
 
-export interface AiTab {
-  domestic: NewsItem[]
-  foreign: NewsItem[]
-}
-
-export interface CurrentTab {
-  politics: NewsItem[]
-  society: NewsItem[]
-  international: NewsItem[]
-  tech: NewsItem[]
-}
-
+// 종목추천 전용 스키마(v2): 지수·리서치·ETF 보조 맥락 + picks(hotIssues)
 export interface EconomyTab {
   indices: MarketIndex[]
-  signals: SignalItem[]
-  news: NewsItem[]
+  research?: ResearchReport[]
+  etf?: EtfSnapshot[]
   hotIssues?: { domestic: HotIssue[]; foreign: HotIssue[] }
+}
+
+export interface ResearchReport {
+  id: string
+  company: string
+  companyCode: string | null
+  firm: string
+  reportTitle: string
+  targetPrice: number
+  targetPriceChange: number
+  targetPricePct: number
+  tpDirection: string
+  direction: Direction
+  score: number
+  url: string
+  time: string
+}
+
+export interface EtfSnapshot {
+  code: string
+  name: string
+  theme: string
+  close: number
+  change: number
+  changePct: number
 }
 
 // Scope 타입 재export — 컴포넌트들이 공통 사용
@@ -64,32 +75,6 @@ export interface SignalItem {
   priceLead?: number         // 시그널 전 5거래일 수익률
 }
 
-export type NewsCategory =
-  | 'stock'
-  | 'politics'
-  | 'society'
-  | 'international'
-  | 'tech'
-  | 'ai'
-
-export interface NewsItem {
-  id: string
-  source: string
-  /** Google News aggregator 의 실제 원문 언론사명 (Week 5a) */
-  publisher?: string
-  title: string
-  /** 해외 AI 뉴스 제목이 번역된 경우 원문 (Week 5b) */
-  titleOriginal?: string | null
-  summary: string
-  url: string
-  thumbnail: string | null
-  time: string
-  scope: 'domestic' | 'foreign'
-  category?: NewsCategory
-  glossaryTermId: string | null
-  curationScore: number
-}
-
 export interface MarketIndex {
   name: string
   value: string
@@ -116,6 +101,8 @@ export interface TickerPick {
   consensus_risk?: 'low' | 'medium' | 'high'
   related_etf?: RelatedEtf | null   // 종목을 많이 담은 동일 시장 ETF 1개 (해외 종목→해외 ETF, 국내 종목→국내 ETF)
   domestic: DomesticEtf | DomesticEtf[] | null
+  /** 사실 검증 결과 — 'review'면 티커 실존·연결고리 추가 확인 필요 */
+  verifyStatus?: 'ok' | 'review'
 }
 
 export interface HotIssue {
