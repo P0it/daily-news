@@ -499,6 +499,36 @@ def run_morning(
                     except Exception as e:
                         log.warning("hot_issues(%s) 분석 실패: %s", label, e)
 
+        # 7a. picks 사실 검증 — 환각 종목 제거 + 티커 실존 확인 (실패해도 원본 유지)
+        with _timed("7a. pick verify"):
+            try:
+                from news_briefing.analysis.pick_verify import apply_verification
+
+                foreign_evidence = [
+                    f"[{it.source}] {it.company or ''} {it.title}".strip()
+                    for it, _ in foreign_candidates
+                ]
+                domestic_evidence = [
+                    f"[{it.source}] {it.company or ''} {it.title}".strip()
+                    for it, _ in domestic_candidates
+                ]
+                if hot_issues_foreign:
+                    hot_issues_foreign = apply_verification(
+                        hot_issues_foreign,
+                        scope="foreign",
+                        conn=conn,
+                        evidence_lines=foreign_evidence,
+                    )
+                if hot_issues_domestic:
+                    hot_issues_domestic = apply_verification(
+                        hot_issues_domestic,
+                        scope="domestic",
+                        conn=conn,
+                        evidence_lines=domestic_evidence,
+                    )
+            except Exception as e:
+                log.warning("pick 검증 실패 (원본 유지): %s", e)
+
         # 7b. Briefing JSON
         with _timed("7b. build+write briefing JSON"):
             briefing = build_briefing_json(
