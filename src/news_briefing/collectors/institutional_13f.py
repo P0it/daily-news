@@ -28,7 +28,9 @@ _FORMS: list[tuple[str, int]] = [
 ]
 
 
-def _fetch_form(form_type: str, pre_scored: int, *, user_agent: str, count: int) -> list[CollectedItem]:
+def _fetch_form(
+    form_type: str, pre_scored: int, *, user_agent: str, count: int
+) -> list[CollectedItem]:
     """단일 form_type 의 최신 공시를 getcurrent Atom 으로 수집."""
     try:
         resp = requests.get(

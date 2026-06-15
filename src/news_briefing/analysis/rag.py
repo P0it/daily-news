@@ -62,14 +62,22 @@ def _format_signal_for_index(signal: dict, date: str) -> tuple[str, str, dict]:
     return doc_id, text, metadata
 
 
-def _format_news_for_index(news: dict, date: str) -> tuple[str, str, dict]:
-    doc_id = _doc_id_for(news.get("source", "rss"), news["id"])
-    text = f"[{date}] {news.get('title', '')}. {news.get('summary', '')}"
+def _format_pick_for_index(
+    pick: dict, issue: dict, scope: str, date: str
+) -> tuple[str, str, dict]:
+    """추천 종목 → 임베딩 문서. ask 가 picks 를 검색할 수 있게 한다."""
+    ticker = pick.get("ticker", "")
+    doc_id = _doc_id_for("pick", f"{date}:{ticker}")
+    text = (
+        f"[{date}] {pick.get('name', '')}({ticker}) — 테마 {issue.get('asset', '')}. "
+        f"{pick.get('description', '')} {issue.get('reason', '')}"
+    )
     metadata = {
         "date": date,
-        "source": news.get("source", ""),
-        "category": news.get("category", ""),
-        "url": news.get("url", ""),
+        "ticker": ticker,
+        "scope": scope,
+        "theme": issue.get("asset", ""),
+        "url": issue.get("url") or "",
     }
     return doc_id, text, metadata
 
@@ -87,23 +95,14 @@ def index_briefing(
     to_index: list[tuple[str, str, str, dict]] = []
 
     economy = data.get("tabs", {}).get("economy", {})
-    for s in economy.get("signals", []):
-        doc_id, text, meta = _format_signal_for_index(s, date)
-        to_index.append((doc_id, s.get("source", "dart"), text, meta))
-    hero = data.get("hero")
-    if hero:
-        doc_id, text, meta = _format_signal_for_index(hero, date)
-        to_index.append((doc_id, hero.get("source", "dart"), text, meta))
-
-    for n in economy.get("news", []):
-        doc_id, text, meta = _format_news_for_index(n, date)
-        to_index.append((doc_id, n.get("source", "rss"), text, meta))
-
-    current = data.get("tabs", {}).get("current", {})
-    for cat in ("politics", "society", "international", "tech"):
-        for n in current.get(cat, []):
-            doc_id, text, meta = _format_news_for_index(n, date)
-            to_index.append((doc_id, n.get("source", "rss"), text, meta))
+    hot_issues = economy.get("hotIssues", {})
+    for scope in ("domestic", "foreign"):
+        for issue in hot_issues.get(scope, []):
+            for pick in issue.get("picks") or []:
+                if not pick.get("ticker"):
+                    continue
+                doc_id, text, meta = _format_pick_for_index(pick, issue, scope, date)
+                to_index.append((doc_id, "pick", text, meta))
 
     count = 0
     for doc_id, source, text, meta in to_index:

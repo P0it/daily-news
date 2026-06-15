@@ -4,7 +4,6 @@ import json
 from datetime import datetime
 from pathlib import Path
 
-from news_briefing.collectors.base import CollectedItem
 from news_briefing.config import Config
 from news_briefing.orchestrator import run_morning
 
@@ -16,107 +15,94 @@ def _cfg(tmp_path: Path) -> Config:
     return Config(
         dart_api_key="",
         discord_webhook_url="",
+        supabase_url="https://example.supabase.co",
+        supabase_service_key="svc",
         data_dir=data,
         digests_dir=digests,
-        db_path=data / "briefing.db",
         ollama_enabled=False,
         ollama_model="",
+        ollama_embed_model="nomic-embed-text",
         public_briefings_dir=public_briefings,
         vercel_base_url="https://news-briefing.vercel.app",
         edgar_user_agent="",
-        ollama_embed_model="nomic-embed-text",
+        fmp_api_key="",
     )
 
 
-def _patch_collectors(mocker):
-    """새 수집기들을 한 번에 mock."""
-    mocker.patch("news_briefing.orchestrator.fetch_all_rss", return_value=[])
-    mocker.patch("news_briefing.orchestrator.fetch_all_edgar", return_value=[])
-    mocker.patch("news_briefing.orchestrator.fetch_macro", return_value=[])
-    mocker.patch("news_briefing.orchestrator.fetch_research_reports", return_value=[])
-    mocker.patch("news_briefing.orchestrator.fetch_krx_etf", return_value=[])
-    mocker.patch("news_briefing.orchestrator.summarize", return_value="")
+def _patch_all(mocker):
+    """모든 수집기 + DB 의존성을 mock 해 외부 호출 없이 파이프라인을 돌린다."""
+    for fn in (
+        "fetch_dart_list",
+        "fetch_all_rss",
+        "fetch_all_edgar",
+        "fetch_macro",
+        "fetch_research_reports",
+        "fetch_krx_etf",
+        "fetch_gov_contracts",
+        "fetch_insider_clusters",
+        "fetch_institutional_13f",
+        "fetch_congress_trades",
+        "fetch_fda_approvals",
+        "fetch_press_wires",
+        "fetch_analyst_ratings",
+    ):
+        mocker.patch(f"news_briefing.orchestrator.{fn}", return_value=[])
+
+    mocker.patch("news_briefing.orchestrator.get_client")
+    mocker.patch("news_briefing.storage.cleanup.run_cleanup")
+    # seen 필터: 입력 pair 를 모두 미열람으로 통과
+    mocker.patch(
+        "news_briefing.orchestrator.batch_filter_unseen", side_effect=lambda conn, pairs: pairs
+    )
+    mocker.patch("news_briefing.orchestrator.batch_mark_seen")
+    mocker.patch("news_briefing.orchestrator.build_phase_map", return_value={})
+    # 후처리(Supabase·picks 히스토리·RAG)는 외부 의존 — 모두 차단
+    mocker.patch("news_briefing.storage.briefings.upsert_briefing")
+    mocker.patch(
+        "news_briefing.analysis.picks_tracker.load_briefings_from_supabase", return_value=[]
+    )
+    mocker.patch("news_briefing.analysis.picks_tracker.update_history")
+    mocker.patch("news_briefing.analysis.rag.index_briefing", return_value=0)
 
 
-def test_dry_run_writes_digest_file_and_skips_discord(tmp_path: Path, mocker) -> None:
+def test_dry_run_writes_digest_and_skips_discord(tmp_path: Path, mocker) -> None:
     cfg = _cfg(tmp_path)
-    _patch_collectors(mocker)
+    _patch_all(mocker)
     mock_send = mocker.patch("news_briefing.orchestrator._send_discord")
 
-    result = run_morning(cfg, dry_run=True, now=datetime(2026, 4, 22, 6, 0))
+    result = run_morning(cfg, dry_run=True, now=datetime(2026, 6, 15, 6, 0))
 
     assert mock_send.call_count == 0
     assert result.digest_path.exists()
-    assert "2026-04-22.txt" in result.digest_path.name
+    assert "2026-06-15.txt" in result.digest_path.name
 
 
-def test_dedup_prevents_double_processing(tmp_path: Path, mocker) -> None:
+def test_briefing_json_is_picks_only_schema(tmp_path: Path, mocker) -> None:
     cfg = _cfg(tmp_path)
-    sample = CollectedItem(
-        source="rss:hankyung",
-        ext_id="guid-1",
-        kind="news",
-        title="테스트 기사",
-        url="https://x.com",
-        published_at=datetime(2026, 4, 22),
-    )
-    mocker.patch("news_briefing.orchestrator.fetch_all_rss", return_value=[sample])
-    mocker.patch("news_briefing.orchestrator.fetch_all_edgar", return_value=[])
-    mocker.patch("news_briefing.orchestrator.fetch_macro", return_value=[])
-    mocker.patch("news_briefing.orchestrator.fetch_research_reports", return_value=[])
-    mocker.patch("news_briefing.orchestrator.fetch_krx_etf", return_value=[])
-    mocker.patch("news_briefing.orchestrator.summarize", return_value="요약")
+    _patch_all(mocker)
     mocker.patch("news_briefing.orchestrator._send_discord")
 
-    r1 = run_morning(cfg, dry_run=True, now=datetime(2026, 4, 22, 6, 0))
-    r2 = run_morning(cfg, dry_run=True, now=datetime(2026, 4, 22, 7, 0))
-
-    assert r1.new_items == 1
-    assert r2.new_items == 0  # dedup
-
-
-def test_run_morning_writes_briefing_json_with_glossary(
-    tmp_path: Path, mocker
-) -> None:
-    cfg = _cfg(tmp_path)
-    sample = CollectedItem(
-        source="dart",
-        ext_id="abc",
-        kind="disclosure",
-        title="자기주식취득결정",
-        url="https://example.com",
-        published_at=datetime(2026, 4, 22),
-        company="삼성전자",
-        company_code="005930",
-    )
-    mocker.patch("news_briefing.orchestrator.fetch_dart_list", return_value=[sample])
-    mocker.patch("news_briefing.orchestrator.fetch_all_rss", return_value=[])
-    mocker.patch("news_briefing.orchestrator.fetch_all_edgar", return_value=[])
-    mocker.patch("news_briefing.orchestrator.fetch_macro", return_value=[])
-    mocker.patch("news_briefing.orchestrator.fetch_research_reports", return_value=[])
-    mocker.patch("news_briefing.orchestrator.fetch_krx_etf", return_value=[])
-    mocker.patch("news_briefing.orchestrator.summarize", return_value="")
-    mocker.patch("news_briefing.orchestrator._send_discord")
-
-    result = run_morning(cfg, dry_run=True, now=datetime(2026, 4, 22))
-    assert result.briefing_json_path.exists()
+    result = run_morning(cfg, dry_run=True, now=datetime(2026, 6, 15))
     data = json.loads(result.briefing_json_path.read_text(encoding="utf-8"))
-    assert data["date"] == "2026-04-22"
-    assert "self_stock_buy" in data["glossary"]
-    assert data["glossary"]["self_stock_buy"]["shortLabel"]
-    assert data["tabs"]["economy"]["signals"][0]["glossaryTermId"] == "self_stock_buy"
+
+    assert data["version"] == 2
+    assert set(data["tabs"].keys()) == {"economy"}
+    assert "current" not in data["tabs"]
+    assert "ai" not in data["tabs"]
+    assert "hero" not in data
+    assert "hotIssues" in data["tabs"]["economy"]
+    assert "signals" not in data["tabs"]["economy"]
 
 
-def test_discord_link_includes_tab_ai_and_date(tmp_path: Path, mocker) -> None:
-    """Week 5b (DECISIONS #13): default 탭이 AI 로 전환됨."""
+def test_discord_message_is_picks_centric(tmp_path: Path, mocker) -> None:
     cfg = _cfg(tmp_path)
-    _patch_collectors(mocker)
-    mock_send = mocker.patch(
-        "news_briefing.orchestrator._send_discord", return_value=True
-    )
-    run_morning(cfg, dry_run=False, now=datetime(2026, 4, 22))
+    _patch_all(mocker)
+    mock_send = mocker.patch("news_briefing.orchestrator._send_discord", return_value=True)
+
+    run_morning(cfg, dry_run=False, now=datetime(2026, 6, 15))
+
     assert mock_send.call_count == 1
-    msg_arg = mock_send.call_args.args[1]
-    assert "데일리 브리핑" in msg_arg
-    assert "tab=ai" in msg_arg
-    assert "date=2026-04-22" in msg_arg
+    msg = mock_send.call_args.args[1]
+    assert "종목추천" in msg
+    assert "scope=foreign" in msg
+    assert "tab=ai" not in msg

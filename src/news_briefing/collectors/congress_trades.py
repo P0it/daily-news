@@ -8,7 +8,7 @@
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import requests
 
@@ -38,7 +38,7 @@ def _parse_tx_date(raw: str) -> datetime | None:
     raw = (raw or "").strip()
     for fmt in ("%m/%d/%Y", "%Y-%m-%d"):
         try:
-            return datetime.strptime(raw, fmt).replace(tzinfo=timezone.utc)
+            return datetime.strptime(raw, fmt).replace(tzinfo=UTC)
         except ValueError:
             continue
     return None
@@ -56,7 +56,7 @@ def _amount_score(amount_raw: str) -> int:
 
 def fetch_congress_trades(lookback_days: int = 7, *, limit: int = 40) -> list[CollectedItem]:
     """최근 lookback_days 내 의원 매수 거래(티커 보유분) 반환."""
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     cutoff = now - timedelta(days=lookback_days)
     items: list[CollectedItem] = []
 

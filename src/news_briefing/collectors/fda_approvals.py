@@ -7,7 +7,7 @@ https://open.fda.gov/apis/drug/drugsfda/
 from __future__ import annotations
 
 import logging
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 
 import requests
 
@@ -26,7 +26,7 @@ def fetch_fda_approvals(lookback_days: int = 3, *, limit: int = 30) -> list[Coll
     submission_status_date 기준 최신순. sponsor_name 을 회사로 매핑하되
     티커 변환은 후속 LLM·검증 단계에 맡긴다(스폰서명 ≠ 티커).
     """
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     start = (now - timedelta(days=lookback_days)).strftime("%Y%m%d")
     end = now.strftime("%Y%m%d")
     search = (
@@ -66,7 +66,7 @@ def fetch_fda_approvals(lookback_days: int = 3, *, limit: int = 30) -> list[Coll
                 continue
             date_str = str(sub.get("submission_status_date", "")).strip()
             try:
-                approved_at = datetime.strptime(date_str, "%Y%m%d").replace(tzinfo=timezone.utc)
+                approved_at = datetime.strptime(date_str, "%Y%m%d").replace(tzinfo=UTC)
             except ValueError:
                 pass
 

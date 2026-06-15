@@ -30,10 +30,8 @@ def _cmd_morning(args: argparse.Namespace) -> int:
     cfg = load_config()
     result = run_morning(cfg, dry_run=args.dry_run)
     print(
-        f"\n완료: 신규 {result.new_items}건, "
-        f"AI {result.ai_count}, 시그널 {result.signal_count}, "
-        f"뉴스 {result.news_count}, 시사 {result.current_count}, "
-        f"Pick 국내 {result.picks_domestic}/해외 {result.picks_foreign}, "
+        f"\n완료: 신규 {result.new_items}건, 공시 {result.signal_count}건, "
+        f"추천 해외 {result.picks_foreign}/국내 {result.picks_domestic}종목, "
         f"전송={'OK' if result.sent_discord else 'SKIP'}"
     )
     print(f"백업: {result.digest_path}")
@@ -189,7 +187,8 @@ def _cmd_picks(args: argparse.Namespace) -> int:
                 ticker = p.get("ticker") or ""
                 name = p.get("name") or ""
                 risk = p.get("consensus_risk") or ""
-                lines.append(f"  ● {ticker} {name}  [consensus_risk:{risk}]")
+                review = " ⚠️추가확인" if p.get("verifyStatus") == "review" else ""
+                lines.append(f"  ● {ticker} {name}  [consensus_risk:{risk}]{review}")
                 if not args.short:
                     if p.get("description"):
                         lines.append(f"    {p['description']}")
