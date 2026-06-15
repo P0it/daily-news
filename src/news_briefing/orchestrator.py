@@ -507,14 +507,18 @@ def run_morning(
         else:
             sys.stdout.buffer.write((text + "\n").encode("utf-8", errors="replace"))
 
+        # picks는 hot_issues 각 이슈의 picks 배열에 들어있으므로 종목 수를 합산한다.
+        picks_domestic = sum(len(iss.get("picks") or []) for iss in hot_issues_domestic)
+        picks_foreign = sum(len(iss.get("picks") or []) for iss in hot_issues_foreign)
+
         return MorningResult(
             new_items=len(new_items),
             signal_count=sig_above,
             news_count=len(fresh_news),
             current_count=len(current_candidates),
             ai_count=len(ai_news),
-            picks_domestic=0,
-            picks_foreign=0,
+            picks_domestic=picks_domestic,
+            picks_foreign=picks_foreign,
             digest_path=digest_path,
             briefing_json_path=briefing_json_path,
             sent_discord=sent,
