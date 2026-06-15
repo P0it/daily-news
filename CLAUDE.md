@@ -13,6 +13,20 @@
 새 머신에서 처음 clone할 때 아래 명령어를 순서대로 실행한다.
 `.claude/settings.json`에 플러그인 목록은 이미 있지만, 마켓플레이스 소스는 user-level이라 별도 등록 필요.
 
+### 0. 비밀값(.env) — dotenvx
+
+`.env` 는 **dotenvx 로 암호화되어 git에 커밋**된다(값이 `encrypted:...`). 새 머신에서는
+**개인키 `.env.keys` 파일 하나만** 안전하게 옮기면 끝 — 전체 .env 를 복붙할 필요 없다.
+
+```bash
+npm i -g @dotenvx/dotenvx          # 전역 설치 (scheduled job PATH용)
+# .env.keys 를 저장소 루트에 배치 (1Password 등에서 1회 복사). git에는 안 올라감.
+dotenvx run -- python -m news_briefing status   # 복호화 확인
+```
+
+이후 **모든 파이프라인 실행은 `dotenvx run --` 접두사**를 붙인다(아래 실행 커맨드 참조).
+`.env.keys` 는 절대 커밋·공유 금지(.gitignore 처리됨). 평문이 필요하면 `dotenvx decrypt`.
+
 ```bash
 # 1. 마켓플레이스 등록 (2개)
 claude plugin marketplace add https://github.com/anthropics/financial-services
@@ -61,8 +75,10 @@ result = subprocess.run(
 
 ### P1. 개인 용도 분석·추천 방침
 
-이 시스템은 **본인(1명) 전용** 자동화 도구다. 외부 배포·공유는 하지 않는다.
-개인 투자 판단을 돕는 것이 목적이므로 LLM 분석 출력은 **구체적이고 방향성이 명확할수록 좋다.**
+이 시스템은 **소유자 1명이 운영**하는 자동화 도구다. 단, 생성된 브리핑은 배포
+서버(Vercel)를 통해 **다른 사람도 읽기 전용으로 열람**할 수 있다 (`DECISIONS.md` #16).
+다중 사용자 계정·개인화는 두지 않는다. 개인 투자 판단을 돕는 것이 목적이므로 LLM
+분석 출력은 **구체적이고 방향성이 명확할수록 좋다.**
 
 분석에서 허용·권장되는 것:
 - **종목·테마·ETF 매수/매도 방향 제시** ("이 시그널은 단기 매수 관점에서 유효해 보입니다")
@@ -75,9 +91,10 @@ result = subprocess.run(
 - TradingView 차트 위젯 임베드
 - 증권사 앱 딥링크 (주문 화면까지 이동)
 
-하지 않는 것 (개인 사용과 무관한 기술·운영 이유):
+하지 않는 것 (기술·운영 이유):
 - **자동 매매 연결** — 시그널 감지 시 증권사 API로 주문 자동 집행 (`DECISIONS.md` #1 참조)
-- **외부 사용자에게 제공·공유** — 개인 자동화 시스템이므로 타인 배포 없음
+- **다중 사용자 기능** — 계정·로그인·사용자별 개인화 없음. 외부 열람은 배포된 정적
+  사이트를 읽는 read-only 형태로만 (`DECISIONS.md` #16 참조)
 
 
 ### P2. Max 플랜 할당량 사용, API 과금 금지
@@ -101,12 +118,17 @@ result = subprocess.run(
 
 ### P3. 민감 정보 관리
 
-다음은 `.gitignore`에 반드시 포함되어야 하며 코드에 하드코딩 금지:
+`.env` 는 **dotenvx 로 암호화하여 git에 커밋**한다(여러 머신 공유 목적). 평문 키·개인키는
+절대 커밋 금지. 다음은 `.gitignore`에 반드시 포함:
 
-- `.env` (API 키 모두)
+- `.env.keys` (dotenvx 개인 복호화 키 — 절대 커밋 금지)
+- `.env.bak` (평문 백업)
 - `.kakao_tokens.json` (OAuth 토큰)
 - `data/*.db` (사용자 상태 데이터)
 - `data/digests/` (브리핑 백업)
+
+`.env` 자체는 암호화본이므로 커밋 가능. precommit 훅(`dotenvx ext precommit`)이 평문
+.env 커밋을 차단한다. 코드에 키 하드코딩은 여전히 금지.
 
 ### P4. 사용자 확인 전 외부 상태 변경 금지
 
@@ -189,23 +211,26 @@ except Exception as e:
 
 ## 실행 커맨드 (사용자가 자주 씀)
 
-```bash
-# 아침 브리핑 (dry-run: 카톡 전송 없이 출력만)
-python -m news_briefing morning --dry-run
+`.env` 가 dotenvx 로 암호화돼 있으므로 **비밀값을 쓰는 명령은 `dotenvx run --` 로 감싼다**
+(.env.keys 로 자동 복호화). 테스트 등 비밀값이 불필요한 명령은 접두사 없이 실행해도 된다.
 
-# 아침 브리핑 실제 전송
-python -m news_briefing morning
+```bash
+# 아침 브리핑 (dry-run: 전송 없이 출력만)
+dotenvx run -- python -m news_briefing morning --dry-run
+
+# 아침 브리핑 실제 전송 + 배포 트리거
+dotenvx run -- python -m news_briefing morning
 
 # 주간 리포트 생성 (Week 4+, 일요일 자동 실행)
-python -m news_briefing weekly
+dotenvx run -- python -m news_briefing weekly
 
-# 카카오 OAuth 재인증 (토큰 만료·교체 시)
-python -m news_briefing.delivery.kakao_auth
+# 과거 브리핑을 Supabase에서 로컬로 복원 (달력 백필)
+dotenvx run -- python -m news_briefing export-briefings
 
 # 상태 확인
-python -m news_briefing status
+dotenvx run -- python -m news_briefing status
 
-# 테스트
+# 테스트 (비밀값 불필요)
 pytest
 pytest -m integration  # API 실호출 포함
 ```
