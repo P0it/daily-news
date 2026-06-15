@@ -11,7 +11,7 @@
         <string>/usr/bin/env</string>
         <string>bash</string>
         <string>-lc</string>
-        <string>cd "$HOME/dev/daily-news" &amp;&amp; ./.venv/bin/python -m news_briefing morning &gt;&gt; data/briefing.log 2&gt;&amp;1</string>
+        <string>cd "$HOME/dev/daily-news" &amp;&amp; dotenvx run -- ./.venv/bin/python -m news_briefing morning &gt;&gt; data/briefing.log 2&gt;&amp;1</string>
     </array>
 
     <key>StartCalendarInterval</key>

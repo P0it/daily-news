@@ -1,5 +1,8 @@
-# Secrets (P3 원칙: 절대 커밋 금지)
-.env
+# Secrets (P3 원칙)
+# .env 는 dotenvx 로 암호화되어 있어 커밋 가능(값이 encrypted:... 형태).
+# 단, 개인키(.env.keys)와 평문 백업(.env.bak)은 절대 커밋 금지.
+.env.keys
+.env.bak
 .env.local
 .env.local.vercel
 frontend/.env.local.vercel
@@ -31,6 +34,10 @@ node_modules/
 frontend/.next/
 frontend/out/
 frontend/node_modules/
+
+# 브리핑·성과 데이터 — Supabase(원본)에서 빌드시 생성하므로 커밋하지 않음 (DECISIONS #16)
+frontend/public/briefings/*.json
+frontend/public/picks_history.json
 
 # OS
 .DS_Store
