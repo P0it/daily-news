@@ -103,6 +103,8 @@ export interface TickerPick {
   domestic: DomesticEtf | DomesticEtf[] | null
   /** 사실 검증 결과 — 'review'면 티커 형식·연결고리 추가 확인 필요 */
   verifyStatus?: 'ok' | 'review'
+  /** review 사유 — 왜 추가 확인이 필요한지 한 문장 */
+  verifyNote?: string
   /** 실존 양성 확인 여부 (FMP·yfinance·DB 중 하나라도 확인) — 보강용 */
   tickerConfirmed?: boolean
 }

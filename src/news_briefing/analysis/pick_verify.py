@@ -135,8 +135,11 @@ def _picks_to_lines(issues: list[dict]) -> list[str]:
     return lines
 
 
-def verify_picks_llm(issues: list[dict], evidence_lines: list[str]) -> dict[str, str]:
-    """각 pick 티커 → 'keep'|'flag'|'drop' 판정. 실패 시 빈 dict(=모두 keep 취급)."""
+def verify_picks_llm(issues: list[dict], evidence_lines: list[str]) -> dict[str, dict]:
+    """각 pick 티커 → {'verdict': 'keep'|'flag'|'drop', 'reason': str}.
+
+    실패 시 빈 dict(=모두 keep 취급).
+    """
     pick_lines = _picks_to_lines(issues)
     if not pick_lines:
         return {}
@@ -170,14 +173,14 @@ def verify_picks_llm(issues: list[dict], evidence_lines: list[str]) -> dict[str,
         log.warning("pick_verify LLM 실패 (모두 keep 처리): %s", e)
         return {}
 
-    verdicts: dict[str, str] = {}
+    verdicts: dict[str, dict] = {}
     for r in rows if isinstance(rows, list) else []:
         if not isinstance(r, dict):
             continue
         t = str(r.get("ticker") or "").strip().upper()
         v = str(r.get("verdict") or "keep").strip().lower()
         if t and v in ("keep", "flag", "drop"):
-            verdicts[t] = v
+            verdicts[t] = {"verdict": v, "reason": str(r.get("reason") or "").strip()}
     return verdicts
 
 
@@ -207,13 +210,19 @@ def apply_verification(
         kept: list[dict] = []
         for p in iss.get("picks") or []:
             ticker = str(p.get("ticker") or "").strip().upper()
-            verdict = verdicts.get(ticker, "keep")
+            v = verdicts.get(ticker, {})
+            verdict = v.get("verdict", "keep")
             if verdict == "drop":
                 dropped += 1
                 continue
             malformed = verify_ticker_format(ticker, scope) == "malformed"
             if verdict == "flag" or malformed:
                 p["verifyStatus"] = "review"
+                # 사유를 함께 저장해 '왜 추가 확인인지'를 UI 에 보여준다
+                note = v.get("reason", "")
+                if malformed and not note:
+                    note = "티커 형식을 확인해 주세요"
+                p["verifyNote"] = note
                 flagged += 1
             else:
                 p["verifyStatus"] = "ok"

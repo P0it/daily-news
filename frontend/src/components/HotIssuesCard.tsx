@@ -110,10 +110,10 @@ function PickRow({ pick, isForeign }: { pick: TickerPick; isForeign: boolean }) 
         </span>
         {pick.verifyStatus === 'review' && (
           <span
-            title="티커 실존·테마 연결고리를 추가로 확인해 주세요"
+            title={pick.verifyNote || '테마 연결고리를 추가로 확인해 주세요'}
             style={{ fontSize: 10, fontWeight: 700, color: 'var(--text-tertiary)' }}
           >
-            ⚠️ 추가 확인 필요
+            ⚠️ 추가 확인
           </span>
         )}
         {symbol && (
@@ -148,6 +148,18 @@ function PickRow({ pick, isForeign }: { pick: TickerPick; isForeign: boolean }) 
           lineHeight: 1.6,
         }}>
           {pick.description}
+        </p>
+      )}
+
+      {/* 추가 확인 사유 — 왜 검증이 필요한지 */}
+      {pick.verifyStatus === 'review' && pick.verifyNote && (
+        <p style={{
+          margin: '4px 0 0',
+          fontSize: 11,
+          color: 'var(--text-tertiary)',
+          lineHeight: 1.5,
+        }}>
+          ⚠️ {pick.verifyNote}
         </p>
       )}
 
