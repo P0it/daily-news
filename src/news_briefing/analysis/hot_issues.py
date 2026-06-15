@@ -17,11 +17,22 @@ from news_briefing.collectors.base import CollectedItem
 log = logging.getLogger(__name__)
 
 # ── 해외용 소스 티어 ─────────────────────────────────────────────
+# Tier 1 = 1차 소스(공시·규제기관·보도자료 와이어·애널 등급). 뉴스 매체보다 우대.
+# FT·BBC 등 매체는 Tier 2 로 강등 — 무제한 Tier1 쿼터를 공시와 공유하지 않게 한다.
 _TIER_MAP_FOREIGN: dict[str, int] = {
     "edgar": 1,
-    "rss:ft-markets": 1,
-    "rss:bbc-business": 1,
-    "rss:bbc-world": 1,
+    "edgar_13f": 1,  # 13D/G·13F 기관·구루 보유변동
+    "edgar_cluster": 1,  # 내부자 집단매수
+    "gov_contracts": 1,  # 미 정부 계약
+    "congress_trades": 1,  # 의회 거래
+    "fda": 1,  # FDA 승인
+    "analyst": 1,  # 애널 등급변경
+    "wire:globenewswire": 1,  # 보도자료 와이어 (기사 이전 1차 소스)
+    "wire:prnewswire": 1,
+    "wire:businesswire": 1,
+    "rss:ft-markets": 2,  # 매체 — Tier 1 → Tier 2 강등
+    "rss:bbc-business": 2,
+    "rss:bbc-world": 2,
     "rss:gnews-world-en": 2,
     "rss:gnews-business-en": 2,
     "rss:gnews-tech-en": 2,
@@ -47,6 +58,15 @@ _DEFAULT_TIER = 3
 # ── 표시용 언론사명 ──────────────────────────────────────────────
 _DISPLAY_MAP: dict[str, str] = {
     "edgar": "SEC EDGAR",
+    "edgar_13f": "SEC 13F·13D/G",
+    "edgar_cluster": "내부자 집단매수",
+    "gov_contracts": "美 정부계약",
+    "congress_trades": "美 의회 거래",
+    "fda": "FDA 승인",
+    "analyst": "애널 등급변경",
+    "wire:globenewswire": "GlobeNewswire",
+    "wire:prnewswire": "PR Newswire",
+    "wire:businesswire": "Business Wire",
     "dart": "DART",
     "research": "증권사 리포트",
     "rss:ft-markets": "Financial Times",
@@ -87,16 +107,16 @@ def foreign_news_weight(source: str) -> int:
     curation_score(시간 감쇠) 대신 사용 — 방금 올라온 기사가 신뢰도 높은 소스를
     제치고 picks 상위를 차지하던 문제를 막는다.
 
-    - Tier 1 (FT·BBC): 65 — EDGAR 평균(70)보다 살짝 아래
-    - Tier 2 (MarketWatch·Google News 영문): 50
-    - 그 외: 42 (score_floor 40 바로 위 — EDGAR 없는 날 fallback으로만 생존)
+    - Tier 1: 55 (현재 뉴스 매체는 전부 Tier 2 이하 — 1차 소스만 Tier 1)
+    - Tier 2 (FT·BBC·MarketWatch·Google News 영문): 50
+    - 그 외: 42 (score_floor 40 바로 위 — 1차 소스 없는 날 fallback으로만 생존)
     """
-    return {1: 65, 2: 50}.get(source_tier_foreign(source), 42)
+    return {1: 55, 2: 50}.get(source_tier_foreign(source), 42)
 
 
 _PROMPT_SYSTEM = """\
 너는 해외 주식 투자자를 위한 투자 리서치 에디터다.
-아래 오늘 수집된 기사·공시 목록을 분석해, 오늘 당장 주목해야 할 종목·테마·자산 3개를 선정하라.
+아래 오늘 수집된 기사·공시 목록을 분석해, 오늘 당장 주목해야 할 종목·테마·자산 5개를 선정하라.
 
 핵심 원칙:
 - 뉴스 자체가 아니라 **투자 대상(종목·테마·자산)**을 먼저 제시한다
@@ -139,7 +159,7 @@ picks 작성 원칙 (★ 핵심 — 가장 중요):
 
 출력 규칙:
 - JSON 배열만 반환. 마크다운 코드블록·설명 텍스트 없이 배열 그대로.
-- 배열 길이 정확히 3.
+- 배열 길이 정확히 5.
 - 각 원소:
   {
     "rank": 숫자,
@@ -189,7 +209,7 @@ domestic 필드 작성 규칙 (★ 필수):
 _PROMPT_SYSTEM_DOMESTIC = """\
 너는 코스피·코스닥 투자자를 위한 국내 주식 리서치 에디터다.
 아래 오늘 수집된 DART 공시·증권사 리포트·국내 경제 뉴스를 분석해,
-오늘 당장 주목해야 할 국내 종목·테마 3개를 선정하라.
+오늘 당장 주목해야 할 국내 종목·테마 5개를 선정하라.
 
 핵심 원칙:
 - 코스피·코스닥 투자자 관점 (해외 종목 제외)
@@ -233,7 +253,7 @@ picks 작성 원칙 (★ 핵심 — 가장 중요):
 
 출력 규칙:
 - JSON 배열만 반환. 마크다운 코드블록·설명 텍스트 없이 배열 그대로.
-- 배열 길이 정확히 3.
+- 배열 길이 정확히 5.
 - 각 원소:
   {
     "rank": 숫자,
@@ -286,7 +306,7 @@ def _parse_issues(raw: str) -> list[dict]:
             raise
         issues = json.loads(m.group(0))
     validated: list[dict] = []
-    for iss in issues[:3]:
+    for iss in issues[:5]:
         asset = str(iss.get("asset") or iss.get("title") or "").strip()
         if not asset:
             continue
@@ -409,17 +429,17 @@ def analyze_hot_issues(
     *,
     phase_map: dict[str, int] | None = None,
 ) -> list[dict]:
-    """해외 소스 기반 오늘 주목할 종목·테마 Top 3 선정.
+    """해외 소스 기반 오늘 주목할 종목·테마 Top 5 선정.
 
-    Tier 1 (EDGAR·FT·BBC): 전량 포함.
-    Tier 2 (Google News·연합 국제): 기업 중복 제거 후 최대 8개.
+    Tier 1 (EDGAR·13F·와이어·정부·애널 등 1차 소스): 최대 16개.
+    Tier 2 (FT·BBC·Google News): 기업 중복 제거 후 최대 12개.
     Tier 3: 최대 3개.
     phase_map: {ext_id: phase} — 있으면 각 항목에 [P숫자] 태그 추가해 LLM이 P1·P2 우선 선정.
     실패 시 빈 리스트 반환.
     """
     from news_briefing.analysis.llm import _call_claude  # noqa: PLC0415
 
-    pool = _build_pool(candidates, source_tier_foreign, tier1_cap=10, tier2_cap=8, tier3_cap=3)
+    pool = _build_pool(candidates, source_tier_foreign, tier1_cap=16, tier2_cap=12, tier3_cap=3)
 
     if not pool:
         log.warning("hot_issues(foreign): 후보 아이템 없음, 분석 건너뜀")
@@ -436,8 +456,8 @@ def analyze_hot_issues(
     )
 
     try:
-        # 수혜주 추론 작업 → Opus + thinking 유지로 품질 사수 (단독 ~136s · 동시 2개 ~110s, timeout 420s)
-        raw = _call_claude(prompt, timeout=420, model="opus").strip()
+        # 수혜주 추론(5이슈) → Opus + thinking 유지로 품질 사수. 출력이 길어 timeout 600s.
+        raw = _call_claude(prompt, timeout=600, model="opus").strip()
         result = _parse_issues(raw)
         log.info("hot_issues(foreign): %d개 이슈 선정", len(result))
         return result
@@ -451,10 +471,10 @@ def analyze_hot_issues_domestic(
     *,
     phase_map: dict[str, int] | None = None,
 ) -> list[dict]:
-    """국내 소스(DART·리서치·한경·매경) 기반 오늘 주목할 종목·테마 Top 3 선정.
+    """국내 소스(DART·리서치·한경·매경) 기반 오늘 주목할 종목·테마 Top 5 선정.
 
-    Tier 1 (DART·리서치): 실질 촉매 공시만 (score≥75: 실적·M&A·자사주·공급계약 등).
-    Tier 2 (한경·매경·연합): 기업 중복 제거 후 최대 8개.
+    Tier 1 (DART·리서치): 실질 촉매 공시만 (score≥75: 실적·M&A·자사주·공급계약 등). 최대 20개.
+    Tier 2 (한경·매경·연합): 기업 중복 제거 후 최대 12개.
     Tier 3 (Google News): 최대 3개.
     phase_map: {ext_id: phase} — 있으면 각 항목에 [P숫자] 태그 추가해 LLM이 P1·P2 우선 선정.
     실패 시 빈 리스트 반환.
@@ -462,7 +482,7 @@ def analyze_hot_issues_domestic(
     from news_briefing.analysis.llm import _call_claude  # noqa: PLC0415
 
     pool = _build_pool(
-        candidates, source_tier_domestic, tier1_cap=15, tier2_cap=8, tier3_cap=3, score_floor=75
+        candidates, source_tier_domestic, tier1_cap=20, tier2_cap=12, tier3_cap=3, score_floor=75
     )
 
     if not pool:
@@ -481,8 +501,8 @@ def analyze_hot_issues_domestic(
 
     for attempt in range(2):
         try:
-            # 수혜주 추론 작업 → Opus + thinking 유지로 품질 사수 (단독 ~136s · 동시 2개 ~110s, timeout 420s)
-            raw = _call_claude(prompt, timeout=420, model="opus").strip()
+            # 수혜주 추론(5이슈) → Opus + thinking 유지로 품질 사수. 출력이 길어 timeout 600s.
+            raw = _call_claude(prompt, timeout=600, model="opus").strip()
             result = _parse_issues(raw)
             log.info("hot_issues(domestic): %d개 이슈 선정", len(result))
             return result
