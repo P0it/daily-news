@@ -20,14 +20,19 @@ from news_briefing.analysis.hot_issues import (
     foreign_news_weight,
 )
 from news_briefing.analysis.llm import summarize_batch, translate_batch
-from news_briefing.analysis.scoring import score_consensus, score_edgar, score_report
+from news_briefing.analysis.scoring import score_consensus, score_edgar, score_report, score_wire
+from news_briefing.collectors.analyst_ratings import fetch_analyst_ratings
 from news_briefing.collectors.base import CollectedItem
+from news_briefing.collectors.congress_trades import fetch_congress_trades
 from news_briefing.collectors.dart import fetch_dart_list
 from news_briefing.collectors.edgar import fetch_all_edgar
+from news_briefing.collectors.fda_approvals import fetch_fda_approvals
 from news_briefing.collectors.gov_contracts import fetch_gov_contracts
 from news_briefing.collectors.insider_cluster import fetch_insider_clusters
+from news_briefing.collectors.institutional_13f import fetch_institutional_13f
 from news_briefing.collectors.krx_etf import ETFSnapshot, fetch_krx_etf
 from news_briefing.collectors.macro import fetch_macro
+from news_briefing.collectors.press_wire import fetch_press_wires
 from news_briefing.collectors.research import fetch_research_reports
 from news_briefing.collectors.rss import fetch_all_rss
 from news_briefing.config import Config
@@ -130,7 +135,56 @@ def run_morning(
             except Exception as e:
                 log.warning("insider_cluster 수집 실패 (건너뜀): %s", e)
 
-        all_items = disclosures + news + edgar_items + research_raw + gov_items + cluster_items
+        # 1차 소스 신규 채널 — 종목추천 신뢰도용 (실패해도 파이프라인 계속)
+        inst_items: list = []
+        with _timed("1. collect institutional_13f"):
+            try:
+                if cfg.edgar_user_agent:
+                    inst_items = fetch_institutional_13f(cfg.edgar_user_agent)
+            except Exception as e:
+                log.warning("institutional_13f 수집 실패 (건너뜀): %s", e)
+
+        congress_items: list = []
+        with _timed("1. collect congress_trades"):
+            try:
+                congress_items = fetch_congress_trades()
+            except Exception as e:
+                log.warning("congress_trades 수집 실패 (건너뜀): %s", e)
+
+        fda_items: list = []
+        with _timed("1. collect fda_approvals"):
+            try:
+                fda_items = fetch_fda_approvals()
+            except Exception as e:
+                log.warning("fda_approvals 수집 실패 (건너뜀): %s", e)
+
+        wire_items: list = []
+        with _timed("1. collect press_wire"):
+            try:
+                wire_items = fetch_press_wires()
+            except Exception as e:
+                log.warning("press_wire 수집 실패 (건너뜀): %s", e)
+
+        analyst_items: list = []
+        with _timed("1. collect analyst_ratings"):
+            try:
+                analyst_items = fetch_analyst_ratings(cfg.fmp_api_key)
+            except Exception as e:
+                log.warning("analyst_ratings 수집 실패 (건너뜀): %s", e)
+
+        all_items = (
+            disclosures
+            + news
+            + edgar_items
+            + research_raw
+            + gov_items
+            + cluster_items
+            + inst_items
+            + congress_items
+            + fda_items
+            + wire_items
+            + analyst_items
+        )
 
         # 2. 중복 제거 (배치 조회) + DART tickers 매핑 자동 수집
         with _timed("2. dedup + seen"):
@@ -166,14 +220,18 @@ def run_morning(
             if it.kind != "disclosure":
                 continue
 
-            if it.source in ("gov_contracts", "edgar_cluster"):
-                # 선행 지표 수집기 — 수집 시점에 이미 점수 산정
-                s = int((it.extra or {}).get("pre_scored", 70))
-                d = "positive"
+            extra = it.extra or {}
+            if extra.get("pre_scored") is not None:
+                # 선행 지표·1차 소스 수집기 — 수집 시점에 이미 점수 산정
+                # (gov_contracts·edgar_cluster·edgar_13f·congress_trades·fda·analyst)
+                s = int(extra["pre_scored"])
+                d = extra.get("direction", "positive")
             elif it.source == "edgar":
-                form_type = (it.extra or {}).get("form_type", "")
-                items_str = (it.extra or {}).get("items", "")
+                form_type = extra.get("form_type", "")
+                items_str = extra.get("items", "")
                 s, d = score_edgar(form_type=form_type, items=items_str)
+            elif it.source.startswith("wire:"):
+                s, d = score_wire(it.title)
             else:
                 s, d = score_report(it.title)
             scored.append((it, s, d))
@@ -381,9 +439,18 @@ def run_morning(
         # 해외 종목 후보 — 점수 척도를 하나로 통일:
         #   공시(EDGAR·gov)는 내용 기반 실제 점수, 뉴스는 소스 신뢰도 기반 점수.
         #   curation_score(시간 감쇠)를 버려 '방금 올라온 기사'가 상위를 잠식하지 않는다.
+        _FOREIGN_DISCLOSURE_SOURCES = {
+            "edgar",
+            "edgar_13f",
+            "edgar_cluster",
+            "gov_contracts",
+            "congress_trades",
+            "fda",
+            "analyst",
+        }
         foreign_candidates: list[tuple[CollectedItem, int]] = []
         for it, s, _d in scored:
-            if it.source in ("edgar", "gov_contracts", "edgar_cluster"):
+            if it.source in _FOREIGN_DISCLOSURE_SOURCES or it.source.startswith("wire:"):
                 foreign_candidates.append((it, s))
         for it in stock_news_foreign:
             foreign_candidates.append((it, foreign_news_weight(it.source)))
