@@ -30,6 +30,7 @@ class Config:
     public_briefings_dir: Path
     vercel_base_url: str
     edgar_user_agent: str
+    fmp_api_key: str
 
 
 def load_config(project_root: Path | None = None) -> Config:
@@ -75,4 +76,5 @@ def load_config(project_root: Path | None = None) -> Config:
             "VERCEL_BASE_URL", "https://news-briefing.vercel.app"
         ),
         edgar_user_agent=os.environ.get("EDGAR_USER_AGENT", ""),
+        fmp_api_key=os.environ.get("FMP_API_KEY", ""),
     )
