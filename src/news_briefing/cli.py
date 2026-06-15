@@ -8,6 +8,7 @@
   python -m news_briefing weekly [--llm]
   python -m news_briefing ask "질의" [--top-k N]
   python -m news_briefing picks [--date YYYY-MM-DD] [--short]
+  python -m news_briefing export-briefings [--days N]
 """
 from __future__ import annotations
 
@@ -139,6 +140,29 @@ def _cmd_cleanup(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_export_briefings(args: argparse.Namespace) -> int:
+    """Supabase에 보관된 과거 브리핑을 로컬 정적 파일로 복원한다.
+
+    프론트엔드는 로컬 파일만 읽으므로, cleanup으로 지워진 달력의 과거 날짜를
+    DB(원본)에서 다시 채울 때 쓴다. 외부 상태 변경 없음(읽기 + 로컬 쓰기).
+    """
+    from news_briefing.storage.briefings import export_briefings_to_local
+    from news_briefing.storage.cleanup import BRIEFINGS_KEEP_DAYS
+    from news_briefing.storage.db import get_client
+
+    cfg = load_config()
+    keep = args.days or BRIEFINGS_KEEP_DAYS
+    conn = get_client(cfg.supabase_url, cfg.supabase_service_key)
+    try:
+        dates = export_briefings_to_local(conn, cfg.public_briefings_dir, keep_days=keep)
+    finally:
+        conn.close()
+    print(f"브리핑 {len(dates)}일치 로컬 복원 완료")
+    if dates:
+        print(f"  최신 {dates[0]} ~ 최古 {dates[-1]}")
+    return 0
+
+
 def _cmd_picks(args: argparse.Namespace) -> int:
     """오늘(또는 지정일) 브리핑 JSON 에서 추천 종목만 뽑아 출력한다.
 
@@ -260,6 +284,12 @@ def main(argv: list[str] | None = None) -> int:
     p_weekly.set_defaults(func=_cmd_weekly)
 
     sub.add_parser("cleanup", help="오래된 데이터 수동 정리").set_defaults(func=_cmd_cleanup)
+
+    p_export = sub.add_parser(
+        "export-briefings", help="Supabase 과거 브리핑을 로컬 파일로 복원 (달력 백필)"
+    )
+    p_export.add_argument("--days", type=int, default=None, help="복원할 최근 일수 (기본 30)")
+    p_export.set_defaults(func=_cmd_export_briefings)
 
     p_ask = sub.add_parser("ask", help="RAG 자유 질의")
     p_ask.add_argument("query", help="질의 내용")

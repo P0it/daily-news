@@ -95,3 +95,13 @@ CREATE TABLE IF NOT EXISTS briefings (
 -- briefings 공개 읽기 허용 (anon key로 프론트엔드 접근)
 ALTER TABLE briefings ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "public_read" ON briefings FOR SELECT USING (true);
+
+-- picks_history: 추천 종목 성과 전체를 단일 행(id='current') JSON 으로 보관.
+-- 여러 생성 머신이 같은 행을 upsert 하고, 배포 빌드가 여기서 읽어 복원한다.
+CREATE TABLE IF NOT EXISTS picks_history (
+    id         TEXT PRIMARY KEY,
+    data       JSONB NOT NULL,
+    updated_at TEXT NOT NULL
+);
+ALTER TABLE picks_history ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public_read" ON picks_history FOR SELECT USING (true);

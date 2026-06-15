@@ -2,6 +2,7 @@
 
 P2 원칙 검증: ANTHROPIC_API_KEY 가 설정돼 있으면 즉시 실패한다.
 """
+
 from __future__ import annotations
 
 import logging
@@ -29,6 +30,7 @@ class Config:
     ollama_embed_model: str
     public_briefings_dir: Path
     vercel_base_url: str
+    vercel_deploy_hook_url: str
     edgar_user_agent: str
     fmp_api_key: str
 
@@ -72,9 +74,8 @@ def load_config(project_root: Path | None = None) -> Config:
         ollama_model=os.environ.get("OLLAMA_MODEL", "qwen2.5:14b"),
         ollama_embed_model=os.environ.get("OLLAMA_EMBED_MODEL", "nomic-embed-text"),
         public_briefings_dir=public_briefings_dir,
-        vercel_base_url=os.environ.get(
-            "VERCEL_BASE_URL", "https://news-briefing.vercel.app"
-        ),
+        vercel_base_url=os.environ.get("VERCEL_BASE_URL", "https://news-briefing.vercel.app"),
+        vercel_deploy_hook_url=os.environ.get("VERCEL_DEPLOY_HOOK_URL", ""),
         edgar_user_agent=os.environ.get("EDGAR_USER_AGENT", ""),
         fmp_api_key=os.environ.get("FMP_API_KEY", ""),
     )

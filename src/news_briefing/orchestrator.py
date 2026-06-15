@@ -92,6 +92,27 @@ def _send_discord(cfg: Config, text: str) -> bool:
     return discord_send(cfg.discord_webhook_url, text)
 
 
+def _trigger_deploy(cfg: Config) -> bool:
+    """Vercel Deploy Hook 을 호출해 배포 서버가 DB에서 다시 빌드하게 한다.
+
+    DB(원본)는 이미 갱신됐으므로, 어느 생성 머신이든 이 신호만 보내면 배포본이
+    최신화된다. 훅 URL 미설정 시 스킵(로컬 전용 머신 등)."""
+    import requests  # noqa: PLC0415
+
+    if not cfg.vercel_deploy_hook_url:
+        log.info("VERCEL_DEPLOY_HOOK_URL 미설정, 배포 트리거 스킵.")
+        return False
+    try:
+        resp = requests.post(cfg.vercel_deploy_hook_url, timeout=15)
+        if resp.status_code in (200, 201):
+            return True
+        log.warning("deploy hook 응답 status=%s body=%s", resp.status_code, resp.text[:200])
+        return False
+    except Exception as e:
+        log.error("deploy hook 예외: %s", e)
+        return False
+
+
 def run_morning(
     cfg: Config, *, dry_run: bool = False, now: datetime | None = None
 ) -> MorningResult:
@@ -402,27 +423,46 @@ def run_morning(
                 public_briefings_dir=cfg.public_briefings_dir, briefing=briefing
             )
 
-        # 7c. Supabase briefings 테이블에 저장 (프론트엔드 직접 읽기)
-        with _timed("7c. upsert Supabase briefing"):
+        # 7c. Supabase briefings 테이블에 저장 (원본 보관소) + 최근치 로컬 복원.
+        #     프론트엔드는 로컬 정적 파일만 읽고, cleanup(step 0)은 최근 N일만
+        #     남기므로, DB에서 같은 기간을 로컬로 복원해 달력에 과거 날짜를 채운다.
+        with _timed("7c. upsert + export briefing"):
             try:
-                from news_briefing.storage.briefings import upsert_briefing
+                from news_briefing.storage.briefings import (
+                    export_briefings_to_local,
+                    upsert_briefing,
+                )
+                from news_briefing.storage.cleanup import BRIEFINGS_KEEP_DAYS
 
                 upsert_briefing(conn, briefing["date"], briefing)
                 log.info("briefing upserted to Supabase: %s", briefing["date"])
+                exported = export_briefings_to_local(
+                    conn, cfg.public_briefings_dir, keep_days=BRIEFINGS_KEEP_DAYS
+                )
+                log.info("briefing 로컬 복원: %d일치", len(exported))
             except Exception as e:
-                log.warning("briefing Supabase 저장 실패: %s", e)
+                log.warning("briefing Supabase 저장/복원 실패: %s", e)
 
-        # 7d. picks 성과 히스토리 갱신
+        # 7d. picks 성과 히스토리 갱신 + DB 저장 (배포 빌드가 여기서 복원)
         with _timed("7d. picks history update"):
             try:
+                import json as _json  # noqa: PLC0415
+
                 from news_briefing.analysis.picks_tracker import (  # noqa: PLC0415
+                    PICKS_HISTORY_PATH,
                     load_briefings_from_supabase,
                     update_history,
+                )
+                from news_briefing.storage.picks_history import (  # noqa: PLC0415
+                    upsert_picks_history,
                 )
 
                 recent_briefings = load_briefings_from_supabase(limit=30)
                 update_history(recent_briefings)
-                log.info("picks_history.json 갱신 완료")
+                # 로컬 파일을 원본(DB)으로 승격 — 여러 머신이 같은 행을 갱신한다.
+                ph_data = _json.loads(PICKS_HISTORY_PATH.read_text(encoding="utf-8"))
+                upsert_picks_history(conn, ph_data)
+                log.info("picks_history 갱신 + DB 저장 완료")
             except Exception as e:
                 log.warning("picks 히스토리 갱신 실패: %s", e)
 
@@ -448,6 +488,11 @@ def run_morning(
         picks_foreign = sum(len(iss.get("picks") or []) for iss in hot_issues_foreign)
 
         if not dry_run:
+            # DB가 갱신됐으니 배포 서버가 빌드시 다시 끌어가도록 재배포 트리거.
+            with _timed("9. trigger deploy"):
+                if _trigger_deploy(cfg):
+                    log.info("Vercel 재배포 트리거 완료")
+
             link_url = f"{cfg.vercel_base_url}/?scope=foreign"
             message = (
                 f"**오늘의 종목추천 · {now.strftime('%m월 %d일')}**\n"

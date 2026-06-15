@@ -3,8 +3,11 @@
 매일 morning 파이프라인 시작 시 실행. 일회성 데이터는 보관 불필요.
 - seen: 14일 이상 된 항목 삭제 (최근 2주만 중복 필터에 필요)
 - llm_cache, embeddings, rag_queries: 전부 삭제
-- data/digests/*.txt, frontend/public/briefings/*.json: 오늘 것만 유지
+- data/digests/*.txt, frontend/public/briefings/*.json: 최근 N일치만 유지
+  (달력에서 과거 브리핑을 보려면 로컬 파일을 일정 기간 남겨야 함.
+   보관 기간은 성과탭 picks_history(MAX_TRACK_DAYS=30)와 맞춘다.)
 """
+
 from __future__ import annotations
 
 import json
@@ -17,6 +20,9 @@ from news_briefing.storage.db import Connection
 log = logging.getLogger(__name__)
 
 SEEN_KEEP_DAYS = 14
+# 로컬 브리핑·디지스트 보관 일수. picks_history(MAX_TRACK_DAYS=30)와 동일하게 둬
+# 달력과 성과탭이 보여주는 날짜 범위가 어긋나지 않도록 한다.
+BRIEFINGS_KEEP_DAYS = 30
 
 
 def purge_seen(conn: Connection) -> int:
@@ -41,28 +47,43 @@ def purge_files(
     digests_dir: Path,
     briefings_dir: Path,
     today: date,
+    keep_days: int = BRIEFINGS_KEEP_DAYS,
 ) -> dict[str, int]:
-    """오늘 날짜 파일을 제외하고 모두 삭제. index.json 도 갱신."""
-    today_str = today.strftime("%Y-%m-%d")
+    """최근 keep_days 일치만 남기고 오래된 파일 삭제. index.json 도 갱신.
+
+    파일명(YYYY-MM-DD)을 날짜로 파싱해 cutoff 이전이거나 형식이 맞지 않는
+    파일을 지운다. index.json 은 남은 브리핑 날짜를 최신순으로 담는다.
+    """
+    cutoff = today - timedelta(days=keep_days)
     counts: dict[str, int] = {"digests": 0, "briefings": 0}
 
+    def _stem_date(stem: str) -> date | None:
+        try:
+            return datetime.strptime(stem, "%Y-%m-%d").date()
+        except ValueError:
+            return None
+
     for path in digests_dir.glob("*.txt"):
-        if path.stem != today_str:
+        d = _stem_date(path.stem)
+        if d is None or d < cutoff:
             path.unlink(missing_ok=True)
             counts["digests"] += 1
 
+    kept_dates: list[str] = []
     for path in briefings_dir.glob("*.json"):
         if path.name == "index.json":
             continue
-        if path.stem != today_str:
+        d = _stem_date(path.stem)
+        if d is None or d < cutoff:
             path.unlink(missing_ok=True)
             counts["briefings"] += 1
+        else:
+            kept_dates.append(path.stem)
 
+    kept_dates.sort(reverse=True)
     index_path = briefings_dir / "index.json"
-    today_file = briefings_dir / f"{today_str}.json"
-    dates = [today_str] if today_file.exists() else []
     index_path.write_text(
-        json.dumps({"dates": dates}, ensure_ascii=False, indent=2),
+        json.dumps({"dates": kept_dates}, ensure_ascii=False, indent=2),
         encoding="utf-8",
     )
 
