@@ -7,6 +7,7 @@
   python -m news_briefing themes refresh <theme_id>
   python -m news_briefing weekly [--llm]
   python -m news_briefing ask "질의" [--top-k N]
+  python -m news_briefing picks [--date YYYY-MM-DD] [--short]
 """
 from __future__ import annotations
 
@@ -140,6 +141,71 @@ def _cmd_cleanup(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_picks(args: argparse.Namespace) -> int:
+    """오늘(또는 지정일) 브리핑 JSON 에서 추천 종목만 뽑아 출력한다.
+
+    뉴스·시그널 없이 picks 만 빠르게 확인하기 위한 뷰. 외부 호출 없이
+    이미 생성된 frontend/public/briefings/<date>.json 만 읽는다.
+    """
+    import json
+
+    cfg = load_config()
+    briefings_dir = cfg.public_briefings_dir
+    if args.date:
+        path = briefings_dir / f"{args.date}.json"
+    else:
+        candidates = sorted(briefings_dir.glob("20*.json"), reverse=True)
+        if not candidates:
+            print(f"브리핑 JSON 없음: {briefings_dir}", file=sys.stderr)
+            return 1
+        path = candidates[0]
+    if not path.exists():
+        print(f"브리핑 JSON 없음: {path}", file=sys.stderr)
+        return 1
+
+    data = json.loads(path.read_text(encoding="utf-8"))
+    hot_issues = (((data.get("tabs") or {}).get("economy") or {}).get("hotIssues")) or {}
+
+    lines: list[str] = [f"추천 종목 · {data.get('date', path.stem)}", ""]
+    total = 0
+    labels = {"foreign": "해외", "domestic": "국내"}
+    for side in ("foreign", "domestic"):
+        issues = hot_issues.get(side) or []
+        n_picks = sum(len(iss.get("picks") or []) for iss in issues)
+        total += n_picks
+        lines.append(f"━━ {labels[side]} ({n_picks}종목 / {len(issues)}이슈) ━━")
+        if not issues:
+            lines.append("  (없음)")
+        for iss in issues:
+            direction = iss.get("direction") or ""
+            head = f"■ [{iss.get('rank', '')}] {iss.get('asset', '')}"
+            if iss.get("signal"):
+                head += f" — {iss['signal']}"
+            if direction:
+                head += f" ({direction})"
+            lines.append("")
+            lines.append(head)
+            for p in iss.get("picks") or []:
+                ticker = p.get("ticker") or ""
+                name = p.get("name") or ""
+                risk = p.get("consensus_risk") or ""
+                lines.append(f"  ● {ticker} {name}  [consensus_risk:{risk}]")
+                if not args.short:
+                    if p.get("description"):
+                        lines.append(f"    {p['description']}")
+                    etf = p.get("related_etf")
+                    if isinstance(etf, dict) and (etf.get("ticker") or etf.get("name")):
+                        lines.append(
+                            f"    관련 ETF: {etf.get('ticker', '')} "
+                            f"{etf.get('name', '')} ({etf.get('confidence', '')})"
+                        )
+        lines.append("")
+    lines.append(f"합계: {total}종목")
+
+    sys.stdout.buffer.write(("\n".join(lines) + "\n").encode("utf-8", errors="replace"))
+    return 0
+
+
 def _cmd_ask(args: argparse.Namespace) -> int:
     from news_briefing.analysis.rag import answer_query
     from news_briefing.storage.db import get_client
@@ -200,6 +266,11 @@ def main(argv: list[str] | None = None) -> int:
     p_ask.add_argument("query", help="질의 내용")
     p_ask.add_argument("--top-k", type=int, default=5, help="retrieval top-k")
     p_ask.set_defaults(func=_cmd_ask)
+
+    p_picks = sub.add_parser("picks", help="추천 종목만 출력 (생성된 브리핑 JSON 읽기)")
+    p_picks.add_argument("--date", help="조회할 날짜 YYYY-MM-DD (기본: 최신)")
+    p_picks.add_argument("--short", action="store_true", help="종목명만 간단히")
+    p_picks.set_defaults(func=_cmd_picks)
 
     args = parser.parse_args(argv)
     if not getattr(args, "func", None):
