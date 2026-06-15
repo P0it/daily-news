@@ -29,9 +29,11 @@ def fetch_fda_approvals(lookback_days: int = 3, *, limit: int = 30) -> list[Coll
     now = datetime.now(UTC)
     start = (now - timedelta(days=lookback_days)).strftime("%Y%m%d")
     end = now.strftime("%Y%m%d")
+    # openFDA 쿼리는 공백을 구분자로 사용 — requests 가 공백을 인코딩한다.
+    # (리터럴 '+' 를 넣으면 %2B 로 인코딩돼 쿼리가 깨진다)
     search = (
-        f"submissions.submission_status:AP"
-        f"+AND+submissions.submission_status_date:[{start}+TO+{end}]"
+        f"submissions.submission_status:AP "
+        f"AND submissions.submission_status_date:[{start} TO {end}]"
     )
 
     try:

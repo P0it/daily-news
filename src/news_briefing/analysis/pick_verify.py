@@ -22,22 +22,36 @@ log = logging.getLogger(__name__)
 _DOMESTIC_CODE_RE = re.compile(r"^\d{6}$")
 
 
-# ── 티커 실존 확인 ────────────────────────────────────────────────
-def verify_ticker_exists(ticker: str, scope: str, conn=None) -> bool:
-    """심볼이 실제 거래되는 종목인지 확인. 확인 가능하면 True, 아니면 False.
+# 티커 형식·실존 판정 결과
+#   "ok"        — 형식 정상 (실존은 미확인이거나 확인됨) → 플래그하지 않음
+#   "malformed" — 형식 자체가 잘못됨(빈 값·국내 비6자리) → review 플래그
+#
+# 주의: FMP 무료 티어 quote-short 는 미커버 심볼에 'Premium' 에러를 주고,
+# yfinance 는 정상 종목도 자주 실패한다. 둘 다 '없는 티커'와 '확인 불가'를
+# 구분하지 못하므로, 확인 실패를 근거로 플래그하면 정상 종목 오탐이 쏟아진다.
+# 따라서 실존 '양성 확인'은 신뢰도 보강용으로만 쓰고, 미확인은 ok 로 둔다.
+# 환각·날조 티커 탐지는 2차 LLM 검증(verify_picks_llm)이 담당한다.
+def verify_ticker_format(ticker: str, scope: str) -> str:
+    """티커 형식 검증. 'ok' | 'malformed'."""
+    ticker = (ticker or "").strip().upper()
+    if not ticker:
+        return "malformed"
+    if scope == "domestic" and not _DOMESTIC_CODE_RE.match(ticker):
+        # 국내인데 6자리 숫자 코드가 아니면 LLM 이 잘못 만든 것
+        return "malformed"
+    return "ok"
 
-    False 는 '확정 부재'가 아니라 '확인 불가'까지 포함 — 호출부에서 drop 이 아니라
-    review 플래그로만 처리한다.
+
+def confirm_ticker_exists(ticker: str, scope: str, conn=None, fmp_api_key: str = "") -> bool:
+    """가용한 소스로 실존을 '양성 확인'한다 (확인되면 True, 불확실하면 False).
+
+    False 는 '없음'이 아니라 '확인 불가'를 포함 — 플래그 근거로 쓰지 않는다.
     """
     ticker = (ticker or "").strip().upper()
     if not ticker:
         return False
 
     if scope == "domestic":
-        # 1) 6자리 코드 형식이 아니면 의심
-        if not _DOMESTIC_CODE_RE.match(ticker):
-            return False
-        # 2) tickers DB 매핑 우선 (DART 수집 시 누적)
         if conn is not None:
             try:
                 from news_briefing.storage.tickers import get_ticker_by_stock
@@ -46,11 +60,30 @@ def verify_ticker_exists(ticker: str, scope: str, conn=None) -> bool:
                     return True
             except Exception as e:
                 log.debug("tickers DB 조회 실패(%s): %s", ticker, e)
-        # 3) yfinance .KS/.KQ fallback
         return _yf_exists([f"{ticker}.KS", f"{ticker}.KQ"])
 
-    # foreign
+    # foreign: FMP stable quote-short(권위) → 실패 시 yfinance
+    if fmp_api_key and _fmp_exists(ticker, fmp_api_key):
+        return True
     return _yf_exists([ticker])
+
+
+def _fmp_exists(symbol: str, api_key: str) -> bool:
+    """FMP stable quote-short 로 양성 확인. 데이터 배열이 오면 True, 그 외 False."""
+    import requests
+
+    try:
+        resp = requests.get(
+            "https://financialmodelingprep.com/stable/quote-short",
+            params={"symbol": symbol, "apikey": api_key},
+            timeout=10,
+        )
+        if resp.status_code != 200:
+            return False
+        data = resp.json()
+        return isinstance(data, list) and len(data) > 0 and bool(data[0].get("symbol"))
+    except Exception:
+        return False
 
 
 def _yf_exists(candidates: list[str]) -> bool:
@@ -155,13 +188,15 @@ def apply_verification(
     scope: str,
     conn=None,
     evidence_lines: list[str] | None = None,
+    fmp_api_key: str = "",
 ) -> list[dict]:
     """issues 의 picks 를 검증해 환각 제거 + verifyStatus 스탬프.
 
-    - LLM 판정 'drop' → 해당 pick 제거
+    - LLM 판정 'drop' → 해당 pick 제거 (환각·날조 탐지 주력)
     - LLM 판정 'flag' → verifyStatus='review'
-    - 티커 실존 미확인 → verifyStatus='review' (제거하지 않음)
-    - 그 외 → verifyStatus='ok'
+    - 티커 형식 오류(malformed) → verifyStatus='review'
+    - 그 외 → verifyStatus='ok' (실존 미확인이어도 정상 종목 오탐 방지)
+    실존 양성 확인은 신뢰도 보강용으로만 수행(플래그 근거로 쓰지 않음).
     이슈의 picks 가 전부 제거돼도 이슈 자체는 빈 picks 로 유지한다.
     """
     verdicts = verify_picks_llm(issues, evidence_lines or [])
@@ -176,12 +211,17 @@ def apply_verification(
             if verdict == "drop":
                 dropped += 1
                 continue
-            exists = verify_ticker_exists(ticker, scope, conn)
-            if verdict == "flag" or not exists:
+            malformed = verify_ticker_format(ticker, scope) == "malformed"
+            if verdict == "flag" or malformed:
                 p["verifyStatus"] = "review"
                 flagged += 1
             else:
                 p["verifyStatus"] = "ok"
+            # 실존 양성 확인(보강용) — 실패해도 플래그하지 않음
+            if not malformed:
+                p["tickerConfirmed"] = confirm_ticker_exists(
+                    ticker, scope, conn, fmp_api_key
+                )
             kept.append(p)
         iss["picks"] = kept
 

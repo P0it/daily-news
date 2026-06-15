@@ -18,7 +18,9 @@ from news_briefing.collectors.base import CollectedItem
 log = logging.getLogger(__name__)
 
 _TIMEOUT = 15
-_UPGRADES_URL = "https://financialmodelingprep.com/api/v3/upgrades-downgrades-rss-feed"
+# FMP stable 엔드포인트 — v3 레거시(upgrades-downgrades-rss-feed)는 2025-08-31 이후
+# 신규 키에서 사용 불가. grades-latest-news 가 시장 전체 등급변경 피드 대체.
+_UPGRADES_URL = "https://financialmodelingprep.com/stable/grades-latest-news"
 
 # action(소문자) → (점수, 방향)
 _ACTION_SCORE: dict[str, tuple[int, str]] = {
@@ -41,34 +43,34 @@ def _parse_date(raw: str) -> datetime:
     return datetime.now(UTC)
 
 
-def fetch_analyst_ratings(api_key: str, *, pages: int = 1) -> list[CollectedItem]:
-    """최신 애널리스트 등급변경 수집. api_key 없으면 빈 결과."""
+def fetch_analyst_ratings(api_key: str, *, limit: int = 10) -> list[CollectedItem]:
+    """최신 애널리스트 등급변경 수집. api_key 없으면 빈 결과.
+
+    FMP 무료 티어는 grades-latest-news 를 page=0·limit≤10 단일 페이지로만 허용한다
+    (그 이상은 402). 하루 최신 등급변경 10건이 신호로 충분하다.
+    """
     if not api_key:
         log.info("FMP_API_KEY 없음, analyst_ratings 수집 스킵")
         return []
 
     items: list[CollectedItem] = []
-    for page in range(pages):
-        try:
-            resp = requests.get(
-                _UPGRADES_URL,
-                params={"page": page, "apikey": api_key},
-                timeout=_TIMEOUT,
-            )
-            if resp.status_code in (401, 403):
-                log.warning(
-                    "FMP 접근 거부(%s) — 무료 플랜 제한 가능, analyst 스킵", resp.status_code
-                )
-                return items
-            resp.raise_for_status()
-            rows = resp.json()
-        except Exception as e:
-            log.warning("analyst_ratings 조회 실패 (건너뜀): %s", e)
-            break
+    try:
+        resp = requests.get(
+            _UPGRADES_URL,
+            params={"page": 0, "limit": limit, "apikey": api_key},
+            timeout=_TIMEOUT,
+        )
+        if resp.status_code in (401, 402, 403):
+            log.info("FMP 플랜 제한(%s) — analyst 채널 스킵", resp.status_code)
+            return items
+        resp.raise_for_status()
+        rows = resp.json()
+    except Exception as e:
+        # 예외 메시지에 apikey 가 포함된 URL 이 들어가지 않도록 쿼리스트링 제거
+        log.warning("analyst_ratings 조회 실패 (건너뜀): %s", str(e).split("?")[0])
+        return items
 
-        if not isinstance(rows, list) or not rows:
-            break
-
+    if isinstance(rows, list):
         for row in rows:
             symbol = str(row.get("symbol", "")).strip().upper()
             if not symbol:

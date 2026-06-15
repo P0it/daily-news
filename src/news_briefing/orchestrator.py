@@ -375,6 +375,7 @@ def run_morning(
                         scope="foreign",
                         conn=conn,
                         evidence_lines=foreign_evidence,
+                        fmp_api_key=cfg.fmp_api_key,
                     )
                 if hot_issues_domestic:
                     hot_issues_domestic = apply_verification(
@@ -382,6 +383,7 @@ def run_morning(
                         scope="domestic",
                         conn=conn,
                         evidence_lines=domestic_evidence,
+                        fmp_api_key=cfg.fmp_api_key,
                     )
             except Exception as e:
                 log.warning("pick 검증 실패 (원본 유지): %s", e)

@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import news_briefing.analysis.pick_verify as pv
-from news_briefing.analysis.pick_verify import apply_verification, verify_ticker_exists
+from news_briefing.analysis.pick_verify import apply_verification, verify_ticker_format
 
 
 def _issues() -> list[dict]:
@@ -24,8 +24,8 @@ def test_apply_verification_drops_and_flags(monkeypatch) -> None:
     monkeypatch.setattr(
         pv, "verify_picks_llm", lambda issues, ev: {"NVDA": "keep", "FAKE": "drop", "VRT": "flag"}
     )
-    # 티커 실존: 전부 존재한다고 가정
-    monkeypatch.setattr(pv, "verify_ticker_exists", lambda t, s, conn=None: True)
+    # 실존 확인은 네트워크 — 모킹
+    monkeypatch.setattr(pv, "confirm_ticker_exists", lambda t, s, conn=None, fmp_api_key="": True)
 
     out = apply_verification(_issues(), scope="foreign", evidence_lines=[])
     tickers = [p["ticker"] for p in out[0]["picks"]]
@@ -36,27 +36,37 @@ def test_apply_verification_drops_and_flags(monkeypatch) -> None:
     assert statuses["VRT"] == "review"  # flag → review
 
 
-def test_ticker_unknown_becomes_review_not_dropped(monkeypatch) -> None:
+def test_unconfirmed_ticker_stays_ok_not_review(monkeypatch) -> None:
+    """실존 미확인이어도 형식이 정상이면 review 가 아니라 ok (정상 종목 오탐 방지)."""
     monkeypatch.setattr(pv, "verify_picks_llm", lambda issues, ev: {})  # 모두 keep
-    # 실존 확인 실패(네트워크 등) — 그래도 drop 하지 않음
-    monkeypatch.setattr(pv, "verify_ticker_exists", lambda t, s, conn=None: False)
+    monkeypatch.setattr(pv, "confirm_ticker_exists", lambda t, s, conn=None, fmp_api_key="": False)
 
     out = apply_verification(_issues(), scope="foreign", evidence_lines=[])
     assert len(out[0]["picks"]) == 3  # 아무것도 제거 안 됨
-    assert all(p["verifyStatus"] == "review" for p in out[0]["picks"])
+    assert all(p["verifyStatus"] == "ok" for p in out[0]["picks"])
+    assert all(p["tickerConfirmed"] is False for p in out[0]["picks"])
+
+
+def test_malformed_domestic_ticker_flagged(monkeypatch) -> None:
+    """국내 픽인데 6자리 코드가 아니면 review."""
+    monkeypatch.setattr(pv, "verify_picks_llm", lambda issues, ev: {})
+    monkeypatch.setattr(pv, "confirm_ticker_exists", lambda t, s, conn=None, fmp_api_key="": True)
+    issues = [{"asset": "테마", "signal": "x", "picks": [{"ticker": "AAPL", "name": "잘못"}]}]
+    out = apply_verification(issues, scope="domestic", evidence_lines=[])
+    assert out[0]["picks"][0]["verifyStatus"] == "review"
 
 
 def test_llm_failure_keeps_all(monkeypatch) -> None:
-    """LLM 검증이 빈 dict 면 모두 keep 으로 처리(파이프라인 보호)."""
+    """LLM 검증이 빈 dict 면 모두 keep + ok (파이프라인 보호)."""
     monkeypatch.setattr(pv, "verify_picks_llm", lambda issues, ev: {})
-    monkeypatch.setattr(pv, "verify_ticker_exists", lambda t, s, conn=None: True)
+    monkeypatch.setattr(pv, "confirm_ticker_exists", lambda t, s, conn=None, fmp_api_key="": True)
     out = apply_verification(_issues(), scope="foreign", evidence_lines=[])
     assert len(out[0]["picks"]) == 3
     assert all(p["verifyStatus"] == "ok" for p in out[0]["picks"])
 
 
-def test_domestic_ticker_format_rejected_without_db(monkeypatch) -> None:
-    """6자리 아닌 국내 티커는 DB·yfinance 없이도 False."""
-    monkeypatch.setattr(pv, "_yf_exists", lambda c: False)
-    assert verify_ticker_exists("AAPL", "domestic", conn=None) is False
-    assert verify_ticker_exists("", "foreign", conn=None) is False
+def test_verify_ticker_format() -> None:
+    assert verify_ticker_format("AAPL", "foreign") == "ok"
+    assert verify_ticker_format("", "foreign") == "malformed"
+    assert verify_ticker_format("005930", "domestic") == "ok"
+    assert verify_ticker_format("AAPL", "domestic") == "malformed"  # 국내 비6자리

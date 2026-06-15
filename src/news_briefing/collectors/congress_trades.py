@@ -18,15 +18,12 @@ log = logging.getLogger(__name__)
 
 _TIMEOUT = 20
 
-# 커뮤니티 미러 (timothycarambat) — 상·하원 전체 거래 집계
+# 커뮤니티 미러 (timothycarambat) — 상원 전체 거래 집계.
+# house-stock-watcher-data 미러는 현재 raw 경로가 404(아카이브됨) → 상원만 사용.
 _SOURCES: list[tuple[str, str]] = [
     (
         "senate",
         "https://raw.githubusercontent.com/timothycarambat/senate-stock-watcher-data/master/aggregate/all_transactions.json",
-    ),
-    (
-        "house",
-        "https://raw.githubusercontent.com/timothycarambat/house-stock-watcher-data/master/data/all_transactions.json",
     ),
 ]
 
