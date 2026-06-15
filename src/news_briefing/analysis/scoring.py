@@ -147,6 +147,9 @@ def score_edgar(*, form_type: str, items: str) -> tuple[int, Direction]:
 
     - Form 4: 기본 70, mixed (실제 매수/매도 구분은 별도 파싱 필요)
     - 8-K: Item 번호 우선 매칭, 매칭 실패 시 기본 70
+    - SC 13D: 행동주의 지분 취득 — 85, positive
+    - SC 13G: 패시브 5%+ 보유 신고 — 70, mixed
+    - 13F-HR: 기관 분기 보유 변동 — 65, neutral
     - 기타 (10-K, 10-Q 등): 45, neutral
     """
     if form_type == "4":
@@ -158,4 +161,40 @@ def score_edgar(*, form_type: str, items: str) -> tuple[int, Direction]:
                 return score, direction
         return 70, "neutral"
 
+    # 기관·구루 보유 변동 (form_type 은 'SC 13D' 등 공백 포함 그대로 들어옴)
+    if form_type.startswith("SC 13D"):
+        return 85, "positive"
+    if form_type.startswith("SC 13G"):
+        return 70, "mixed"
+    if form_type.startswith("13F"):
+        return 65, "neutral"
+
     return 45, "neutral"
+
+
+# 보도자료 와이어 제목 키워드 → 점수 (1차 소스라 뉴스 매체보다 높게)
+_WIRE_KEYWORDS: list[tuple[tuple[str, ...], int, Direction]] = [
+    (("acqui", "merger", "to acquire", "buyout", "takeover"), 85, "mixed"),
+    (("earnings", "quarterly results", "reports q", "fourth quarter", "first quarter",
+      "second quarter", "third quarter", "full year results"), 80, "mixed"),
+    (("contract", "awarded", "wins", "selected", "partnership", "agreement",
+      "collaboration"), 78, "positive"),
+    (("fda", "approval", "clearance", "phase 3", "phase iii", "clinical"), 80, "positive"),
+    (("guidance", "raises", "lifts outlook", "upgrades"), 76, "positive"),
+    (("dividend", "buyback", "repurchase", "share repurchase"), 72, "positive"),
+    (("bankrupt", "chapter 11", "delist", "lawsuit", "investigation", "recall",
+      "cuts guidance", "warns"), 78, "negative"),
+]
+
+
+def score_wire(title: str) -> tuple[int, Direction]:
+    """보도자료 와이어(Business Wire·GlobeNewswire·PR Newswire) 제목 기반 점수.
+
+    기업이 기자보다 먼저 올리는 1차 공시성 자료라 일반 뉴스 매체(42~65)보다 높게 잡는다.
+    실적·계약·M&A·FDA 키워드 매칭, 매칭 실패 시 기본 55.
+    """
+    low = title.lower()
+    for keywords, score, direction in _WIRE_KEYWORDS:
+        if any(k in low for k in keywords):
+            return score, direction
+    return 55, "neutral"
