@@ -387,13 +387,16 @@ def run_morning(
             try:
                 from news_briefing.analysis.pick_verify import apply_verification
 
+                # 검증기에 점수순으로 넘긴다. 수집 순서대로 넘기면 고득점 촉매
+                # 공시가 [:120] 밖으로 밀려 'grounded=false' 오탐이 났다(예: 합병
+                # 공시를 못 봐 환각으로 오판). 점수 desc 정렬로 핵심 공시를 보장.
                 foreign_evidence = [
                     f"[{it.source}] {it.company or ''} {it.title}".strip()
-                    for it, _ in foreign_candidates
+                    for it, _ in sorted(foreign_candidates, key=lambda x: x[1], reverse=True)
                 ]
                 domestic_evidence = [
                     f"[{it.source}] {it.company or ''} {it.title}".strip()
-                    for it, _ in domestic_candidates
+                    for it, _ in sorted(domestic_candidates, key=lambda x: x[1], reverse=True)
                 ]
                 if hot_issues_foreign:
                     hot_issues_foreign = apply_verification(
