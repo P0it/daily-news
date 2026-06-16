@@ -344,12 +344,14 @@ def run_morning(
         for it in intl_news_foreign:
             foreign_candidates.append((it, foreign_news_weight(it.source)))
 
+        # 국내 picks 촉매는 DART 공시만 쓴다. 증권사 리포트(research_scored)는
+        # 이미 애널리스트가 공개 분석한 '늦은' 직접 신호라 picks 트리거로 쓰면
+        # 알파가 없다 — picks 입력에서 디커플링(DECISIONS #17). 수집·표시는 유지하고,
+        # 향후 테마 밀도/수혜주 단서 용도로만 재배치 예정.
         domestic_candidates: list[tuple[CollectedItem, int]] = []
         for it, s, _d in scored:
             if it.source == "dart":
                 domestic_candidates.append((it, s))
-        for it, s, _d in research_scored:
-            domestic_candidates.append((it, s))
         for it in stock_news_domestic:
             domestic_candidates.append((it, 40))
 
