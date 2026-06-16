@@ -8,7 +8,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from news_briefing.analysis.attention_phase import build_phase_map
@@ -134,9 +134,14 @@ def run_morning(
             )
 
         # 1. 수집 (DART + RSS + EDGAR + 거시지표 + 리서치 + KRX ETF)
+        # 아침 6시 브리핑은 '직전 거래일' 공시를 분석해야 한다. DART에 당일 공시는
+        # 새벽엔 거의 안 올라오므로(행정성 몇 건뿐), 4일 룩백 윈도우로 직전 거래일을
+        # 포함시킨다. 주말·공휴일은 윈도우가 자동 커버하고, 과거 실행분 중복은
+        # seen 테이블 dedup이 거른다. (해외 EDGAR 등은 '최신 N건' 롤링이라 무관)
         date_key = now.strftime("%Y%m%d")
+        dart_bgn = (now - timedelta(days=3)).strftime("%Y%m%d")
         with _timed("1. collect DART"):
-            disclosures = fetch_dart_list(cfg.dart_api_key, date_key)
+            disclosures = fetch_dart_list(cfg.dart_api_key, dart_bgn, end_date=date_key)
         with _timed("1. collect RSS"):
             news = fetch_all_rss()
         with _timed("1. collect EDGAR"):

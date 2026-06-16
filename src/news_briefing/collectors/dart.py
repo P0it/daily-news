@@ -1,4 +1,5 @@
 """DART Open API list.json 수집기."""
+
 from __future__ import annotations
 
 import logging
@@ -50,28 +51,45 @@ def parse_dart_response(data: dict) -> list[CollectedItem]:
 
 def fetch_dart_list(
     api_key: str,
-    date: str,  # YYYYMMDD
+    date: str,  # YYYYMMDD — 조회 시작일(bgn_de)
     *,
+    end_date: str | None = None,  # 조회 종료일(end_de), 기본=date (하루 조회)
     page_count: int = 100,
+    max_pages: int = 10,  # 페이지당 100건 × 10 = 최대 1000건 (룩백 윈도우 대비)
     timeout: int = 15,
 ) -> list[CollectedItem]:
+    """DART 공시 목록을 [date, end_date] 구간으로 조회한다.
+
+    아침 브리핑은 직전 거래일 공시를 봐야 하므로 호출부에서 며칠짜리 룩백
+    윈도우를 넘긴다. 바쁜 날 하루만 100건을 넘기므로 total_page 까지
+    페이지네이션해 잘림을 막는다(max_pages 로 상한).
+    """
     if not api_key:
         log.warning("DART_API_KEY 없음, DART 수집 스킵")
         return []
+    end = end_date or date
+    items: list[CollectedItem] = []
     try:
-        resp = requests.get(
-            DART_LIST_URL,
-            params={
-                "crtfc_key": api_key,
-                "bgn_de": date,
-                "end_de": date,
-                "page_no": 1,
-                "page_count": page_count,
-            },
-            timeout=timeout,
-        )
-        resp.raise_for_status()
-        return parse_dart_response(resp.json())
+        page = 1
+        while page <= max_pages:
+            resp = requests.get(
+                DART_LIST_URL,
+                params={
+                    "crtfc_key": api_key,
+                    "bgn_de": date,
+                    "end_de": end,
+                    "page_no": page,
+                    "page_count": page_count,
+                },
+                timeout=timeout,
+            )
+            resp.raise_for_status()
+            data = resp.json()
+            items.extend(parse_dart_response(data))
+            total_page = int(data.get("total_page", 1) or 1)
+            if page >= total_page:
+                break
+            page += 1
     except Exception as e:
         log.error("DART 수집 실패: %s", e)
-        return []
+    return items
