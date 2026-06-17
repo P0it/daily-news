@@ -51,7 +51,7 @@ function HomeInner() {
 
   const dict = t(lang)
 
-  // 성적(성과 추적) 탭
+  // 실적(picks 성과 추적) 탭
   if (scope === 'picks') {
     return <PicksHistoryView />
   }
