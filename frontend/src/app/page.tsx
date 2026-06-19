@@ -81,9 +81,14 @@ function HomeInner() {
 
   if (issues.length === 0) {
     return (
-      <p className="px-5 py-20 text-center" style={{ color: 'var(--text-secondary)' }}>
-        오늘은 조용한 종목 라인업이에요
-      </p>
+      <div className="px-6 py-20 text-center" style={{ lineHeight: 1.7 }}>
+        <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>
+          오늘은 강한 촉매가 있는 종목이 없어요
+        </p>
+        <p style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
+          약한 신호로 억지로 채우기보다 비워뒀어요. 확실한 게 생기면 바로 보여드릴게요.
+        </p>
+      </div>
     )
   }
 
