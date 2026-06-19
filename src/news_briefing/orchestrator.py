@@ -476,6 +476,21 @@ def run_morning(
             except Exception as e:
                 log.warning("picks 히스토리 갱신 실패: %s", e)
 
+        # 7e. pick_outcomes 영구 원장 — 신규 픽 스냅샷 + 채점 시점 도래분 백필.
+        #     실적 탭(30일 실시간)과 별개로, 촉매별 적중률(재학습 데이터)을 영구 축적한다.
+        with _timed("7e. pick outcomes ledger"):
+            try:
+                from news_briefing.analysis.picks_outcomes import (  # noqa: PLC0415
+                    backfill_outcomes,
+                    record_outcomes,
+                )
+
+                snapped = record_outcomes(conn, briefing)
+                graded = backfill_outcomes(conn)
+                log.info("pick_outcomes: 스냅샷 %d건, 채점 갱신 %d건", snapped, graded)
+            except Exception as e:
+                log.warning("pick_outcomes 원장 갱신 실패: %s", e)
+
         # 8. RAG 자동 인덱싱 (Week 4) — 실패해도 morning 전체 중단 X
         with _timed("8. RAG indexing"):
             try:

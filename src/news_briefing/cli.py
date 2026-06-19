@@ -229,6 +229,43 @@ def _cmd_picks(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_outcomes(args: argparse.Namespace) -> int:
+    """추천 픽 영구 원장을 채점하고 촉매별 적중률을 출력한다.
+
+    --no-backfill 이면 채점은 건너뛰고 집계만 본다. 백필은 yfinance 읽기 +
+    Supabase 쓰기(원장 갱신)뿐이며 외부 발송은 없다.
+    """
+    from news_briefing.analysis.picks_outcomes import (
+        backfill_outcomes,
+        calibration_report,
+        format_report,
+        seed_outcomes,
+    )
+    from news_briefing.storage.db import get_client
+
+    cfg = load_config()
+    conn = get_client(cfg.supabase_url, cfg.supabase_service_key)
+    try:
+        if args.seed:
+            from news_briefing.analysis.picks_tracker import (
+                load_briefings_from_local,
+                load_briefings_from_supabase,
+            )
+
+            briefings = load_briefings_from_local() or load_briefings_from_supabase()
+            seeded = seed_outcomes(conn, briefings)
+            print(f"시드: {seeded}건 신규 스냅샷 ({len(briefings)}개 브리핑)\n")
+        if not args.no_backfill:
+            graded = backfill_outcomes(conn)
+            print(f"채점 갱신: {graded}건\n")
+        report = calibration_report(conn, since=args.since)
+        text = format_report(report)
+    finally:
+        conn.close()
+    sys.stdout.buffer.write((text + "\n").encode("utf-8", errors="replace"))
+    return 0
+
+
 def _cmd_ask(args: argparse.Namespace) -> int:
     from news_briefing.analysis.rag import answer_query
     from news_briefing.storage.db import get_client
@@ -290,6 +327,14 @@ def main(argv: list[str] | None = None) -> int:
     )
     p_export.add_argument("--days", type=int, default=None, help="복원할 최근 일수 (기본 30)")
     p_export.set_defaults(func=_cmd_export_briefings)
+
+    p_outcomes = sub.add_parser("outcomes", help="추천 픽 원장 채점 + 촉매별 적중률 집계")
+    p_outcomes.add_argument(
+        "--seed", action="store_true", help="과거 브리핑 픽을 원장에 일괄 스냅샷(최초 1회)"
+    )
+    p_outcomes.add_argument("--no-backfill", action="store_true", help="채점 건너뛰고 집계만 출력")
+    p_outcomes.add_argument("--since", help="집계 시작일 YYYY-MM-DD (기본: 전체)")
+    p_outcomes.set_defaults(func=_cmd_outcomes)
 
     p_ask = sub.add_parser("ask", help="RAG 자유 질의")
     p_ask.add_argument("query", help="질의 내용")
