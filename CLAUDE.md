@@ -221,6 +221,9 @@ dotenvx run -- python -m news_briefing morning --dry-run
 # 아침 브리핑 실제 전송 + 배포 트리거
 dotenvx run -- python -m news_briefing morning
 
+# 아침 브리핑 생성 + 배포만 (Discord 알림 없이 조용히 재배포)
+dotenvx run -- python -m news_briefing morning --no-notify
+
 # 주간 리포트 생성 (Week 4+, 일요일 자동 실행)
 dotenvx run -- python -m news_briefing weekly
 

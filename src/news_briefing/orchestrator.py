@@ -114,11 +114,16 @@ def _trigger_deploy(cfg: Config) -> bool:
 
 
 def run_morning(
-    cfg: Config, *, dry_run: bool = False, now: datetime | None = None
+    cfg: Config,
+    *,
+    dry_run: bool = False,
+    notify: bool = True,
+    now: datetime | None = None,
 ) -> MorningResult:
+    # notify=False 는 배포는 트리거하되 Discord 알림만 건너뛴다(조용한 재배포용).
     now = now or datetime.now()
     t_total = time.perf_counter()
-    log.info("morning start date=%s dry_run=%s", now.date(), dry_run)
+    log.info("morning start date=%s dry_run=%s notify=%s", now.date(), dry_run, notify)
 
     conn = get_client(cfg.supabase_url, cfg.supabase_service_key)
     try:
@@ -518,13 +523,16 @@ def run_morning(
                 if _trigger_deploy(cfg):
                     log.info("Vercel 재배포 트리거 완료")
 
-            link_url = f"{cfg.vercel_base_url}/?scope=foreign"
-            message = (
-                f"**오늘의 종목추천 · {now.strftime('%m월 %d일')}**\n"
-                f"해외 {picks_foreign}종목 · 국내 {picks_domestic}종목 (공시 {sig_above}건)\n"
-                f"{link_url}"
-            )
-            sent = _send_discord(cfg, message)
+            if notify:
+                link_url = f"{cfg.vercel_base_url}/?scope=foreign"
+                message = (
+                    f"**오늘의 종목추천 · {now.strftime('%m월 %d일')}**\n"
+                    f"해외 {picks_foreign}종목 · 국내 {picks_domestic}종목 (공시 {sig_above}건)\n"
+                    f"{link_url}"
+                )
+                sent = _send_discord(cfg, message)
+            else:
+                log.info("notify=False, Discord 알림 스킵 (배포만 수행).")
         else:
             sys.stdout.buffer.write((text + "\n").encode("utf-8", errors="replace"))
 

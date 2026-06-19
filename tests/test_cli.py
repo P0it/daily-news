@@ -30,3 +30,19 @@ def test_cli_morning_dry_run_invokes_orchestrator(mocker, monkeypatch) -> None:
     assert rc == 0
     assert mock_run.call_count == 1
     assert mock_run.call_args.kwargs["dry_run"] is True
+    # 기본값은 알림 켜짐
+    assert mock_run.call_args.kwargs["notify"] is True
+
+
+def test_cli_morning_no_notify_skips_notification(mocker, monkeypatch) -> None:
+    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+    fake_result = mocker.MagicMock(
+        new_items=0, signal_count=0, picks_foreign=0, picks_domestic=0, sent_discord=False
+    )
+    fake_result.digest_path.name = "2026-04-22.txt"
+    mock_run = mocker.patch("news_briefing.cli.run_morning", return_value=fake_result)
+    rc = main(["morning", "--no-notify"])
+    assert rc == 0
+    # --no-notify 는 배포는 하되(dry_run=False) 알림만 끈다.
+    assert mock_run.call_args.kwargs["dry_run"] is False
+    assert mock_run.call_args.kwargs["notify"] is False

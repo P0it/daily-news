@@ -1,15 +1,17 @@
 """엔트리 포인트 CLI.
 
 사용법:
-  python -m news_briefing morning [--dry-run]
+  python -m news_briefing morning [--dry-run] [--no-notify]
   python -m news_briefing status
   python -m news_briefing themes seed
   python -m news_briefing themes refresh <theme_id>
   python -m news_briefing weekly [--llm]
   python -m news_briefing ask "질의" [--top-k N]
   python -m news_briefing picks [--date YYYY-MM-DD] [--short]
+  python -m news_briefing outcomes [--no-backfill] [--since YYYY-MM-DD]
   python -m news_briefing export-briefings [--days N]
 """
+
 from __future__ import annotations
 
 import argparse
@@ -29,7 +31,7 @@ def _setup_logging() -> None:
 
 def _cmd_morning(args: argparse.Namespace) -> int:
     cfg = load_config()
-    result = run_morning(cfg, dry_run=args.dry_run)
+    result = run_morning(cfg, dry_run=args.dry_run, notify=not args.no_notify)
     print(
         f"\n완료: 신규 {result.new_items}건, 공시 {result.signal_count}건, "
         f"추천 해외 {result.picks_foreign}/국내 {result.picks_domestic}종목, "
@@ -43,7 +45,9 @@ def _cmd_status(args: argparse.Namespace) -> int:
     cfg = load_config()
     print("뉴스 브리핑 상태")
     print(f"  Supabase: {cfg.supabase_url}")
-    print(f"  Discord 웹훅: {'설정됨' if cfg.discord_webhook_url else '없음 (.env에 DISCORD_WEBHOOK_URL 추가 필요)'}")
+    print(
+        f"  Discord 웹훅: {'설정됨' if cfg.discord_webhook_url else '없음 (.env에 DISCORD_WEBHOOK_URL 추가 필요)'}"
+    )
     print(f"  DART 키: {'설정됨' if cfg.dart_api_key else '없음'}")
     print(f"  EDGAR UA: {'설정됨' if cfg.edgar_user_agent else '없음'}")
     print(f"  Ollama: {'ON' if cfg.ollama_enabled else 'OFF'}")
@@ -70,9 +74,7 @@ def _cmd_themes(args: argparse.Namespace) -> int:
             result = load_seed(conn, seed_path)
         finally:
             conn.close()
-        print(
-            f"seed 적용 완료: {len(result)} 테마, {sum(result.values())} 기업"
-        )
+        print(f"seed 적용 완료: {len(result)} 테마, {sum(result.values())} 기업")
         return 0
     if args.subcmd == "refresh":
         from news_briefing.analysis.themes import refresh_theme_layers
@@ -117,10 +119,7 @@ def _cmd_weekly(args: argparse.Namespace) -> int:
     path = write_weekly(reports_dir=reports_dir, report=report, essay=essay)
     print(f"주간 리포트 생성: {path}")
     trending = ", ".join(report.trending_themes) if report.trending_themes else "—"
-    print(
-        f"  {report.week_id} · {len(report.top_signals)}개 시그널 · "
-        f"트렌드 [{trending}]"
-    )
+    print(f"  {report.week_id} · {len(report.top_signals)}개 시그널 · 트렌드 [{trending}]")
     if essay:
         print(f"  에세이 {len(essay)}자 포함")
     return 0
@@ -299,8 +298,11 @@ def main(argv: list[str] | None = None) -> int:
     sub = parser.add_subparsers(dest="cmd")
 
     p_morning = sub.add_parser("morning", help="아침 브리핑 실행")
+    p_morning.add_argument("--dry-run", action="store_true", help="전송·배포 안 하고 stdout 으로만")
     p_morning.add_argument(
-        "--dry-run", action="store_true", help="카톡 전송 안 하고 stdout 으로만"
+        "--no-notify",
+        action="store_true",
+        help="배포는 하되 Discord 알림은 건너뜀 (조용한 재배포)",
     )
     p_morning.set_defaults(func=_cmd_morning)
 
