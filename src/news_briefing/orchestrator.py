@@ -444,6 +444,19 @@ def run_morning(
             except Exception as e:
                 log.warning("watchlist 생성 실패 (건너뜀): %s", e)
 
+        # 7a-3. 낙수효과 수혜주 — 관찰 이벤트가 경쟁사·대체재에 주는 반사이익(추론).
+        #   정식 픽과 분리된 저컨빅션 보조 레이어. 실패해도 관찰은 그대로 표시.
+        with _timed("7a-3. spillover"):
+            try:
+                from news_briefing.analysis.spillover import analyze_spillover
+
+                if watchlist_foreign:
+                    watchlist_foreign = analyze_spillover(watchlist_foreign, scope="foreign")
+                if watchlist_domestic:
+                    watchlist_domestic = analyze_spillover(watchlist_domestic, scope="domestic")
+            except Exception as e:
+                log.warning("spillover 분석 실패 (관찰 원본 유지): %s", e)
+
         # 7b. Briefing JSON (picks 중심 — 뉴스·시그널 표시 제거)
         with _timed("7b. build+write briefing JSON"):
             briefing = build_briefing_json(

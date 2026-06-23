@@ -27,6 +27,15 @@ export interface WatchItem {
   direction: Direction
   source: string
   url: string | null
+  // 낙수효과 수혜주(추론) — 이 사건으로 반사이익을 보는 별도 기업. 저컨빅션.
+  beneficiaries?: Beneficiary[]
+}
+
+export interface Beneficiary {
+  name: string
+  code: string | null
+  reason: string
+  confidence: 'low' | 'medium'
 }
 
 export interface ResearchReport {

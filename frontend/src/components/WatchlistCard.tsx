@@ -1,6 +1,6 @@
 'use client'
 
-import type { WatchItem, Direction } from '@/lib/types'
+import type { WatchItem, Direction, Beneficiary } from '@/lib/types'
 
 // 방향은 dot + 텍스트로만 표현 (DESIGN.md: 배경·테두리·컬러스트립 금지)
 const DIR: Record<Direction, { dot: string; label: string }> = {
@@ -10,9 +10,37 @@ const DIR: Record<Direction, { dot: string; label: string }> = {
   neutral: { dot: 'var(--text-tertiary)', label: '중립' },
 }
 
+function BeneficiaryList({ list }: { list: Beneficiary[] }) {
+  return (
+    <div style={{ marginTop: 12, paddingTop: 12, borderTop: '1px solid var(--border-subtle)', display: 'flex', flexDirection: 'column', gap: 8 }}>
+      <span style={{ fontSize: 11, fontWeight: 700, color: 'var(--text-tertiary)', letterSpacing: '0.04em' }}>
+        잠재 수혜주 · 추론이라 확인이 필요해요
+      </span>
+      {list.map((b) => (
+        <div key={(b.code ?? '') + b.name} style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+            <span style={{ fontSize: 13, fontWeight: 700, color: 'var(--text-primary)' }}>{b.name}</span>
+            {b.code && (
+              <span style={{ fontSize: 10, fontWeight: 700, color: 'var(--badge-text)', background: 'var(--badge-bg)', padding: '1px 6px', borderRadius: 5 }}>
+                {b.code}
+              </span>
+            )}
+            {b.confidence === 'low' && (
+              <span style={{ fontSize: 10, color: 'var(--text-tertiary)' }}>추론</span>
+            )}
+          </div>
+          {b.reason && (
+            <p style={{ margin: 0, fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{b.reason}</p>
+          )}
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function WatchRow({ item }: { item: WatchItem }) {
   const dir = DIR[item.direction] ?? DIR.neutral
-  const body = (
+  const head = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
         <span style={{ fontSize: 15, fontWeight: 700, color: 'var(--text-primary)', lineHeight: 1.2 }}>
@@ -33,15 +61,18 @@ function WatchRow({ item }: { item: WatchItem }) {
     </div>
   )
 
+  const beneficiaries = item.beneficiaries ?? []
+
   return (
     <div style={{ background: 'var(--bg-inset)', borderRadius: 10, padding: '16px 16px' }}>
       {item.url ? (
         <a href={item.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', display: 'block' }}>
-          {body}
+          {head}
         </a>
       ) : (
-        body
+        head
       )}
+      {beneficiaries.length > 0 && <BeneficiaryList list={beneficiaries} />}
     </div>
   )
 }
