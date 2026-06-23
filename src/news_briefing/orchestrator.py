@@ -231,7 +231,12 @@ def run_morning(
             new_items: list[CollectedItem] = [
                 i for i in all_items if (i.source, i.ext_id) in unseen_pairs
             ]
-            batch_mark_seen(conn, list(unseen_pairs))
+            # dry-run 은 seen 을 기록하지 않는다. 기록하면 재실행 때 방금 본 항목이
+            # 전부 '이미 봄'으로 걸러져 풀이 굶고(228→7건) 테스트가 자기오염된다.
+            if not dry_run:
+                batch_mark_seen(conn, list(unseen_pairs))
+            else:
+                log.info("2. dry-run: seen 미기록 (%d건)", len(unseen_pairs))
 
         log.info("2. new_items=%d (total=%d)", len(new_items), len(all_items))
 
