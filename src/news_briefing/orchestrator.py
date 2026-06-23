@@ -424,12 +424,34 @@ def run_morning(
             except Exception as e:
                 log.warning("pick 검증 실패 (원본 유지): %s", e)
 
+        # 7a-2. 관찰 리스트 — 픽이 0인 scope 만, 그날 점수 상위 공시를 보조 표시.
+        #   강한 촉매 없는 날 완전 빈 화면 대신 '지켜볼 만한 것'을 보여준다(픽과 분리).
+        watchlist_foreign: list[dict] = []
+        watchlist_domestic: list[dict] = []
+        with _timed("7a-2. watchlist"):
+            try:
+                from news_briefing.analysis.watchlist import select_watchlist
+
+                if not hot_issues_foreign:
+                    watchlist_foreign = select_watchlist(scored, foreign=True)
+                if not hot_issues_domestic:
+                    watchlist_domestic = select_watchlist(scored, foreign=False)
+                log.info(
+                    "watchlist: foreign %d, domestic %d",
+                    len(watchlist_foreign),
+                    len(watchlist_domestic),
+                )
+            except Exception as e:
+                log.warning("watchlist 생성 실패 (건너뜀): %s", e)
+
         # 7b. Briefing JSON (picks 중심 — 뉴스·시그널 표시 제거)
         with _timed("7b. build+write briefing JSON"):
             briefing = build_briefing_json(
                 date=now,
                 hot_issues_foreign=hot_issues_foreign,
                 hot_issues_domestic=hot_issues_domestic,
+                watchlist_foreign=watchlist_foreign,
+                watchlist_domestic=watchlist_domestic,
                 macro_indices=macro_indices,
                 research_scored=research_scored,
                 etf_snapshots=etf_snapshots,

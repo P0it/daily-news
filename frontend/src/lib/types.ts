@@ -14,6 +14,19 @@ export interface EconomyTab {
   research?: ResearchReport[]
   etf?: EtfSnapshot[]
   hotIssues?: { domestic: HotIssue[]; foreign: HotIssue[] }
+  // 관찰 리스트 — 해당 scope 픽이 0인 날만 채워진다(보조 참고).
+  watchlist?: { domestic: WatchItem[]; foreign: WatchItem[] }
+}
+
+// 관찰 항목 — 강한 촉매 픽엔 못 들었지만 지켜볼 만한 그날의 공시.
+export interface WatchItem {
+  company: string
+  code: string | null
+  title: string
+  score: number
+  direction: Direction
+  source: string
+  url: string | null
 }
 
 export interface ResearchReport {

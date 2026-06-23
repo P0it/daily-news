@@ -47,7 +47,7 @@ def test_build_briefing_has_required_top_level_keys() -> None:
     assert "ai" not in data["tabs"]
     assert "hero" not in data
     econ = data["tabs"]["economy"]
-    assert set(econ.keys()) == {"indices", "research", "etf", "hotIssues"}
+    assert set(econ.keys()) == {"indices", "research", "etf", "hotIssues", "watchlist"}
     assert "signals" not in econ
     assert "news" not in econ
 

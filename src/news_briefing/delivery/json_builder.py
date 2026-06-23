@@ -20,6 +20,8 @@ def build_briefing_json(
     date: datetime,
     hot_issues_foreign: list[dict] | None = None,
     hot_issues_domestic: list[dict] | None = None,
+    watchlist_foreign: list[dict] | None = None,
+    watchlist_domestic: list[dict] | None = None,
     macro_indices: list | None = None,
     research_scored: list[tuple[CollectedItem, int, str]] | None = None,
     etf_snapshots: list | None = None,
@@ -79,6 +81,11 @@ def build_briefing_json(
         "hotIssues": {
             "domestic": hot_issues_domestic or [],
             "foreign": hot_issues_foreign or [],
+        },
+        # 관찰 리스트 — 해당 scope 픽이 0일 때만 채워진다(보조 참고, 픽과 분리).
+        "watchlist": {
+            "domestic": watchlist_domestic or [],
+            "foreign": watchlist_foreign or [],
         },
     }
 

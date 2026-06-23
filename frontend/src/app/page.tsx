@@ -11,6 +11,7 @@ import { getStoredLang, t, type Lang } from '@/lib/i18n'
 import { parseDateFromSearch, parseScopeFromSearch } from '@/lib/tabs'
 import type { Briefing } from '@/lib/types'
 import { HotIssuesCard } from '@/components/HotIssuesCard'
+import { WatchlistCard } from '@/components/WatchlistCard'
 import { PicksHistoryView } from '@/components/PicksHistoryView'
 
 function HomeInner() {
@@ -80,14 +81,23 @@ function HomeInner() {
     : []
 
   if (issues.length === 0) {
+    const watchlist = briefing.tabs.economy.watchlist
+    const watchItems = watchlist
+      ? scope === 'foreign'
+        ? watchlist.foreign
+        : watchlist.domestic
+      : []
     return (
-      <div className="px-6 py-20 text-center" style={{ lineHeight: 1.7 }}>
-        <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>
-          오늘은 강한 촉매가 있는 종목이 없어요
-        </p>
-        <p style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
-          약한 신호로 억지로 채우기보다 비워뒀어요. 확실한 게 생기면 바로 보여드릴게요.
-        </p>
+      <div>
+        <div className="px-6 pt-16 pb-8 text-center" style={{ lineHeight: 1.7 }}>
+          <p style={{ fontSize: 16, fontWeight: 700, color: 'var(--text-primary)', marginBottom: 8 }}>
+            오늘은 강한 촉매가 있는 종목이 없어요
+          </p>
+          <p style={{ fontSize: 14, color: 'var(--text-secondary)' }}>
+            약한 신호로 억지로 채우기보다 비워뒀어요. 확실한 게 생기면 바로 보여드릴게요.
+          </p>
+        </div>
+        <WatchlistCard items={watchItems} />
       </div>
     )
   }
