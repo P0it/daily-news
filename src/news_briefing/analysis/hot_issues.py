@@ -463,15 +463,22 @@ def analyze_hot_issues(
         sum(1 for *_, t in pool if t == 3),
     )
 
-    try:
-        # 수혜주 추론(5이슈) → Opus + thinking 유지로 품질 사수. 출력이 길어 timeout 600s.
-        raw = _call_claude(prompt, timeout=600, model="opus").strip()
-        result = _parse_issues(raw)
-        log.info("hot_issues(foreign): %d개 이슈 선정", len(result))
-        return result
-    except Exception as e:
-        log.error("hot_issues(foreign) LLM 분석 실패: %s", e)
-        return []
+    # domestic 과 동일하게 1회 재시도. 일시적 서버 지연·thinking 변동으로 빈
+    # 결과가 나오면 '강한 촉매 없음'과 구분되지 않아, 재시도로 오탐을 막는다.
+    for attempt in range(2):
+        try:
+            # 수혜주 추론(5이슈) → Opus + thinking 유지로 품질 사수. 출력이 길어 timeout 600s.
+            raw = _call_claude(prompt, timeout=600, model="opus").strip()
+            result = _parse_issues(raw)
+            log.info("hot_issues(foreign): %d개 이슈 선정", len(result))
+            return result
+        except Exception as e:
+            if attempt == 0:
+                log.warning("hot_issues(foreign) 1차 실패, 30초 후 재시도: %s", e)
+                time.sleep(30)
+            else:
+                log.error("hot_issues(foreign) LLM 분석 최종 실패: %s", e)
+    return []
 
 
 def analyze_hot_issues_domestic(
