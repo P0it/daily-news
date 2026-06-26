@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { fetchDiscovery } from '@/lib/fetchBriefing'
 import type { Discovery, DiscoveryItem } from '@/lib/types'
 import { StockLogo } from '@/components/StockLogo'
@@ -23,181 +23,115 @@ function pctRaw(x: number | null): string {
   return `${x.toFixed(0)}%`
 }
 
-// 발굴 탭에서 쓰는 재무 용어 해설(고정). 대화체·느낌표 없음(DESIGN).
-const TERMS: { term: string; desc: string }[] = [
-  {
-    term: '종합 점수',
-    desc: '가치·재무·성장을 합쳐 100점 만점으로 매긴 발굴 점수예요. 세 가지를 고루 갖출수록 높아요.',
-  },
-  {
-    term: '가치 · 우량 · 성장',
-    desc: '같은 후보군 안에서 백분위로 매긴 세 항목 점수예요(0~100). 옆 종목들 대비 상대 위치예요.',
-  },
-  {
-    term: 'PER (주가수익비율)',
-    desc: '주가가 1년 이익의 몇 배인지예요. 낮을수록 이익 대비 싸요. "선행"은 올해 예상 이익 기준이에요.',
-  },
-  {
-    term: 'PBR (주가순자산비율)',
-    desc: '주가가 회사 순자산의 몇 배인지예요. 1배 아래면 장부가치보다 싸게 거래되는 거예요.',
-  },
-  {
-    term: 'PEG',
-    desc: 'PER을 이익성장률로 나눈 값이에요. 1보다 낮으면 성장 속도 대비 싸다는 뜻이에요.',
-  },
-  {
-    term: 'EV/EBITDA',
-    desc: '부채까지 포함한 기업가치가 영업현금이익의 몇 배인지예요. 낮을수록 싸요.',
-  },
-  {
-    term: 'ROE (자기자본이익률)',
-    desc: '주주 돈으로 한 해 얼마나 벌었는지예요. 높을수록 자본을 잘 굴리는 회사예요.',
-  },
-  {
-    term: '영업이익률',
-    desc: '매출에서 영업이익이 차지하는 비율이에요. 높을수록 본업 수익성이 좋아요.',
-  },
-  {
-    term: '부채비율',
-    desc: '자기자본 대비 빚의 비율이에요. 낮을수록 재무가 안정적이에요.',
-  },
-  {
-    term: '매출성장 · 이익성장',
-    desc: '1년 전 대비 매출과 이익이 얼마나 늘었는지예요. 높을수록 빠르게 크는 중이에요.',
-  },
-]
+// 각 지표 라벨의 툴팁 설명(고정). 대화체·느낌표 없음(DESIGN).
+const TIP = {
+  composite: '가치·재무·성장을 합쳐 100점 만점으로 매긴 발굴 점수예요. 세 가지를 고루 갖출수록 높아요.',
+  factors: '같은 후보군 안에서 백분위로 매긴 가치·우량·성장 점수예요(0~100). 옆 종목들 대비 상대 위치예요.',
+  per: '주가가 1년 이익의 몇 배인지예요. 낮을수록 이익 대비 싸요. "선행"은 올해 예상 이익 기준이에요.',
+  pbr: '주가가 회사 순자산의 몇 배인지예요. 1배 아래면 장부가치보다 싸게 거래되는 거예요.',
+  peg: 'PER을 이익성장률로 나눈 값이에요. 1보다 낮으면 성장 속도 대비 싸다는 뜻이에요.',
+  ev: '부채까지 포함한 기업가치가 영업현금이익(EBITDA)의 몇 배인지예요. 낮을수록 싸요.',
+  roe: '주주 돈으로 한 해 얼마나 벌었는지예요. 높을수록 자본을 잘 굴리는 회사예요.',
+  opm: '매출에서 영업이익이 차지하는 비율이에요. 높을수록 본업 수익성이 좋아요.',
+  rev: '1년 전 대비 매출이 얼마나 늘었는지예요. 높을수록 빠르게 크는 중이에요.',
+  earn: '1년 전 대비 이익이 얼마나 늘었는지예요. 높을수록 빠르게 크는 중이에요.',
+  debt: '자기자본 대비 빚의 비율이에요. 낮을수록 재무가 안정적이에요.',
+} as const
 
-function TermsHelp() {
+/** 라벨에 점선 밑줄을 달고, 호버(데스크톱)·탭(모바일)으로 설명 툴팁을 띄운다. */
+function InfoTip({
+  children,
+  desc,
+  align = 'left',
+}: {
+  children: React.ReactNode
+  desc: string
+  align?: 'left' | 'right'
+}) {
   const [open, setOpen] = useState(false)
+  const ref = useRef<HTMLSpanElement>(null)
 
-  // 모달 열림 동안 배경 스크롤 잠금
   useEffect(() => {
     if (!open) return
-    const prev = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-    return () => {
-      document.body.style.overflow = prev
+    const onDoc = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
     }
+    document.addEventListener('click', onDoc)
+    return () => document.removeEventListener('click', onDoc)
   }, [open])
 
   return (
-    <div style={{ margin: '0 16px 14px' }}>
+    <span
+      ref={ref}
+      style={{ position: 'relative', display: 'inline-block' }}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
       <button
         type="button"
-        onClick={() => setOpen(true)}
-        className="w-full text-left"
+        onClick={(e) => {
+          e.stopPropagation()
+          setOpen((v) => !v)
+        }}
         style={{
-          background: 'var(--bg-inset)',
-          borderRadius: 'var(--radius-card)',
-          padding: '14px 16px',
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          fontSize: 13,
-          fontWeight: 700,
-          color: 'var(--text-secondary)',
+          font: 'inherit',
+          color: 'inherit',
+          textAlign: 'inherit',
+          textDecoration: 'underline dotted',
+          textUnderlineOffset: 3,
+          textDecorationColor: 'var(--text-tertiary)',
+          cursor: 'help',
         }}
       >
-        <span aria-hidden>📖</span>
-        <span>이 지표들이 무슨 뜻인가요?</span>
-        <span className="ml-auto" style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
-          열기
-        </span>
+        {children}
       </button>
-
       {open && (
-        <div
-          onClick={() => setOpen(false)}
+        <span
+          role="tooltip"
           style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 50,
-            background: 'rgba(0, 0, 0, 0.5)',
-            display: 'flex',
-            alignItems: 'flex-end',
-            justifyContent: 'center',
+            position: 'absolute',
+            top: 'calc(100% + 6px)',
+            [align]: 0,
+            zIndex: 30,
+            width: 210,
+            padding: '10px 12px',
+            textAlign: 'left',
+            background: 'var(--bg-card)',
+            color: 'var(--text-secondary)',
+            borderRadius: 10,
+            boxShadow: '0 6px 24px rgba(0, 0, 0, 0.18)',
+            fontSize: 12.5,
+            fontWeight: 400,
+            lineHeight: 1.55,
+            letterSpacing: '-0.01em',
+            whiteSpace: 'normal',
           }}
         >
-          <div
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              background: 'var(--bg-card)',
-              borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
-              width: '100%',
-              maxWidth: 520,
-              maxHeight: '82vh',
-              overflowY: 'auto',
-              padding: '22px 22px 28px',
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                marginBottom: 18,
-              }}
-            >
-              <span
-                style={{
-                  fontSize: 18,
-                  fontWeight: 700,
-                  color: 'var(--text-primary)',
-                  letterSpacing: '-0.02em',
-                }}
-              >
-                지표 용어 설명
-              </span>
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                aria-label="닫기"
-                className="ml-auto"
-                style={{
-                  fontSize: 14,
-                  fontWeight: 700,
-                  color: 'var(--text-secondary)',
-                  padding: '4px 10px',
-                  background: 'var(--bg-inset)',
-                  borderRadius: 8,
-                }}
-              >
-                닫기
-              </button>
-            </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {TERMS.map((t) => (
-                <div key={t.term}>
-                  <div
-                    style={{
-                      fontSize: 14.5,
-                      fontWeight: 700,
-                      color: 'var(--text-primary)',
-                      letterSpacing: '-0.01em',
-                      marginBottom: 4,
-                    }}
-                  >
-                    {t.term}
-                  </div>
-                  <div
-                    style={{ fontSize: 14, lineHeight: 1.65, color: 'var(--text-secondary)' }}
-                  >
-                    {t.desc}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
+          {desc}
+        </span>
       )}
-    </div>
+    </span>
   )
 }
 
-function Metric({ label, value }: { label: string; value: string }) {
+function Metric({
+  label,
+  value,
+  tip,
+  align = 'left',
+}: {
+  label: string
+  value: string
+  tip: string
+  align?: 'left' | 'right'
+}) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>{label}</span>
+      <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>
+        <InfoTip desc={tip} align={align}>
+          {label}
+        </InfoTip>
+      </span>
       <span
         style={{
           fontSize: 14,
@@ -297,7 +231,11 @@ function DiscoveryRow({ item }: { item: DiscoveryItem }) {
           >
             {item.composite}
           </div>
-          <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 3 }}>종합 점수</div>
+          <div style={{ fontSize: 11, color: 'var(--text-tertiary)', marginTop: 3 }}>
+            <InfoTip desc={TIP.composite} align="right">
+              종합 점수
+            </InfoTip>
+          </div>
         </div>
       </div>
 
@@ -319,8 +257,10 @@ function DiscoveryRow({ item }: { item: DiscoveryItem }) {
           </span>
         )}
         <span style={{ color: 'var(--text-tertiary)' }}>
-          가치 {item.valueScore ?? '—'} · 우량 {item.qualityScore ?? '—'} · 성장{' '}
-          {item.growthScore ?? '—'}
+          <InfoTip desc={TIP.factors} align="left">
+            가치 {item.valueScore ?? '—'} · 우량 {item.qualityScore ?? '—'} · 성장{' '}
+            {item.growthScore ?? '—'}
+          </InfoTip>
         </span>
       </div>
 
@@ -333,7 +273,7 @@ function DiscoveryRow({ item }: { item: DiscoveryItem }) {
         </div>
       )}
 
-      {/* 핵심 지표 */}
+      {/* 핵심 지표 (라벨 탭/호버 시 설명 툴팁) */}
       <div
         style={{
           display: 'grid',
@@ -345,15 +285,15 @@ function DiscoveryRow({ item }: { item: DiscoveryItem }) {
           borderRadius: 12,
         }}
       >
-        <Metric label="PER(선행)" value={mult(m.forwardPe ?? m.trailingPe)} />
-        <Metric label="PBR" value={mult(m.priceToBook)} />
-        <Metric label="PEG" value={mult(m.peg)} />
-        <Metric label="ROE" value={pct(m.roe)} />
-        <Metric label="영업이익률" value={pct(m.operatingMargin)} />
-        <Metric label="매출성장" value={pct(m.revenueGrowth)} />
-        <Metric label="EV/EBITDA" value={mult(m.evToEbitda)} />
-        <Metric label="이익성장" value={pct(m.earningsGrowth)} />
-        <Metric label="부채비율" value={pctRaw(m.debtToEquity)} />
+        <Metric label="PER(선행)" tip={TIP.per} value={mult(m.forwardPe ?? m.trailingPe)} />
+        <Metric label="PBR" tip={TIP.pbr} value={mult(m.priceToBook)} />
+        <Metric label="PEG" tip={TIP.peg} align="right" value={mult(m.peg)} />
+        <Metric label="ROE" tip={TIP.roe} value={pct(m.roe)} />
+        <Metric label="영업이익률" tip={TIP.opm} value={pct(m.operatingMargin)} />
+        <Metric label="매출성장" tip={TIP.rev} align="right" value={pct(m.revenueGrowth)} />
+        <Metric label="EV/EBITDA" tip={TIP.ev} value={mult(m.evToEbitda)} />
+        <Metric label="이익성장" tip={TIP.earn} value={pct(m.earningsGrowth)} />
+        <Metric label="부채비율" tip={TIP.debt} align="right" value={pctRaw(m.debtToEquity)} />
       </div>
 
       {/* 서술 */}
@@ -462,7 +402,6 @@ export function DiscoveryView() {
 
   return (
     <div style={{ padding: '16px 0 40px' }}>
-      <TermsHelp />
       <CardList items={[...data.us, ...data.kospi]} />
     </div>
   )
