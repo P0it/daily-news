@@ -168,3 +168,44 @@ export interface PickRecord {
   currentPriceAt: string | null
   changePct: number | null
 }
+
+// ── 발굴(Discovery) — 펀더멘털 정량 스크린 + LLM 리서치 ────────────────────────
+
+export interface DiscoveryMetrics {
+  trailingPe: number | null
+  forwardPe: number | null
+  priceToBook: number | null
+  peg: number | null
+  evToEbitda: number | null
+  roe: number | null
+  profitMargin: number | null
+  operatingMargin: number | null
+  debtToEquity: number | null
+  revenueGrowth: number | null
+  earningsGrowth: number | null
+}
+
+export interface DiscoveryItem {
+  ticker: string
+  name: string | null
+  scope: 'us' | 'kospi'
+  sector: string | null
+  composite: number // 종합 점수 0~100
+  valueScore: number | null
+  qualityScore: number | null
+  growthScore: number | null
+  highlights: string[] // 예: ["저평가", "성장"]
+  metrics: DiscoveryMetrics
+  thesis: string | null
+  whyUndiscovered: string | null
+  keyRisks: string | null
+  confirmCatalysts: string | null
+  valuationNote: string | null
+  relatedEtf: RelatedEtf | null // 미국 종목의 ISA·연금용 국내 추종 ETF
+}
+
+export interface Discovery {
+  generatedAt: string
+  us: DiscoveryItem[]
+  kospi: DiscoveryItem[]
+}

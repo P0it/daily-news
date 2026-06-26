@@ -8,6 +8,7 @@ export const en: Dict = {
   'scope.all': 'All',
   'scope.domestic': 'Korea',
   'scope.foreign': 'Global',
+  'scope.discovery': 'Discover',
   'scope.international': 'Global',
   'hero.today': 'Needs your attention',
   'signal.positive': 'Positive',

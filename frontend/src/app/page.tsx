@@ -13,6 +13,7 @@ import type { Briefing } from '@/lib/types'
 import { HotIssuesCard } from '@/components/HotIssuesCard'
 import { WatchlistCard } from '@/components/WatchlistCard'
 import { PicksHistoryView } from '@/components/PicksHistoryView'
+import { DiscoveryView } from '@/components/DiscoveryView'
 
 function HomeInner() {
   const sp = useSearchParams()
@@ -55,6 +56,11 @@ function HomeInner() {
   // 실적(picks 성과 추적) 탭
   if (scope === 'picks') {
     return <PicksHistoryView />
+  }
+
+  // 발굴(펀더멘털 스크린) 탭 — 브리핑과 독립된 스냅샷을 읽는다
+  if (scope === 'discovery') {
+    return <DiscoveryView />
   }
 
   if (error) {

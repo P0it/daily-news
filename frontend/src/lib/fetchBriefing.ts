@@ -1,4 +1,4 @@
-import type { Briefing, PickRecord } from '@/lib/types'
+import type { Briefing, Discovery, PickRecord } from '@/lib/types'
 
 function todayKey(): string {
   const d = new Date()
@@ -30,6 +30,16 @@ export async function fetchPicksHistory(): Promise<PickRecord[]> {
     return (json.records ?? []) as PickRecord[]
   } catch {
     return []
+  }
+}
+
+export async function fetchDiscovery(): Promise<Discovery | null> {
+  try {
+    const res = await fetch('/discovery.json', { cache: 'no-store' })
+    if (!res.ok) return null
+    return (await res.json()) as Discovery
+  } catch {
+    return null
   }
 }
 

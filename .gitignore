@@ -39,6 +39,7 @@ frontend/node_modules/
 # 브리핑·성과 데이터 — Supabase(원본)에서 빌드시 생성하므로 커밋하지 않음 (DECISIONS #16)
 frontend/public/briefings/*.json
 frontend/public/picks_history.json
+frontend/public/discovery.json
 
 # OS
 .DS_Store

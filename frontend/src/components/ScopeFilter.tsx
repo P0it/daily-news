@@ -19,6 +19,7 @@ export function ScopeFilter({ lang }: { lang: Lang }) {
   const options: { key: Scope; label: string }[] = [
     { key: 'domestic', label: dict['scope.domestic'] },
     { key: 'foreign', label: dict['scope.foreign'] },
+    { key: 'discovery', label: dict['scope.discovery'] },
     { key: 'picks', label: '실적' },
   ]
 
@@ -35,7 +36,14 @@ export function ScopeFilter({ lang }: { lang: Lang }) {
       >
         {options.map(({ key, label }) => {
           const active = scope === key
-          const emoji = key === 'domestic' ? '🇰🇷' : key === 'foreign' ? '🌐' : '📈'
+          const emoji =
+            key === 'domestic'
+              ? '🇰🇷'
+              : key === 'foreign'
+                ? '🌐'
+                : key === 'discovery'
+                  ? '🔍'
+                  : '📈'
           return (
             <Link
               key={key}

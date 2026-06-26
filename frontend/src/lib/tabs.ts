@@ -1,6 +1,6 @@
-export type Scope = 'domestic' | 'foreign' | 'picks'
+export type Scope = 'domestic' | 'foreign' | 'discovery' | 'picks'
 
-const SCOPES_SET: ReadonlySet<string> = new Set(['domestic', 'foreign', 'picks'])
+const SCOPES_SET: ReadonlySet<string> = new Set(['domestic', 'foreign', 'discovery', 'picks'])
 const DEFAULT_SCOPE: Scope = 'foreign'
 
 export function parseScopeFromSearch(search: URLSearchParams | string): Scope {
