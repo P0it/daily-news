@@ -186,3 +186,44 @@ CREATE TABLE IF NOT EXISTS discovery_screens (
 );
 ALTER TABLE discovery_screens ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "public_read" ON discovery_screens FOR SELECT USING (true);
+
+-- discovery_outcomes: 발굴 픽 영구 원장 (알파 기준 채점, pick_outcomes 자매).
+-- 발굴은 중장기라 T+5/20/60 거래일로 채점한다. direction 은 항상 positive(롱 아이디어).
+-- "진짜 발굴이면 시장과 무관하게 알파를 낸다" — 지수 대비 초과수익으로 판정.
+CREATE TABLE IF NOT EXISTS discovery_outcomes (
+    id             TEXT PRIMARY KEY,   -- {rec_date}-{scope}-{ticker}
+    rec_date       TEXT NOT NULL,      -- 스크린 실행일 YYYY-MM-DD
+    ticker         TEXT NOT NULL,
+    name           TEXT,
+    scope          TEXT NOT NULL,      -- us | kospi
+    sector         TEXT,
+    composite      INTEGER,            -- 종합 점수 스냅샷
+    value_score    INTEGER,
+    quality_score  INTEGER,
+    growth_score   INTEGER,
+    highlights     TEXT,               -- 강점 라벨(콤마 결합)
+    currency       TEXT,               -- USD | KRW
+    price_at_rec   REAL,               -- 진입 기준가 = 스크린 직전 거래일 종가
+    price_5d       REAL,
+    price_20d      REAL,
+    price_60d      REAL,
+    ret_5d         REAL,
+    ret_20d        REAL,
+    ret_60d        REAL,
+    bench_ret_5d   REAL,
+    bench_ret_20d  REAL,
+    bench_ret_60d  REAL,
+    alpha_5d       REAL,
+    alpha_20d      REAL,
+    alpha_60d      REAL,
+    benchmark      TEXT,               -- ^GSPC | ^KS11
+    hit_5d         INTEGER,
+    hit_20d        INTEGER,
+    hit_60d        INTEGER,
+    created_at     TEXT NOT NULL,
+    updated_at     TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_discovery_outcomes_date ON discovery_outcomes(rec_date);
+CREATE INDEX IF NOT EXISTS idx_discovery_outcomes_pending ON discovery_outcomes(price_60d);
+ALTER TABLE discovery_outcomes ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public_read" ON discovery_outcomes FOR SELECT USING (true);

@@ -7,6 +7,7 @@ from news_briefing.analysis.discovery import (
     _parse_research,
     _scan_objects,
 )
+from news_briefing.analysis.discovery_outcomes import _snapshot_rows
 
 
 def test_parse_clean_array() -> None:
@@ -76,3 +77,41 @@ def test_apply_thesis_ignores_incomplete_etf() -> None:
     }
     _apply_thesis(item, {"thesis": "t", "related_etf": {"ticker": "069500"}})  # name 누락
     assert item["relatedEtf"] is None
+
+
+# ── 발굴 성과 원장 스냅샷 ─────────────────────────────────────────────────────
+
+
+def test_snapshot_rows_builds_ledger_rows() -> None:
+    snapshot = {
+        "generatedAt": "2026-06-26T21:00:00+00:00",
+        "us": [
+            {
+                "ticker": "PFE",
+                "name": "Pfizer",
+                "sector": "Healthcare",
+                "composite": 81,
+                "valueScore": 92,
+                "qualityScore": 78,
+                "growthScore": 55,
+                "highlights": ["저평가", "재무우량"],
+            }
+        ],
+        "kospi": [{"ticker": "005930.KS", "name": "삼성전자", "composite": 73, "highlights": []}],
+    }
+    rows = _snapshot_rows(snapshot, "2026-06-26")
+    assert len(rows) == 2
+    us = next(r for r in rows if r["ticker"] == "PFE")
+    assert us["id"] == "2026-06-26-us-PFE"
+    assert us["scope"] == "us"
+    assert us["currency"] == "USD"
+    assert us["highlights"] == "저평가,재무우량"
+    assert us["price_at_rec"] is None
+    kospi = next(r for r in rows if r["ticker"] == "005930.KS")
+    assert kospi["id"] == "2026-06-26-kospi-005930.KS"
+    assert kospi["currency"] == "KRW"
+
+
+def test_snapshot_rows_skips_empty_ticker() -> None:
+    snapshot = {"us": [{"ticker": "", "name": "x"}], "kospi": []}
+    assert _snapshot_rows(snapshot, "2026-06-26") == []

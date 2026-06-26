@@ -133,6 +133,9 @@ def _cmd_screen(args: argparse.Namespace) -> int:
     추린다. --no-llm 은 정량 숏리스트만, 기본은 LLM 심층 리서치까지.
     --dry-run 이 아니면 스냅샷을 Supabase(원본) + 로컬 JSON 에 저장해 앱에 노출한다.
     """
+    if args.grade:
+        return _grade_discovery()
+
     from news_briefing.analysis.discovery import build_snapshot, deep_research, run_screen
 
     result = run_screen()
@@ -170,11 +173,53 @@ def _cmd_screen(args: argparse.Namespace) -> int:
 
     snapshot = build_snapshot(enriched)
     if args.dry_run:
-        print("\n[dry-run] 저장·배포 생략")
+        print("\n[dry-run] 저장·배포·원장 기록 생략")
         return 0
 
     _persist_discovery(snapshot)
+    _record_discovery_outcomes(snapshot)
     print()
+    return 0
+
+
+def _record_discovery_outcomes(snapshot: dict) -> None:
+    """발굴 스냅샷의 신규 픽을 알파 성과 원장에 스냅샷한다(테이블 미적용 시 무해히 스킵)."""
+    from datetime import datetime
+
+    cfg = load_config()
+    rec_date = datetime.now().strftime("%Y-%m-%d")
+    try:
+        from news_briefing.analysis.discovery_outcomes import record_outcomes
+        from news_briefing.storage.db import get_client
+
+        conn = get_client(cfg.supabase_url, cfg.supabase_service_key)
+        try:
+            n = record_outcomes(conn, snapshot, rec_date)
+            print(f"발굴 원장 스냅샷: 신규 {n}건 (rec_date={rec_date})")
+        finally:
+            conn.close()
+    except Exception as e:
+        print(f"발굴 원장 기록 실패(스냅샷은 저장됨): {e}", file=sys.stderr)
+
+
+def _grade_discovery() -> int:
+    """발굴 원장 채점 백필 + 호라이즌별 적중률·평균 알파 집계."""
+    from news_briefing.analysis.discovery_outcomes import backfill_outcomes, calibration_report
+    from news_briefing.storage.db import get_client
+
+    cfg = load_config()
+    conn = get_client(cfg.supabase_url, cfg.supabase_service_key)
+    try:
+        updated = backfill_outcomes(conn)
+        report = calibration_report(conn)
+    finally:
+        conn.close()
+
+    print(f"발굴 원장 채점: {updated}건 갱신 · 총 {report['total']}건")
+    for label, h in report["horizons"].items():
+        hr = f"{h['hit_rate'] * 100:.0f}%" if h["hit_rate"] is not None else "—"
+        aa = f"{h['avg_alpha']:+.2f}%" if h["avg_alpha"] is not None else "—"
+        print(f"  T+{label:4} 채점 {h['graded']:3}건 · 적중률 {hr} · 평균 알파 {aa}")
     return 0
 
 
@@ -404,6 +449,9 @@ def main(argv: list[str] | None = None) -> int:
     p_screen = sub.add_parser("screen", help="펀더멘털 발굴 스크린 (저평가·우량·성장 종목)")
     p_screen.add_argument("--dry-run", action="store_true", help="저장·배포 없이 stdout 으로만")
     p_screen.add_argument("--no-llm", action="store_true", help="정량 숏리스트만(LLM 리서치 생략)")
+    p_screen.add_argument(
+        "--grade", action="store_true", help="스크린 대신 발굴 원장 채점 백필 + 적중률 집계"
+    )
     p_screen.set_defaults(func=_cmd_screen)
 
     sub.add_parser("cleanup", help="오래된 데이터 수동 정리").set_defaults(func=_cmd_cleanup)
