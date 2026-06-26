@@ -68,6 +68,7 @@
 | F34 | 종목 카드 클릭 시 TradingView 차트 + 증권사 딥링크 아코디언 펼침 | 필수 | 2b |
 | F35 | **AI 탭** — AI 모델 업데이트·툴·디자인 AI 소식 (GeekNews, Anthropic/OpenAI 블로그, YouTube RSS, HN). default 탭 (`DECISIONS.md` #13) | 필수 | 5b |
 | F36 | **경제 탭 해설 강화** — 경제 뉴스 2줄 요약 자동 노출 + 거시 용어 glossary 확대 (기준금리·CPI·GDP 등) | 필수 | 5a |
+| F37 | **발굴 탭** — 이벤트 무관 고정 유니버스(미국·코스피) 펀더멘털 정량 스크린(가치·퀄리티·성장 백분위) + LLM 심층 리서치. 온디맨드 `screen` 실행, 저평가·우량·성장 종목 발굴 (`DECISIONS.md` #19) | 필수 | 6 |
 | F25 | **PWA 설치 가능** (manifest, service worker, 홈 화면 아이콘) | 필수 | 2 |
 | F26 | **오프라인 열람** (이미 받은 브리핑은 네트워크 없이 재열람) | 중요 | 2 |
 
