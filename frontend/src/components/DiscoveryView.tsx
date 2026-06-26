@@ -61,29 +61,52 @@ function Block({ label, text }: { label: string; text: string | null }) {
   )
 }
 
+function MarketTag({ scope }: { scope: DiscoveryItem['scope'] }) {
+  const isForeign = scope !== 'kospi'
+  return (
+    <span
+      style={{
+        flexShrink: 0,
+        fontSize: 11,
+        fontWeight: 700,
+        letterSpacing: '-0.01em',
+        color: 'var(--badge-text)',
+        background: 'var(--badge-bg)',
+        borderRadius: 6,
+        padding: '2px 7px',
+      }}
+    >
+      {isForeign ? '🌐 해외' : '🇰🇷 국내'}
+    </span>
+  )
+}
+
 function DiscoveryRow({ item }: { item: DiscoveryItem }) {
-  const logoScope = item.scope === 'kospi' ? 'domestic' : 'foreign'
   const m = item.metrics
 
   return (
     <div>
-      {/* 헤더: 종목명 + 종합 점수(히어로) */}
+      {/* 헤더: 종목명 + 시장 딱지 + 종합 점수(히어로) */}
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 9, minWidth: 0, flex: 1 }}>
           <StockLogo ticker={item.ticker} name={item.name ?? item.ticker} size={26} />
           <div style={{ minWidth: 0 }}>
-            <div
-              style={{
-                fontSize: 17,
-                fontWeight: 700,
-                color: 'var(--text-primary)',
-                letterSpacing: '-0.02em',
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              {item.name ?? item.ticker}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, minWidth: 0 }}>
+              <span
+                style={{
+                  fontSize: 17,
+                  fontWeight: 700,
+                  color: 'var(--text-primary)',
+                  letterSpacing: '-0.02em',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  minWidth: 0,
+                }}
+              >
+                {item.name ?? item.ticker}
+              </span>
+              <MarketTag scope={item.scope} />
             </div>
             <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
               {item.ticker}
