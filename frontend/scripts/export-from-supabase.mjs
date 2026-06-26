@@ -96,8 +96,24 @@ async function main() {
     JSON.stringify(phData, null, 2),
   )
 
+  // 3. discovery_screens(단일 행) → discovery.json (펀더멘털 발굴 스냅샷)
+  let discCount = 0
+  try {
+    const ds = await rest('discovery_screens?select=data&id=eq.current&limit=1')
+    const dsData = ds[0]?.data ?? { generatedAt: '', us: [], kospi: [] }
+    discCount = (dsData.us || []).length + (dsData.kospi || []).length
+    await writeFile(
+      join(PUBLIC_DIR, 'discovery.json'),
+      JSON.stringify(dsData, null, 2),
+    )
+  } catch (e) {
+    // 테이블 미적용 등 — 기존 discovery.json 유지(있으면)
+    console.warn(`[export] discovery 스킵: ${e.message}`)
+  }
+
   console.log(
-    `[export] briefings ${dates.length}일치, picks ${(phData.records || []).length}건 복원`,
+    `[export] briefings ${dates.length}일치, picks ${(phData.records || []).length}건, ` +
+      `발굴 ${discCount}종목 복원`,
   )
 }
 

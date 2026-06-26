@@ -11,6 +11,7 @@ import json
 import logging
 import re
 from dataclasses import dataclass
+from datetime import UTC, datetime
 from pathlib import Path
 
 from news_briefing.analysis.llm import _call_claude
@@ -261,3 +262,12 @@ def deep_research(result: DiscoveryResult, *, timeout: int = _RESEARCH_TIMEOUT) 
                 log.warning("발굴 리서치 LLM 실패 scope=%s: %s — 정량 점수만 유지", scope, e)
         enriched[scope] = items
     return enriched
+
+
+def build_snapshot(enriched: dict) -> dict:
+    """enriched item dict → 앱/저장용 스냅샷 dict."""
+    return {
+        "generatedAt": datetime.now(UTC).isoformat(),
+        "us": enriched.get("us", []),
+        "kospi": enriched.get("kospi", []),
+    }

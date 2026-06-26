@@ -130,9 +130,10 @@ def _cmd_screen(args: argparse.Namespace) -> int:
     """펀더멘털 발굴 스크린 (온디맨드).
 
     이벤트 구동 picks 와 별개로 고정 유니버스를 정량 스캔해 저평가·우량·성장 종목을
-    추린다. --no-llm 은 정량 숏리스트만, 기본은 LLM 심층 리서치까지(Phase 2).
+    추린다. --no-llm 은 정량 숏리스트만, 기본은 LLM 심층 리서치까지.
+    --dry-run 이 아니면 스냅샷을 Supabase(원본) + 로컬 JSON 에 저장해 앱에 노출한다.
     """
-    from news_briefing.analysis.discovery import deep_research, run_screen
+    from news_briefing.analysis.discovery import build_snapshot, deep_research, run_screen
 
     result = run_screen()
 
@@ -166,8 +167,41 @@ def _cmd_screen(args: argparse.Namespace) -> int:
             etf = it.get("relatedEtf")
             if etf:
                 print(f"       국내 ETF: {etf['name']} ({etf['ticker']})")
+
+    snapshot = build_snapshot(enriched)
+    if args.dry_run:
+        print("\n[dry-run] 저장·배포 생략")
+        return 0
+
+    _persist_discovery(snapshot)
     print()
     return 0
+
+
+def _persist_discovery(snapshot: dict) -> None:
+    """발굴 스냅샷을 로컬 JSON + Supabase(원본)에 저장한다.
+
+    로컬 파일은 항상 기록(생성 머신 미리보기), Supabase 는 실패해도 로컬은 남도록
+    예외를 잡는다(테이블 미적용 등). DECISIONS #16 — Supabase 가 단일 원본.
+    """
+    from news_briefing.storage.discovery import upsert_discovery, write_discovery_local
+
+    cfg = load_config()
+    local_path = cfg.public_briefings_dir.parent / "discovery.json"
+    write_discovery_local(local_path, snapshot)
+    print(f"발굴 스냅샷 로컬 저장: {local_path}")
+
+    try:
+        from news_briefing.storage.db import get_client
+
+        conn = get_client(cfg.supabase_url, cfg.supabase_service_key)
+        try:
+            upsert_discovery(conn, snapshot)
+            print("발굴 스냅샷 Supabase 저장 완료 (id=current)")
+        finally:
+            conn.close()
+    except Exception as e:
+        print(f"발굴 스냅샷 Supabase 저장 실패(로컬은 저장됨): {e}", file=sys.stderr)
 
 
 def _cmd_cleanup(args: argparse.Namespace) -> int:
