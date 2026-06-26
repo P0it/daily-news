@@ -69,11 +69,22 @@ const TERMS: { term: string; desc: string }[] = [
 
 function TermsHelp() {
   const [open, setOpen] = useState(false)
+
+  // 모달 열림 동안 배경 스크롤 잠금
+  useEffect(() => {
+    if (!open) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [open])
+
   return (
-    <div style={{ margin: '0 16px 10px' }}>
+    <div style={{ margin: '0 16px 14px' }}>
       <button
         type="button"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => setOpen(true)}
         className="w-full text-left"
         style={{
           background: 'var(--bg-inset)',
@@ -90,39 +101,93 @@ function TermsHelp() {
         <span aria-hidden>📖</span>
         <span>이 지표들이 무슨 뜻인가요?</span>
         <span className="ml-auto" style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
-          {open ? '닫기' : '열기'}
+          열기
         </span>
       </button>
+
       {open && (
         <div
+          onClick={() => setOpen(false)}
           style={{
-            background: 'var(--bg-inset)',
-            borderRadius: 'var(--radius-card)',
-            padding: '6px 18px 18px',
-            marginTop: 6,
+            position: 'fixed',
+            inset: 0,
+            zIndex: 50,
+            background: 'rgba(0, 0, 0, 0.5)',
             display: 'flex',
-            flexDirection: 'column',
-            gap: 14,
+            alignItems: 'flex-end',
+            justifyContent: 'center',
           }}
         >
-          {TERMS.map((t) => (
-            <div key={t.term}>
-              <div
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              background: 'var(--bg-card)',
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              width: '100%',
+              maxWidth: 520,
+              maxHeight: '82vh',
+              overflowY: 'auto',
+              padding: '22px 22px 28px',
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                marginBottom: 18,
+              }}
+            >
+              <span
+                style={{
+                  fontSize: 18,
+                  fontWeight: 700,
+                  color: 'var(--text-primary)',
+                  letterSpacing: '-0.02em',
+                }}
+              >
+                지표 용어 설명
+              </span>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                aria-label="닫기"
+                className="ml-auto"
                 style={{
                   fontSize: 14,
                   fontWeight: 700,
-                  color: 'var(--text-primary)',
-                  letterSpacing: '-0.01em',
-                  marginBottom: 3,
+                  color: 'var(--text-secondary)',
+                  padding: '4px 10px',
+                  background: 'var(--bg-inset)',
+                  borderRadius: 8,
                 }}
               >
-                {t.term}
-              </div>
-              <div style={{ fontSize: 13.5, lineHeight: 1.6, color: 'var(--text-secondary)' }}>
-                {t.desc}
-              </div>
+                닫기
+              </button>
             </div>
-          ))}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {TERMS.map((t) => (
+                <div key={t.term}>
+                  <div
+                    style={{
+                      fontSize: 14.5,
+                      fontWeight: 700,
+                      color: 'var(--text-primary)',
+                      letterSpacing: '-0.01em',
+                      marginBottom: 4,
+                    }}
+                  >
+                    {t.term}
+                  </div>
+                  <div
+                    style={{ fontSize: 14, lineHeight: 1.65, color: 'var(--text-secondary)' }}
+                  >
+                    {t.desc}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       )}
     </div>
@@ -339,37 +404,22 @@ function DiscoveryRow({ item }: { item: DiscoveryItem }) {
   )
 }
 
-function Section({ title, items }: { title: string; items: DiscoveryItem[] }) {
-  if (items.length === 0) return null
+function CardList({ items }: { items: DiscoveryItem[] }) {
   return (
-    <section className="mx-4 mb-2.5" style={{ marginBottom: 10 }}>
-      <div
-        style={{
-          fontSize: 11,
-          fontWeight: 700,
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
-          color: 'var(--text-tertiary)',
-          padding: '0 4px 12px',
-        }}
-      >
-        {title}
-      </div>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-        {items.map((item) => (
-          <div
-            key={`${item.scope}-${item.ticker}`}
-            style={{
-              background: 'var(--bg-card)',
-              borderRadius: 'var(--radius-card)',
-              padding: '20px 22px',
-            }}
-          >
-            <DiscoveryRow item={item} />
-          </div>
-        ))}
-      </div>
-    </section>
+    <div className="mx-4" style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+      {items.map((item) => (
+        <div
+          key={`${item.scope}-${item.ticker}`}
+          style={{
+            background: 'var(--bg-card)',
+            borderRadius: 'var(--radius-card)',
+            padding: '20px 22px',
+          }}
+        >
+          <DiscoveryRow item={item} />
+        </div>
+      ))}
+    </div>
   )
 }
 
@@ -413,19 +463,7 @@ export function DiscoveryView() {
   return (
     <div style={{ padding: '16px 0 40px' }}>
       <TermsHelp />
-      <div
-        style={{
-          fontSize: 13,
-          color: 'var(--text-tertiary)',
-          lineHeight: 1.6,
-          margin: '0 20px 16px',
-        }}
-      >
-        오늘 뉴스에 안 나와도, 재무가 조용히 좋은 종목을 정량으로 추렸어요. 촉매가 아니라
-        펀더멘털로 본 후보예요.
-      </div>
-      <Section title="🔍 미국 발굴" items={data.us} />
-      <Section title="🇰🇷 코스피 발굴" items={data.kospi} />
+      <CardList items={[...data.us, ...data.kospi]} />
     </div>
   )
 }
