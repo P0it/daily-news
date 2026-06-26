@@ -23,6 +23,112 @@ function pctRaw(x: number | null): string {
   return `${x.toFixed(0)}%`
 }
 
+// 발굴 탭에서 쓰는 재무 용어 해설(고정). 대화체·느낌표 없음(DESIGN).
+const TERMS: { term: string; desc: string }[] = [
+  {
+    term: '종합 점수',
+    desc: '가치·재무·성장을 합쳐 100점 만점으로 매긴 발굴 점수예요. 세 가지를 고루 갖출수록 높아요.',
+  },
+  {
+    term: '가치 · 우량 · 성장',
+    desc: '같은 후보군 안에서 백분위로 매긴 세 항목 점수예요(0~100). 옆 종목들 대비 상대 위치예요.',
+  },
+  {
+    term: 'PER (주가수익비율)',
+    desc: '주가가 1년 이익의 몇 배인지예요. 낮을수록 이익 대비 싸요. "선행"은 올해 예상 이익 기준이에요.',
+  },
+  {
+    term: 'PBR (주가순자산비율)',
+    desc: '주가가 회사 순자산의 몇 배인지예요. 1배 아래면 장부가치보다 싸게 거래되는 거예요.',
+  },
+  {
+    term: 'PEG',
+    desc: 'PER을 이익성장률로 나눈 값이에요. 1보다 낮으면 성장 속도 대비 싸다는 뜻이에요.',
+  },
+  {
+    term: 'EV/EBITDA',
+    desc: '부채까지 포함한 기업가치가 영업현금이익의 몇 배인지예요. 낮을수록 싸요.',
+  },
+  {
+    term: 'ROE (자기자본이익률)',
+    desc: '주주 돈으로 한 해 얼마나 벌었는지예요. 높을수록 자본을 잘 굴리는 회사예요.',
+  },
+  {
+    term: '영업이익률',
+    desc: '매출에서 영업이익이 차지하는 비율이에요. 높을수록 본업 수익성이 좋아요.',
+  },
+  {
+    term: '부채비율',
+    desc: '자기자본 대비 빚의 비율이에요. 낮을수록 재무가 안정적이에요.',
+  },
+  {
+    term: '매출성장 · 이익성장',
+    desc: '1년 전 대비 매출과 이익이 얼마나 늘었는지예요. 높을수록 빠르게 크는 중이에요.',
+  },
+]
+
+function TermsHelp() {
+  const [open, setOpen] = useState(false)
+  return (
+    <div style={{ margin: '0 16px 10px' }}>
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="w-full text-left"
+        style={{
+          background: 'var(--bg-inset)',
+          borderRadius: 'var(--radius-card)',
+          padding: '14px 16px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          fontSize: 13,
+          fontWeight: 700,
+          color: 'var(--text-secondary)',
+        }}
+      >
+        <span aria-hidden>📖</span>
+        <span>이 지표들이 무슨 뜻인가요?</span>
+        <span className="ml-auto" style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
+          {open ? '닫기' : '열기'}
+        </span>
+      </button>
+      {open && (
+        <div
+          style={{
+            background: 'var(--bg-inset)',
+            borderRadius: 'var(--radius-card)',
+            padding: '6px 18px 18px',
+            marginTop: 6,
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 14,
+          }}
+        >
+          {TERMS.map((t) => (
+            <div key={t.term}>
+              <div
+                style={{
+                  fontSize: 14,
+                  fontWeight: 700,
+                  color: 'var(--text-primary)',
+                  letterSpacing: '-0.01em',
+                  marginBottom: 3,
+                }}
+              >
+                {t.term}
+              </div>
+              <div style={{ fontSize: 13.5, lineHeight: 1.6, color: 'var(--text-secondary)' }}>
+                {t.desc}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -306,6 +412,7 @@ export function DiscoveryView() {
 
   return (
     <div style={{ padding: '16px 0 40px' }}>
+      <TermsHelp />
       <div
         style={{
           fontSize: 13,
