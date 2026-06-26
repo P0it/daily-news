@@ -132,11 +132,11 @@ def _cmd_screen(args: argparse.Namespace) -> int:
     이벤트 구동 picks 와 별개로 고정 유니버스를 정량 스캔해 저평가·우량·성장 종목을
     추린다. --no-llm 은 정량 숏리스트만, 기본은 LLM 심층 리서치까지(Phase 2).
     """
-    from news_briefing.analysis.discovery import run_screen
+    from news_briefing.analysis.discovery import deep_research, run_screen
 
     result = run_screen()
 
-    def _print(scope_name: str, rows: list) -> None:
+    def _print_quant(scope_name: str, rows: list) -> None:
         print(f"\n[{scope_name}] 발굴 숏리스트 {len(rows)}종목")
         for r in rows:
             tags = ("·".join(r.highlights)) if r.highlights else "—"
@@ -147,8 +147,25 @@ def _cmd_screen(args: argparse.Namespace) -> int:
                 f"  {r.composite:3}  {r.ticker:12} {(r.name or '')[:18]:18} V{v} Q{q} G{g}  {tags}"
             )
 
-    _print("US", result.us)
-    _print("KOSPI", result.kospi)
+    if args.no_llm:
+        _print_quant("US", result.us)
+        _print_quant("KOSPI", result.kospi)
+        print()
+        return 0
+
+    enriched = deep_research(result)
+    for scope_name, scope_key in (("US", "us"), ("KOSPI", "kospi")):
+        items = enriched.get(scope_key, [])
+        print(f"\n[{scope_name}] 발굴 리서치 {len(items)}종목")
+        for it in items:
+            print(f"  {it['composite']:3}  {it['ticker']:12} {(it.get('name') or '')[:18]:18}")
+            if it.get("thesis"):
+                print(f"       논리: {it['thesis']}")
+            if it.get("keyRisks"):
+                print(f"       리스크: {it['keyRisks']}")
+            etf = it.get("relatedEtf")
+            if etf:
+                print(f"       국내 ETF: {etf['name']} ({etf['ticker']})")
     print()
     return 0
 
