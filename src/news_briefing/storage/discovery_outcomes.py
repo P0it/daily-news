@@ -38,6 +38,11 @@ def fetch_existing_ids(conn: Connection, ids: list[str]) -> set[str]:
     return {row["id"] for row in (resp.data or [])}
 
 
+def delete_by_date(conn: Connection, rec_date: str) -> None:
+    """해당 rec_date 의 행을 모두 삭제한다(같은 날 재실행 시 최신 세트로 교체용)."""
+    conn.table(_TABLE).delete().eq("rec_date", rec_date).execute()
+
+
 def fetch_pending(conn: Connection, since: str, limit: int = 2000) -> list[dict[str, Any]]:
     """아직 마지막 채점 시점(price_60d)이 비어있는 행을 반환."""
     resp = (

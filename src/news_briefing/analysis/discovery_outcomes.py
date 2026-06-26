@@ -88,21 +88,19 @@ def _snapshot_rows(snapshot: dict, rec_date: str) -> list[dict[str, Any]]:
 
 
 def record_outcomes(conn: Connection, snapshot: dict, rec_date: str) -> int:
-    """스크린 스냅샷의 신규 픽을 원장에 스냅샷한다. 기록한 신규 행 수 반환.
+    """스크린 스냅샷의 픽을 원장에 기록한다. 기록한 행 수 반환.
 
-    이미 있는 id(같은 날 재실행)는 건드리지 않는다. 진입 기준가는 백필 때 자기일관으로
-    채우므로 여기서는 None 으로 두고 행만 생성한다.
+    **같은 날 재실행 시 그날 행을 최신 세트로 교체**한다(스크린을 다시 돌리면 종목 구성이
+    바뀔 수 있으므로, 옛 픽이 원장에 남지 않게 한다). 채점은 며칠 뒤 거래일 종가로 이뤄져
+    당일 교체는 무손실이다. 진입 기준가는 백필 때 자기일관으로 채운다.
     """
     rows = _snapshot_rows(snapshot, rec_date)
     if not rows:
         return 0
-    existing = store.fetch_existing_ids(conn, [r["id"] for r in rows])
-    new_rows = [r for r in rows if r["id"] not in existing]
-    if not new_rows:
-        return 0
-    store.upsert_outcomes(conn, new_rows)
-    log.info("discovery_outcomes 스냅샷: 신규 %d건", len(new_rows))
-    return len(new_rows)
+    store.delete_by_date(conn, rec_date)  # 같은 날 옛 기록 제거 후 최신 세트로 재기록
+    store.upsert_outcomes(conn, rows)
+    log.info("discovery_outcomes 스냅샷: %d건 (rec_date=%s 교체)", len(rows), rec_date)
+    return len(rows)
 
 
 # ── 채점 백필 (T+N 종가) ─────────────────────────────────────────────────────
