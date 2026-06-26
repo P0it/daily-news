@@ -177,7 +177,7 @@ def test_cheap_quality_growth_outranks_expensive_weak() -> None:
 
 
 def test_composite_uses_available_factors_when_growth_missing() -> None:
-    # 성장 지표가 전부 없어도 가치·퀄리티만으로 합성(재정규화)되어 결과에 포함
+    # 성장 지표가 없어도 가치·퀄리티 2개 팩터가 있으면 후보로 포함(자격 충족)
     universe = [
         _rich("A", revenue_growth=None, earnings_growth=None),
         _rich("B"),
@@ -187,6 +187,43 @@ def test_composite_uses_available_factors_when_growth_missing() -> None:
     assert a is not None
     assert a.growth_score is None
     assert 0 <= a.composite <= 100
+
+
+def test_value_only_stock_excluded() -> None:
+    # 가치 지표만 있고 우량·성장이 전부 결측이면 가치 함정 위험으로 제외(FISV 케이스).
+    # 우량·성장 종목과 함께 둬도 가치 단독 종목은 결과에 없어야 한다.
+    value_only = _fund(
+        "VTRAP",
+        trailing_pe=6.0,
+        forward_pe=5.0,
+        price_to_book=0.8,
+        peg=0.5,
+        free_cashflow=5e7,  # 가치 지표 5개(>= _MIN_METRICS) 이지만 팩터는 가치 1개뿐
+    )
+    out = screen([value_only, _rich("OK")], top_n=10)
+    assert all(r.ticker != "VTRAP" for r in out)
+    assert any(r.ticker == "OK" for r in out)
+
+
+def test_coverage_penalty_full_data_outranks_partial() -> None:
+    # 동일 강도라도 3개 팩터(완전) 종목이 2개 팩터(부분) 종목보다 높게 나온다.
+    full = _rich(
+        "FULL",
+        trailing_pe=8.0, forward_pe=7.0, price_to_book=1.0, peg=0.6, ev_to_ebitda=5.0,
+        roe=0.30, profit_margin=0.25, operating_margin=0.30, debt_to_equity=20.0,
+        revenue_growth=0.30, earnings_growth=0.35,
+    )
+    # 같은 가치·퀄리티 강도지만 성장 지표 결측(2개 팩터)
+    partial = _rich(
+        "PART",
+        trailing_pe=8.0, forward_pe=7.0, price_to_book=1.0, peg=0.6, ev_to_ebitda=5.0,
+        roe=0.30, profit_margin=0.25, operating_margin=0.30, debt_to_equity=20.0,
+        revenue_growth=None, earnings_growth=None,
+    )
+    out = screen([full, partial], top_n=10)
+    full_r = next(r for r in out if r.ticker == "FULL")
+    part_r = next(r for r in out if r.ticker == "PART")
+    assert full_r.composite > part_r.composite
 
 
 def test_top_n_limits_output() -> None:

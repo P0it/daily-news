@@ -47,6 +47,11 @@ _FACTORS = {"value": _VALUE, "quality": _QUALITY, "growth": _GROWTH}
 _MAX_DEBT_TO_EQUITY = 400.0  # 400% 초과 과다부채 제외(금융/유틸 일부 희생 감수)
 _MIN_METRICS = 4  # 최소 가용 핵심 지표 수(이하면 데이터 부족으로 제외)
 
+# 합성점수 자격·페널티: '저평가 + 재무 탄탄 + 성장'을 다 보려면 팩터 커버리지가 중요하다.
+# 가치 하나만 좋고 우량·성장이 결측인 종목(가치 함정 위험)이 1등이 되는 것을 막는다.
+_MIN_FACTORS = 2  # 3개 팩터 중 최소 2개에 데이터가 있어야 후보(가치 단독 제외)
+_COVERAGE_BASE = 0.7  # 커버리지 페널티: composite = 점수 × (BASE + (1-BASE)×커버리지)
+
 
 @dataclass(frozen=True, slots=True)
 class ScreenResult:
@@ -198,12 +203,17 @@ def screen(
             ranks = factor_ranks[name][i]
             factor_scores[name] = (sum(ranks.values()) / len(ranks)) if ranks else None
 
-        # 가용 팩터만으로 가중치 재정규화
+        # 자격: 최소 _MIN_FACTORS 개 팩터에 데이터가 있어야 한다(가치 단독 제외).
         avail = {n: s for n, s in factor_scores.items() if s is not None}
-        if not avail:
+        if len(avail) < _MIN_FACTORS:
             continue
-        wsum = sum(weights[n] for n in avail)
-        composite = sum(weights[n] * s for n, s in avail.items()) / wsum
+
+        # 가용 팩터의 점수(재정규화) × 데이터 커버리지 페널티.
+        # coverage = 가용 팩터의 가중치 합(전체 1.0 대비). 측정한 게 적을수록 점수를 깎아
+        # 부분 데이터가 완전 데이터를 못 이기게 한다.
+        coverage = sum(weights[n] for n in avail)
+        base_score = sum(weights[n] * s for n, s in avail.items()) / coverage
+        composite = base_score * (_COVERAGE_BASE + (1 - _COVERAGE_BASE) * coverage)
 
         highlights = _highlights(factor_scores)
         results.append(

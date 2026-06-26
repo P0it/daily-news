@@ -153,6 +153,15 @@ function DiscoveryRow({ item }: { item: DiscoveryItem }) {
         </span>
       </div>
 
+      {/* 일부 팩터 결측 안내 — 점수를 보수적으로(커버리지 페널티) 매겼음을 알림 */}
+      {(item.valueScore === null ||
+        item.qualityScore === null ||
+        item.growthScore === null) && (
+        <div style={{ fontSize: 12, color: 'var(--text-tertiary)', marginTop: 6 }}>
+          일부 지표가 빠져 점수를 보수적으로 매겼어요
+        </div>
+      )}
+
       {/* 핵심 지표 */}
       <div
         style={{
