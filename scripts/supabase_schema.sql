@@ -148,3 +148,41 @@ CREATE INDEX IF NOT EXISTS idx_pick_outcomes_date ON pick_outcomes(rec_date);
 CREATE INDEX IF NOT EXISTS idx_pick_outcomes_pending ON pick_outcomes(price_20d);
 ALTER TABLE pick_outcomes ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "public_read" ON pick_outcomes FOR SELECT USING (true);
+
+-- ── 발굴 트랙 (Discovery Screen) ─────────────────────────────────────────────
+-- 이벤트 구동 picks 와 별개로, 고정 유니버스를 펀더멘털로 정기 스캔하는 트랙.
+
+-- fundamentals: yfinance 펀더멘털 스냅샷 캐시(ticker 1건=1행).
+-- 수백 종목을 매번 긁으면 느리므로 며칠간 재사용한다(재무는 분기 단위 변화).
+CREATE TABLE IF NOT EXISTS fundamentals (
+    ticker           TEXT PRIMARY KEY,
+    scope            TEXT NOT NULL,      -- us | kospi
+    name             TEXT,
+    sector           TEXT,
+    currency         TEXT,
+    market_cap       REAL,
+    trailing_pe      REAL,
+    forward_pe       REAL,
+    price_to_book    REAL,
+    peg              REAL,
+    ev_to_ebitda     REAL,
+    roe              REAL,               -- 소수(0.18 = 18%)
+    profit_margin    REAL,
+    operating_margin REAL,
+    debt_to_equity   REAL,              -- 퍼센트(79.5 = 79.5%)
+    revenue_growth   REAL,
+    earnings_growth  REAL,
+    free_cashflow    REAL,
+    fetched_at       TEXT NOT NULL       -- ISO8601, 신선도 판정용
+);
+CREATE INDEX IF NOT EXISTS idx_fundamentals_fetched ON fundamentals(fetched_at);
+
+-- discovery_screens: 발굴 스크린 결과 스냅샷.
+-- id='current' 1행이 최신(앱 노출용), 나머지는 회차별 이력(week_id 등). JSON 블롭.
+CREATE TABLE IF NOT EXISTS discovery_screens (
+    id         TEXT PRIMARY KEY,   -- 'current' | 회차 id(YYYY-MM-DD)
+    data       JSONB NOT NULL,     -- { generatedAt, us[], kospi[] }
+    updated_at TEXT NOT NULL
+);
+ALTER TABLE discovery_screens ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public_read" ON discovery_screens FOR SELECT USING (true);

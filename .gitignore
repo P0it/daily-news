@@ -11,6 +11,7 @@ frontend/.env.local.vercel
 # Runtime data
 data/*
 !data/themes_seed.json
+!data/universe.json
 *.db
 *.db-journal
 *.log

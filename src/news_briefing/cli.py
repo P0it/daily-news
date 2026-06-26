@@ -6,6 +6,7 @@
   python -m news_briefing themes seed
   python -m news_briefing themes refresh <theme_id>
   python -m news_briefing weekly [--llm]
+  python -m news_briefing screen [--dry-run] [--no-llm]
   python -m news_briefing ask "질의" [--top-k N]
   python -m news_briefing picks [--date YYYY-MM-DD] [--short]
   python -m news_briefing outcomes [--no-backfill] [--since YYYY-MM-DD]
@@ -122,6 +123,33 @@ def _cmd_weekly(args: argparse.Namespace) -> int:
     print(f"  {report.week_id} · {len(report.top_signals)}개 시그널 · 트렌드 [{trending}]")
     if essay:
         print(f"  에세이 {len(essay)}자 포함")
+    return 0
+
+
+def _cmd_screen(args: argparse.Namespace) -> int:
+    """펀더멘털 발굴 스크린 (온디맨드).
+
+    이벤트 구동 picks 와 별개로 고정 유니버스를 정량 스캔해 저평가·우량·성장 종목을
+    추린다. --no-llm 은 정량 숏리스트만, 기본은 LLM 심층 리서치까지(Phase 2).
+    """
+    from news_briefing.analysis.discovery import run_screen
+
+    result = run_screen()
+
+    def _print(scope_name: str, rows: list) -> None:
+        print(f"\n[{scope_name}] 발굴 숏리스트 {len(rows)}종목")
+        for r in rows:
+            tags = ("·".join(r.highlights)) if r.highlights else "—"
+            v = r.value_score if r.value_score is not None else "—"
+            q = r.quality_score if r.quality_score is not None else "—"
+            g = r.growth_score if r.growth_score is not None else "—"
+            print(
+                f"  {r.composite:3}  {r.ticker:12} {(r.name or '')[:18]:18} V{v} Q{q} G{g}  {tags}"
+            )
+
+    _print("US", result.us)
+    _print("KOSPI", result.kospi)
+    print()
     return 0
 
 
@@ -321,6 +349,11 @@ def main(argv: list[str] | None = None) -> int:
         "--llm", action="store_true", help="LLM 에세이 포함 (느림, claude CLI 필요)"
     )
     p_weekly.set_defaults(func=_cmd_weekly)
+
+    p_screen = sub.add_parser("screen", help="펀더멘털 발굴 스크린 (저평가·우량·성장 종목)")
+    p_screen.add_argument("--dry-run", action="store_true", help="저장·배포 없이 stdout 으로만")
+    p_screen.add_argument("--no-llm", action="store_true", help="정량 숏리스트만(LLM 리서치 생략)")
+    p_screen.set_defaults(func=_cmd_screen)
 
     sub.add_parser("cleanup", help="오래된 데이터 수동 정리").set_defaults(func=_cmd_cleanup)
 
