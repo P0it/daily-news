@@ -1,8 +1,8 @@
 import type { SignalItem } from '@/lib/types'
 
 /**
- * hot_issues picks 등 raw 티커 → TradingView 심볼 변환
- * - 6자리 숫자: KRX 종목 (KRX:005930)
+ * hot_issues picks·발굴 등 raw 티커 → TradingView 심볼 변환
+ * - 6자리 숫자(+선택적 .KS): KRX 종목 (KRX:005930). 발굴 데이터는 005930.KS 형태로 옴
  * - ^, =X, =F: 지수·환율·선물 — 차트 미지원
  * - 그 외: 미국 주식/ETF 그대로 사용
  */
@@ -11,7 +11,8 @@ export function resolveTickerToSymbol(ticker: string): string | null {
   if (/^\^/.test(ticker)) return null          // 지수 (^GSPC 등)
   if (/=X$/.test(ticker)) return null          // 환율 (KRW=X 등)
   if (/=F$/.test(ticker)) return null          // 선물 (CL=F, GC=F 등)
-  if (/^\d{6}$/.test(ticker)) return `KRX:${ticker}` // 국내 종목
+  const krx = ticker.replace(/\.KS$/, '')      // 발굴 KOSPI 티커는 005930.KS 접미사
+  if (/^\d{6}$/.test(krx)) return `KRX:${krx}` // 국내 종목
   return ticker                                // 미국 주식/ETF
 }
 

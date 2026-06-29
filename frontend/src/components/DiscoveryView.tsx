@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import { fetchDiscovery } from '@/lib/fetchBriefing'
 import type { Discovery, DiscoveryItem } from '@/lib/types'
 import { StockLogo } from '@/components/StockLogo'
+import { StockChartPanel } from '@/components/StockChartPanel'
+import { resolveTickerToSymbol } from '@/lib/tradingview'
 
 // 비율(소수 0.18 = 18%) → 퍼센트 문자열
 function pct(x: number | null, digits = 0): string {
@@ -188,6 +190,11 @@ function MarketTag({ scope }: { scope: DiscoveryItem['scope'] }) {
 
 function DiscoveryRow({ item }: { item: DiscoveryItem }) {
   const m = item.metrics
+  const [chartOpen, setChartOpen] = useState(false)
+  const symbol = resolveTickerToSymbol(item.ticker)
+  const isKrx = symbol?.startsWith('KRX:') ?? false
+  // 시세·차트 API 코드: KRX는 .KS 떼고 6자리, 미국은 티커 그대로
+  const code = isKrx ? item.ticker.replace(/\.KS$/, '') : item.ticker
 
   return (
     <div>
@@ -213,9 +220,40 @@ function DiscoveryRow({ item }: { item: DiscoveryItem }) {
               </span>
               <MarketTag scope={item.scope} />
             </div>
-            <div style={{ fontSize: 12, color: 'var(--text-tertiary)' }}>
-              {item.ticker}
-              {item.sector ? ` · ${item.sector}` : ''}
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 8,
+                fontSize: 12,
+                color: 'var(--text-tertiary)',
+              }}
+            >
+              <span>
+                {item.ticker}
+                {item.sector ? ` · ${item.sector}` : ''}
+              </span>
+              {symbol && (
+                <button
+                  type="button"
+                  onClick={() => setChartOpen((v) => !v)}
+                  title={chartOpen ? '차트 닫기' : isKrx ? '네이버 증권 차트' : '차트 보기'}
+                  style={{
+                    background: chartOpen ? 'var(--bg-inset)' : 'transparent',
+                    border: 'none',
+                    borderRadius: 6,
+                    padding: '1px 5px',
+                    cursor: 'pointer',
+                    fontSize: 13,
+                    lineHeight: 1,
+                    flexShrink: 0,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                  }}
+                >
+                  📊
+                </button>
+              )}
             </div>
           </div>
         </div>
@@ -295,6 +333,11 @@ function DiscoveryRow({ item }: { item: DiscoveryItem }) {
         <Metric label="이익성장" tip={TIP.earn} value={pct(m.earningsGrowth)} />
         <Metric label="부채비율" tip={TIP.debt} align="right" value={pctRaw(m.debtToEquity)} />
       </div>
+
+      {/* 차트 펼침 — picks 와 동일한 패널 재사용 */}
+      {chartOpen && symbol && (
+        <StockChartPanel code={code} symbol={symbol} isKrx={isKrx} name={item.name ?? item.ticker} />
+      )}
 
       {/* 서술 */}
       {item.thesis && (

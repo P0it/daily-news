@@ -5,7 +5,7 @@ import type { HotIssue, Scope, TickerPick } from '@/lib/types'
 import { resolveTickerToSymbol } from '@/lib/tradingview'
 import { PhaseTag } from '@/components/PhaseTag'
 import { buildTickerLinks } from '@/lib/deeplinks'
-import { TradingViewWidget } from '@/components/TradingViewWidget'
+import { StockChartPanel } from '@/components/StockChartPanel'
 import { StockLogo } from '@/components/StockLogo'
 
 const DIRECTION_CONFIG = {
@@ -13,8 +13,6 @@ const DIRECTION_CONFIG = {
   negative: { emoji: '📉', label: '하락 주의', dot: '#3182F6', textColor: '#3182F6', bg: 'rgba(49,130,246,0.1)' },
   mixed:    { emoji: '↔️',  label: '방향 혼재', dot: '#F5A623', textColor: '#F5A623', bg: 'rgba(245,166,35,0.1)' },
 }
-
-type StockQuote = { price: string; change: string; changeRate: string; isUp: boolean; currency?: string }
 
 // 코드 칩 — 종목 티커·ETF 코드 공용 (동일 스타일 유지)
 const CODE_CHIP_STYLE: CSSProperties = {
@@ -30,12 +28,8 @@ const CODE_CHIP_STYLE: CSSProperties = {
 
 function PickRow({ pick, isForeign }: { pick: TickerPick; isForeign: boolean }) {
   const [open, setOpen] = useState(false)
-  const [quote, setQuote] = useState<StockQuote | null>(null)
   const symbol = resolveTickerToSymbol(pick.ticker)
   const isKrx = symbol?.startsWith('KRX:') ?? false
-  const chartUrl = isKrx
-    ? `https://finance.naver.com/item/main.naver?code=${pick.ticker}`
-    : null
   const alts = pick.domestic
     ? Array.isArray(pick.domestic) ? pick.domestic : [pick.domestic]
     : []
@@ -44,43 +38,7 @@ function PickRow({ pick, isForeign }: { pick: TickerPick; isForeign: boolean }) 
   function handleChartClick(e: React.MouseEvent) {
     e.stopPropagation()
     if (!symbol) return
-    const next = !open
-    setOpen(next)
-    if (next && !quote) {
-      if (isKrx) {
-        fetch(`/api/naver-stock/${pick.ticker}/`)
-          .then((r) => r.json())
-          .then((d) => {
-            if (!d.closePrice) return
-            setQuote({
-              price: d.closePrice,
-              change: d.compareToPreviousClosePrice,
-              changeRate: d.fluctuationsRatio,
-              isUp: d.compareToPreviousPrice?.code === '2',
-            })
-          })
-          .catch(() => null)
-      } else {
-        fetch(`/api/yahoo-stock/${pick.ticker}/`)
-          .then((r) => r.json())
-          .then((d) => {
-            const meta = d?.chart?.result?.[0]?.meta
-            if (!meta) return
-            const price = meta.regularMarketPrice
-            const prev = meta.chartPreviousClose ?? meta.previousClose
-            if (!price || !prev) return
-            const diff = price - prev
-            setQuote({
-              price: price.toFixed(2),
-              change: Math.abs(diff).toFixed(2),
-              changeRate: Math.abs((diff / prev) * 100).toFixed(2),
-              isUp: diff >= 0,
-              currency: meta.currency ?? 'USD',
-            })
-          })
-          .catch(() => null)
-      }
-    }
+    setOpen((v) => !v)
   }
 
   return (
@@ -178,69 +136,7 @@ function PickRow({ pick, isForeign }: { pick: TickerPick; isForeign: boolean }) 
 
       {/* 차트 펼침 */}
       {open && symbol && (
-        <div
-          style={{
-            marginTop: 4,
-            paddingTop: 12,
-            borderTop: '1px solid var(--border-subtle)',
-          }}
-        >
-          {isKrx ? (() => {
-            const color = quote ? (quote.isUp ? '#F04452' : '#3182F6') : 'var(--text-tertiary)'
-            return (
-              <a href={`https://finance.naver.com/item/main.naver?code=${pick.ticker}`}
-                target="_blank" rel="noopener noreferrer"
-                style={{ display: 'block', borderRadius: 10, overflow: 'hidden', textDecoration: 'none' }}>
-                {quote && (
-                  <div style={{ padding: '12px 16px 10px', background: 'var(--bg-card)' }}>
-                    <div style={{ fontSize: 24, fontWeight: 700, color, lineHeight: 1.2 }}>
-                      {quote.price}원
-                    </div>
-                    <div style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>전일대비</span>
-                      <span style={{ fontSize: 13, fontWeight: 600, color }}>
-                        {quote.isUp ? '▲' : '▼'} {quote.change.replace('-', '')}
-                      </span>
-                      <span style={{ fontSize: 13, color }}>
-                        ({quote.changeRate.replace('-', '')}%)
-                      </span>
-                    </div>
-                  </div>
-                )}
-                <img
-                  src={`https://ssl.pstatic.net/imgfinance/chart/item/candle/day/${pick.ticker}.png`}
-                  alt={`${pick.name} 차트`}
-                  width="100%"
-                  style={{ display: 'block' }}
-                />
-              </a>
-            )
-          })() : (() => {
-            const color = quote ? (quote.isUp ? '#00B341' : '#F04452') : 'var(--text-tertiary)'
-            const unit = quote?.currency ?? 'USD'
-            return (
-              <>
-                {quote && (
-                  <div style={{ padding: '12px 16px 10px', background: 'var(--bg-card)', borderRadius: 10 }}>
-                    <div style={{ fontSize: 24, fontWeight: 700, color, lineHeight: 1.2 }}>
-                      {quote.price} {unit}
-                    </div>
-                    <div style={{ marginTop: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
-                      <span style={{ fontSize: 11, color: 'var(--text-tertiary)' }}>전일대비</span>
-                      <span style={{ fontSize: 13, fontWeight: 600, color }}>
-                        {quote.isUp ? '▲' : '▼'} {quote.change}
-                      </span>
-                      <span style={{ fontSize: 13, color }}>
-                        ({quote.changeRate}%)
-                      </span>
-                    </div>
-                  </div>
-                )}
-                <TradingViewWidget symbol={symbol} height={280} />
-              </>
-            )
-          })()}
-        </div>
+        <StockChartPanel code={pick.ticker} symbol={symbol} isKrx={isKrx} name={pick.name} />
       )}
 
       {/* ETF 섹션 — 관련 ETF(양 스코프) + 추종 ETF(해외만). 구분선 하나, 두 줄은 좁게 */}
