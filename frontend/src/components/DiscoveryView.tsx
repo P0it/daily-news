@@ -168,26 +168,6 @@ function Block({ label, text }: { label: string; text: string | null }) {
   )
 }
 
-function MarketTag({ scope }: { scope: DiscoveryItem['scope'] }) {
-  const isForeign = scope !== 'kospi'
-  return (
-    <span
-      style={{
-        flexShrink: 0,
-        fontSize: 11,
-        fontWeight: 700,
-        letterSpacing: '-0.01em',
-        color: 'var(--badge-text)',
-        background: 'var(--badge-bg)',
-        borderRadius: 6,
-        padding: '2px 7px',
-      }}
-    >
-      {isForeign ? '🌐 해외' : '🇰🇷 국내'}
-    </span>
-  )
-}
-
 function DiscoveryRow({ item }: { item: DiscoveryItem }) {
   const m = item.metrics
   const [chartOpen, setChartOpen] = useState(false)
@@ -218,7 +198,6 @@ function DiscoveryRow({ item }: { item: DiscoveryItem }) {
               >
                 {item.name ?? item.ticker}
               </span>
-              <MarketTag scope={item.scope} />
             </div>
             <div
               style={{
@@ -406,9 +385,59 @@ function CardList({ items }: { items: DiscoveryItem[] }) {
   )
 }
 
+/** 해외/국내 전환 세그먼트 — 스크롤 없이 시장을 바꿔 본다. */
+function MarketToggle({
+  value,
+  onChange,
+  counts,
+}: {
+  value: 'us' | 'kospi'
+  onChange: (v: 'us' | 'kospi') => void
+  counts: { us: number; kospi: number }
+}) {
+  const options: { key: 'us' | 'kospi'; label: string }[] = [
+    { key: 'us', label: `🌐 해외 ${counts.us}` },
+    { key: 'kospi', label: `🇰🇷 국내 ${counts.kospi}` },
+  ]
+  return (
+    <div
+      className="mx-4 flex"
+      style={{ background: 'var(--bg-inset)', borderRadius: 10, padding: 3, gap: 2 }}
+    >
+      {options.map(({ key, label }) => {
+        const active = value === key
+        return (
+          <button
+            key={key}
+            type="button"
+            onClick={() => onChange(key)}
+            className="flex-1 text-center"
+            style={{
+              fontSize: 14,
+              fontWeight: active ? 700 : 500,
+              color: active ? 'var(--text-primary)' : 'var(--text-tertiary)',
+              background: active ? 'var(--bg-card)' : 'transparent',
+              border: 'none',
+              borderRadius: 8,
+              padding: '7px 0',
+              letterSpacing: '-0.02em',
+              cursor: 'pointer',
+              transition: 'background 150ms ease, color 150ms ease',
+            }}
+          >
+            {label}
+          </button>
+        )
+      })}
+    </div>
+  )
+}
+
 export function DiscoveryView() {
   const [data, setData] = useState<Discovery | null>(null)
   const [loaded, setLoaded] = useState(false)
+  // 해외 관심이 높아 기본값은 해외. 데이터 로드 후 한쪽만 있으면 그쪽으로 맞춘다.
+  const [market, setMarket] = useState<'us' | 'kospi'>('us')
 
   useEffect(() => {
     let cancelled = false
@@ -416,6 +445,8 @@ export function DiscoveryView() {
       if (cancelled) return
       setData(d)
       setLoaded(true)
+      // 해외가 비고 국내만 있으면 국내로 시작
+      if (d && d.us.length === 0 && d.kospi.length > 0) setMarket('kospi')
     })
     return () => {
       cancelled = true
@@ -443,9 +474,20 @@ export function DiscoveryView() {
     )
   }
 
+  // 둘 다 있을 때만 토글을 보여준다(한쪽만 있으면 그 목록을 바로 렌더).
+  const bothMarkets = data.us.length > 0 && data.kospi.length > 0
+  const items = market === 'us' ? data.us : data.kospi
+
   return (
-    <div style={{ padding: '16px 0 40px' }}>
-      <CardList items={[...data.us, ...data.kospi]} />
+    <div style={{ padding: '16px 0 40px', display: 'flex', flexDirection: 'column', gap: 16 }}>
+      {bothMarkets && (
+        <MarketToggle
+          value={market}
+          onChange={setMarket}
+          counts={{ us: data.us.length, kospi: data.kospi.length }}
+        />
+      )}
+      <CardList items={bothMarkets ? items : [...data.us, ...data.kospi]} />
     </div>
   )
 }
