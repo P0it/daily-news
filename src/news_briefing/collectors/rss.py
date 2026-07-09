@@ -152,13 +152,8 @@ RSS_FEEDS: list[RssFeedSpec] = [
         "domestic",
         "ai",
     ),
-    # Anthropic 공식 블로그 (Claude 모델 업데이트)
-    RssFeedSpec(
-        "rss:anthropic",
-        "https://www.anthropic.com/rss",
-        "foreign",
-        "ai",
-    ),
+    # Anthropic 은 공식 RSS 를 폐지했다(2026-07 확인: /rss, /rss.xml, /news/rss 모두 404).
+    # Claude 관련 뉴스는 gnews-ai-en·hn-ai 검색 피드가 대신 커버한다.
     # OpenAI 공식 블로그 (GPT 업데이트)
     RssFeedSpec(
         "rss:openai",
