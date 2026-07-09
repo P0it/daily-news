@@ -150,9 +150,29 @@ A 가 안정화된 뒤 별도 명세로 진행한다.
 `CLAUDE.md` 원칙을 따른다.
 
 - 공시별 본문 수집과 추출을 개별 `try/except` 로 감싼다. 한 건 실패가 나머지를 막지 않는다.
-- 본문은 `rcept_no` / accession number 키로 DB 에 캐싱해 재실행 시 재수집하지 않는다.
 - LLM 추출기는 JSON 스키마를 강제한다. 파싱 실패는 `None` 반환 후 제목 점수로 폴백.
 - 모든 외부 호출에 timeout: 본문 수집 15초, LLM 45초.
+
+### 캐싱 — 기존 `llm_cache` 재사용, 새 테이블 없음
+
+Supabase 에 `llm_cache(content_hash PK, task, output, model, created_at)` 가 이미 있고
+현재 미사용(0행)이다. 이를 그대로 쓴다.
+
+- `content_hash` = `sha256("filing_facts:{rcept_no|accession}")`
+- `task` = `"filing_facts"`
+- `output` = `FilingFacts` 직렬화 JSON
+
+**추출 결과를 캐싱하므로 재실행 시 본문 수집과 LLM 호출을 둘 다 건너뛴다.** 원본 본문
+(샘플 23KB XML)을 DB 에 적재할 이유가 없어 별도 캐싱 테이블을 만들지 않는다.
+
+### 스키마 변경 — `pick_outcomes.facts_json`
+
+`pick_outcomes` 에는 `direction`·`signal`·`alpha_*` 성과 컬럼이 있으나 추출한 사실
+(`surprise_pct` 등)을 담을 자리가 없다. 저장하지 않으면 §6 의 "구간별 실제 수익률 집계 후
+임계값 조정"이라는 재고 조건을 이행할 수 없다.
+
+`facts_json text` (nullable) 컬럼 하나를 추가한다. 기존 175행에 영향이 없고 nullable 이라
+롤백이 안전하다. `CLAUDE.md` P4 에 따라 사용자 확인 후, 코드 마이그레이션 스크립트로 적용한다.
 
 LLM 은 **본문에 있는 숫자를 옮겨적는 일만** 한다. 해석도 추론도 하지 않으므로
 `pick_verify.py` 에서 겪은 할루시네이션의 여지가 구조적으로 없다. 추출된 수치가 본문에
