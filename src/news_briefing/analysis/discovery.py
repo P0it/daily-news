@@ -50,8 +50,10 @@ def run_screen(*, top_n: int = TOP_N) -> DiscoveryResult:
     """유니버스를 펀더멘털 스크린해 scope 별 숏리스트 반환(LLM 없음)."""
     universe = load_universe()
 
-    us_funds = fetch_fundamentals(universe["us"], scope="us")
+    # 코스피(작은 배치)를 먼저 돌려 yfinance 세션이 신선할 때 소화한다. 미국(큰 배치)을
+    # 먼저 돌리면 레이트리밋으로 크럼이 무효화돼 뒤 배치가 통째로 401 나는 걸 봤다.
     kospi_funds = fetch_fundamentals(universe["kospi"], scope="kospi")
+    us_funds = fetch_fundamentals(universe["us"], scope="us")
 
     us = screen(us_funds, top_n=top_n)
     kospi = screen(kospi_funds, top_n=top_n)
