@@ -417,6 +417,9 @@ def _cmd_ask(args: argparse.Namespace) -> int:
 
 
 def main(argv: list[str] | None = None) -> int:
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
     _setup_logging()
     parser = argparse.ArgumentParser(prog="news_briefing", description="데일리 브리핑 CLI")
     sub = parser.add_subparsers(dest="cmd")
