@@ -1,0 +1,961 @@
+{
+  "date": "2026-07-22",
+  "generatedAt": "2026-07-21T16:24:19.850305+00:00",
+  "version": 1,
+  "hero": null,
+  "tabs": {
+    "current": {
+      "politics": [
+        {
+          "id": "CBMiT0FVX3lxTE10NUYzN3NOdUE0VWNtRTM5dmlkbmdWS1pvN1ltV2JHanBhOHd0STJWQWFhNWQxdjI1a2lCV3BMN3FTbWk3Y1Axbm9mVENQcjA",
+          "source": "rss:gnews-politics-kr",
+          "publisher": "v.daum.net",
+          "title": "칠레 폭우로 최소 10명 사망…정부 '재난 사태' 선포",
+          "titleOriginal": null,
+          "summary": "칠레 폭우로 최소 10명 사망…정부 '재난 사태' 선포 v.daum.net",
+          "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE10NUYzN3NOdUE0VWNtRTM5dmlkbmdWS1pvN1ltV2JHanBhOHd0STJWQWFhNWQxdjI1a2lCV3BMN3FTbWk3Y1Axbm9mVENQcjA?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T15:20:50+00:00",
+          "scope": "domestic",
+          "category": "politics",
+          "glossaryTermId": null,
+          "curationScore": 33
+        },
+        {
+          "id": "CBMiX0FVX3lxTE9WU2NESmlqVXRNejFuMnd5V2pfeEVhR05TWlpELXl5ODk3ei1rekd2ZU9wRkxBbEpfSG1pMFJBWkQzWnk2emR2QTRkcFU1X2hnUkgzbUtidlFXWGY5MzNR",
+          "source": "rss:gnews-politics-kr",
+          "publisher": "조세일보",
+          "title": "국힘, 상임위 보이콧 중단·7월 국회 복귀...\"23일 7개 상임위원장 선출\"",
+          "titleOriginal": null,
+          "summary": "국힘, 상임위 보이콧 중단·7월 국회 복귀...\"23일 7개 상임위원장 선출\" 조세일보",
+          "url": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE9WU2NESmlqVXRNejFuMnd5V2pfeEVhR05TWlpELXl5ODk3ei1rekd2ZU9wRkxBbEpfSG1pMFJBWkQzWnk2emR2QTRkcFU1X2hnUkgzbUtidlFXWGY5MzNR?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T08:53:31+00:00",
+          "scope": "domestic",
+          "category": "politics",
+          "glossaryTermId": null,
+          "curationScore": 19
+        },
+        {
+          "id": "CBMiW0FVX3lxTE40ZGU0RERieW5kdUc4S2h3bkdoaUZXSGNMT3Q4VWNDVFpndUFpM3daa2tnc1l1N1UteG5nZi1YM1NDM2NzSUpCZDJ1RFpMZGQ5clpiT3ZiMm1qSHc",
+          "source": "rss:gnews-politics-kr",
+          "publisher": "KBS 뉴스",
+          "title": "필승교 수위 9m 넘어…정부, 주민 대피 상황 점검",
+          "titleOriginal": null,
+          "summary": "필승교 수위 9m 넘어…정부, 주민 대피 상황 점검 KBS 뉴스",
+          "url": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE40ZGU0RERieW5kdUc4S2h3bkdoaUZXSGNMT3Q4VWNDVFpndUFpM3daa2tnc1l1N1UteG5nZi1YM1NDM2NzSUpCZDJ1RFpMZGQ5clpiT3ZiMm1qSHc?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T04:20:00+00:00",
+          "scope": "domestic",
+          "category": "politics",
+          "glossaryTermId": null,
+          "curationScore": 14
+        }
+      ],
+      "society": [
+        {
+          "id": "CBMiaEFVX3lxTE1HQ0NEWWpzZlhpa0lValhuTWRrM2U2RUZiNjB6czRxa0NUV3ZuOE1fVkdhZ2kzMDVLbTdzOGxwY25YTERFbzN6eDI0MkxHUnRlZTNtTThYS0p4eEJNSTZZQ0NmcHJRSnhO",
+          "source": "rss:gnews-society-kr",
+          "publisher": "농축유통신문",
+          "title": "대한수의사회, 수의장교 처우개선 논의",
+          "titleOriginal": null,
+          "summary": "대한수의사회, 수의장교 처우개선 논의 농축유통신문",
+          "url": "https://news.google.com/rss/articles/CBMiaEFVX3lxTE1HQ0NEWWpzZlhpa0lValhuTWRrM2U2RUZiNjB6czRxa0NUV3ZuOE1fVkdhZ2kzMDVLbTdzOGxwY25YTERFbzN6eDI0MkxHUnRlZTNtTThYS0p4eEJNSTZZQ0NmcHJRSnhO?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T16:14:17+00:00",
+          "scope": "domestic",
+          "category": "society",
+          "glossaryTermId": null,
+          "curationScore": 37
+        },
+        {
+          "id": "CBMid0FVX3lxTE5mLW1UTDVHaHVuRjl1Q0E4d0RfQ09ZWlppMVdoSkJTV1RHWjFRb2R1OUtVTGtVbm9FdmM3ck5EUl9UcFZsNWpSSzJnU2hPVk5fcjNiRERaZjZReUQzLXBaX0pKNnloZmxtWmZfclhqZFk0QVBnVXRr",
+          "source": "rss:gnews-society-kr",
+          "publisher": "한국일보",
+          "title": "개표소 봉쇄 '올다르크' 영장 기각… 경찰 조롱 남성은 구속",
+          "titleOriginal": null,
+          "summary": "개표소 봉쇄 '올다르크' 영장 기각… 경찰 조롱 남성은 구속 한국일보",
+          "url": "https://news.google.com/rss/articles/CBMid0FVX3lxTE5mLW1UTDVHaHVuRjl1Q0E4d0RfQ09ZWlppMVdoSkJTV1RHWjFRb2R1OUtVTGtVbm9FdmM3ck5EUl9UcFZsNWpSSzJnU2hPVk5fcjNiRERaZjZReUQzLXBaX0pKNnloZmxtWmZfclhqZFk0QVBnVXRr?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T15:26:00+00:00",
+          "scope": "domestic",
+          "category": "society",
+          "glossaryTermId": null,
+          "curationScore": 34
+        },
+        {
+          "id": "CBMiYkFVX3lxTFAxSGVuYjZmYTNUYndRUG5mR1RIVVdDSm1GZlVtN0VPMUszaHNWWXZMT2prOS03ZWdXYU83M2wtemczY0dnYzVaZUxZYy1SMllMOHktbDVRRVdFM0xvTnBROWtB",
+          "source": "rss:gnews-society-kr",
+          "publisher": "조세금융신문",
+          "title": "'과장 광고한 세무플랫폼'...세무사회 단속 강화에 '꼬리 내린 이유'",
+          "titleOriginal": null,
+          "summary": "'과장 광고한 세무플랫폼'...세무사회 단속 강화에 '꼬리 내린 이유' 조세금융신문",
+          "url": "https://news.google.com/rss/articles/CBMiYkFVX3lxTFAxSGVuYjZmYTNUYndRUG5mR1RIVVdDSm1GZlVtN0VPMUszaHNWWXZMT2prOS03ZWdXYU83M2wtemczY0dnYzVaZUxZYy1SMllMOHktbDVRRVdFM0xvTnBROWtB?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T13:32:33+00:00",
+          "scope": "domestic",
+          "category": "society",
+          "glossaryTermId": null,
+          "curationScore": 26
+        }
+      ],
+      "international": [
+        {
+          "id": "https://www.yna.co.kr/view/AKR20260722002200071",
+          "source": "rss:yonhap-intl",
+          "publisher": "",
+          "title": "트럼프 \"후티 홍해 봉쇄하면 처리할것…이란 곡괭이산 곧 타격\"",
+          "titleOriginal": null,
+          "summary": "(워싱턴=연합뉴스) 이유미 특파원 = 도널드 트럼프 미국 대통령은 21일(현지시간) 예멘의 친(親)이란 무장세력 후티 반군이 홍해 봉쇄를 선언한...",
+          "url": "https://www.yna.co.kr/view/AKR20260722002200071",
+          "thumbnail": null,
+          "time": "2026-07-21T16:10:49+00:00",
+          "scope": "domestic",
+          "category": "international",
+          "glossaryTermId": null,
+          "curationScore": 63
+        },
+        {
+          "id": "CBMimAFBVV95cUxObWVkSU94UEdZRjl0TDZxamJfWlJCX0lzTWcxeUoxUWVtSjdsdkZSazFzMmpXcDFJc1lBbUJsQnE2SWVIOVNqMDZ2dXJfR1BmWjA4ZFBNam54X0NDTDhSQUZJb2RxNGJoeHRVNHFydlZZWTZ0d0xWc1JacFpqaTVEQmxOak5pWW9mNHhYdjBZZ0wtUnFYZzN2NdIBmAFBVV95cUxNWnRreVR4eDNjUGF0NzVheWZ1SEh0LWd4aTA2Z2JCeGhHb2R0a0JLZU5iTnQ5NWg1V0FXVVVUazZjbXl6UHRFcmVNMVJkdl9HWDR4R2N2dnFCVVZSWG8tOVdwSVN3YnhUbUNONmc4YWJPdU5hTFdHZkd0WDZ3MTF6ZXRBbTBEcXpQUEVYRnlaMVVoNWRNV0QzMw",
+          "source": "rss:gnews-world-en",
+          "publisher": "FOX Sports",
+          "title": "Lionel Messi Returns To Argentina For Rest After World Cup Final Loss To Spain",
+          "titleOriginal": null,
+          "summary": "Lionel Messi가 스페인과의 월드컵 결승전 패배 이후 아르헨티나로 돌아가 휴식을 취하고 있어요. 대회를 마친 뒤 재충전의 시간을 갖고 있는 것으로 전해졌어요.",
+          "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxObWVkSU94UEdZRjl0TDZxamJfWlJCX0lzTWcxeUoxUWVtSjdsdkZSazFzMmpXcDFJc1lBbUJsQnE2SWVIOVNqMDZ2dXJfR1BmWjA4ZFBNam54X0NDTDhSQUZJb2RxNGJoeHRVNHFydlZZWTZ0d0xWc1JacFpqaTVEQmxOak5pWW9mNHhYdjBZZ0wtUnFYZzN2NdIBmAFBVV95cUxNWnRreVR4eDNjUGF0NzVheWZ1SEh0LWd4aTA2Z2JCeGhHb2R0a0JLZU5iTnQ5NWg1V0FXVVVUazZjbXl6UHRFcmVNMVJkdl9HWDR4R2N2dnFCVVZSWG8tOVdwSVN3YnhUbUNONmc4YWJPdU5hTFdHZkd0WDZ3MTF6ZXRBbTBEcXpQUEVYRnlaMVVoNWRNV0QzMw?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T16:09:41+00:00",
+          "scope": "foreign",
+          "category": "international",
+          "glossaryTermId": null,
+          "curationScore": 37
+        },
+        {
+          "id": "CBMiqAFBVV95cUxNVnNNUW83OFFUVXVTTFZJY3JBcUR1dUt1TEo3N1otMkYtUDFNUFZzWjBuQ1FxMW45RjVSSm9NLVFuVlV2QTA2UllGM283VHNpRkVQNTJsemp5QlFJQlRLcVV6a0Z0WG51ZmlUTDJzbWZMYVFscjJLNzhmN2NIRlhTLWVCemxaeVgxcTMwZkdCX2VsNFhYVUJXVmw5RzY4VTRjelpKT29JVHU",
+          "source": "rss:gnews-world-en",
+          "publisher": "WSJ",
+          "title": "Airbus Comes for Boeing in Battle Over World’s Biggest Jets",
+          "titleOriginal": null,
+          "summary": "Airbus가 세계에서 가장 큰 여객기 시장을 두고 Boeing과 정면 승부를 벌이고 있어요. 대형기 부문에서 점유율 확대를 노리는 전략이 관심을 끌고 있어요.",
+          "url": "https://news.google.com/rss/articles/CBMiqAFBVV95cUxNVnNNUW83OFFUVXVTTFZJY3JBcUR1dUt1TEo3N1otMkYtUDFNUFZzWjBuQ1FxMW45RjVSSm9NLVFuVlV2QTA2UllGM283VHNpRkVQNTJsemp5QlFJQlRLcVV6a0Z0WG51ZmlUTDJzbWZMYVFscjJLNzhmN2NIRlhTLWVCemxaeVgxcTMwZkdCX2VsNFhYVUJXVmw5RzY4VTRjelpKT29JVHU?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T15:45:00+00:00",
+          "scope": "foreign",
+          "category": "international",
+          "glossaryTermId": null,
+          "curationScore": 35
+        }
+      ],
+      "tech": [
+        {
+          "id": "CBMicEFVX3lxTE5BOG1mU1NtZHhuTlE0cjJJQnVTOUI3cWZkdC1URk9tMXQxMGJXeXFwVEFNUjRkLTVrWXl1dHF0MUUwTVN6VXFuSmx2cFI3a1J6T1piRGR3a0k4TUVtamNhZkttS2pjZHJKVHdoS1BaejI",
+          "source": "rss:gnews-tech-kr",
+          "publisher": "더코리아",
+          "title": "광주 특성화고 학생들 최신 인공지능 반도체 기술 호주에서 배운다 > 뉴스",
+          "titleOriginal": null,
+          "summary": "광주 특성화고 학생들 최신 인공지능 반도체 기술 호주에서 배운다 > 뉴스 더코리아",
+          "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE5BOG1mU1NtZHhuTlE0cjJJQnVTOUI3cWZkdC1URk9tMXQxMGJXeXFwVEFNUjRkLTVrWXl1dHF0MUUwTVN6VXFuSmx2cFI3a1J6T1piRGR3a0k4TUVtamNhZkttS2pjZHJKVHdoS1BaejI?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T16:06:00+00:00",
+          "scope": "domestic",
+          "category": "tech",
+          "glossaryTermId": null,
+          "curationScore": 37
+        },
+        {
+          "id": "CBMiqgFBVV95cUxNX3BKdk5qdU5sMVpMNTBxZEwyYVFLbUY4RmphZnZqTXZVQlJTSTljNktlUWwtTERYUTl2NHp1SnR6dTh5OXRwcVlXbng0ZWxjMnhCZDdYTG0ySnFOR2VRNnVoc1hJZGY5RllVcnhWLXRlem1BRTlhcjZyS1dmUTl2enlrNlRrcnhEeWxxVVJfbktGcE41Z0lfQkF6WTBlQi1ITmx2MEJ0MXVuUQ",
+          "source": "rss:gnews-tech-en",
+          "publisher": "Automation World",
+          "title": "Planet Technology Releases AI Surveillance Station",
+          "titleOriginal": null,
+          "summary": "Planet Technology가 AI 기반 감시 스테이션을 새롭게 출시했어요. 산업 현장의 보안과 모니터링 효율을 높이는 것을 목표로 하고 있어요.",
+          "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxNX3BKdk5qdU5sMVpMNTBxZEwyYVFLbUY4RmphZnZqTXZVQlJTSTljNktlUWwtTERYUTl2NHp1SnR6dTh5OXRwcVlXbng0ZWxjMnhCZDdYTG0ySnFOR2VRNnVoc1hJZGY5RllVcnhWLXRlem1BRTlhcjZyS1dmUTl2enlrNlRrcnhEeWxxVVJfbktGcE41Z0lfQkF6WTBlQi1ITmx2MEJ0MXVuUQ?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T16:13:21+00:00",
+          "scope": "foreign",
+          "category": "tech",
+          "glossaryTermId": null,
+          "curationScore": 37
+        }
+      ]
+    },
+    "economy": {
+      "indices": [
+        {
+          "symbol": "S&P 500",
+          "ticker": "^GSPC",
+          "close": 7509.85,
+          "change": 66.5703,
+          "changePct": 0.89,
+          "currency": "USD",
+          "group": "us_equity"
+        },
+        {
+          "symbol": "NASDAQ",
+          "ticker": "^IXIC",
+          "close": 25845.55,
+          "change": 337.4844,
+          "changePct": 1.32,
+          "currency": "USD",
+          "group": "us_equity"
+        },
+        {
+          "symbol": "DOW",
+          "ticker": "^DJI",
+          "close": 52266.12,
+          "change": 426.8594,
+          "changePct": 0.82,
+          "currency": "USD",
+          "group": "us_equity"
+        },
+        {
+          "symbol": "KOSPI",
+          "ticker": "^KS11",
+          "close": 6516.27,
+          "change": -304.3301,
+          "changePct": -4.46,
+          "currency": "KRW",
+          "group": "kr_equity"
+        },
+        {
+          "symbol": "KOSDAQ",
+          "ticker": "^KQ11",
+          "close": 749.64,
+          "change": -42.2,
+          "changePct": -5.33,
+          "currency": "KRW",
+          "group": "kr_equity"
+        },
+        {
+          "symbol": "USD/KRW",
+          "ticker": "KRW=X",
+          "close": 1479.26,
+          "change": -8.13,
+          "changePct": -0.55,
+          "currency": "KRW",
+          "group": "fx"
+        },
+        {
+          "symbol": "WTI 원유",
+          "ticker": "CL=F",
+          "close": 84.11,
+          "change": 0.88,
+          "changePct": 1.06,
+          "currency": "USD",
+          "group": "commodity"
+        },
+        {
+          "symbol": "금",
+          "ticker": "GC=F",
+          "close": 4081.1,
+          "change": 70.8,
+          "changePct": 1.77,
+          "currency": "USD",
+          "group": "commodity"
+        },
+        {
+          "symbol": "미 10Y 국채",
+          "ticker": "^TNX",
+          "close": 4.63,
+          "change": 0.028,
+          "changePct": 0.61,
+          "currency": "%",
+          "group": "bond"
+        },
+        {
+          "symbol": "VIX",
+          "ticker": "^VIX",
+          "close": 17.15,
+          "change": -1.5,
+          "changePct": -8.04,
+          "currency": "",
+          "group": "volatility"
+        }
+      ],
+      "signals": [],
+      "news": [
+        {
+          "id": "CBMia0FVX3lxTFA2NnRMZWVDQUxGRmVmcjRGMTNWbEZOVWM1MHlFS2dwYnIzaFZwU1VXYWVhOXZjT0NaMXRqNTJWbWtrRGRzU2IzdGxrbnJvRU15Z0tNNlhvMko2SUVBb181X052RHF5UzJfNmtF",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "주간조선",
+          "title": "\"집주인이 6억 빌려드립니다\"…강남에도 등장한 '대통령式 거래'",
+          "titleOriginal": null,
+          "summary": "강남권에서도 집주인이 저리로 자금을 빌려주는 방식의 주택 거래가 등장했다는 소식이에요. 최근 정치권에서 언급된 거래 방식이 부동산 시장에 실제로 적용되는 사례로 소개됐어요.",
+          "url": "https://news.google.com/rss/articles/CBMia0FVX3lxTFA2NnRMZWVDQUxGRmVmcjRGMTNWbEZOVWM1MHlFS2dwYnIzaFZwU1VXYWVhOXZjT0NaMXRqNTJWbWtrRGRzU2IzdGxrbnJvRU15Z0tNNlhvMko2SUVBb181X052RHF5UzJfNmtF?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T13:12:00+00:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMiwgFBVV95cUxPWGJrdktxcG55RHNxdGhLelhqUlJmVFlYOXdDVTYwWW92TzBnR1JDQWFlU0k1elpacHFwZFJES0lPcThkVG1JTXgwUlJ4V2N5RDVhYTBVSmNJaDVIdEFtbnlNelc1YklvT0hiT05XVHJxZnl0Qkd5Y1JhSDFjYTNrZDFQRnNkMkRKSHFVTFRHWmYwbm5jeDc2NTNwb3RicURJNFNPNlo5S2pLWFNnRFlQVXo1aFV3NlVsbVJjSW1WeDVxUQ",
+          "source": "rss:gnews-business-en",
+          "publisher": "Inquirer.com",
+          "title": "Philadelphia offers forgivable $50,000 loans to help small businesses expand | Expert Opinion",
+          "titleOriginal": null,
+          "summary": "필라델피아시가 중소기업의 사업 확장을 돕기 위해 최대 5만 달러의 상환면제 대출 프로그램을 내놓았어요. 조건 충족 시 대출금 상환이 면제되는 방식이에요.",
+          "url": "https://news.google.com/rss/articles/CBMiwgFBVV95cUxPWGJrdktxcG55RHNxdGhLelhqUlJmVFlYOXdDVTYwWW92TzBnR1JDQWFlU0k1elpacHFwZFJES0lPcThkVG1JTXgwUlJ4V2N5RDVhYTBVSmNJaDVIdEFtbnlNelc1YklvT0hiT05XVHJxZnl0Qkd5Y1JhSDFjYTNrZDFQRnNkMkRKSHFVTFRHWmYwbm5jeDc2NTNwb3RicURJNFNPNlo5S2pLWFNnRFlQVXo1aFV3NlVsbVJjSW1WeDVxUQ?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T11:30:00+00:00",
+          "scope": "foreign",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMiowFBVV95cUxOT2J5Z1pfNUZTMVRTNmhONFdFR1NPb0MtSXJYNE0zejRWWW1QOUdLem9wajBodFAwYnByM2M4UkpzTjR6Mk4xWnpVZTJxTUZTdjRlQWI4TE9NZnRlMmowNmltWS1iUUFIbzUwZW5SYk5ZSGxKMFg1V29HMm1MRFFOcmxuODRxZXVYUmowbVE4RXVqLTZ0bmJtZzJ4QXVmY0x4RnBN",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "한국경제TV",
+          "title": "한경 글로벌마켓",
+          "titleOriginal": null,
+          "summary": "한국경제신문의 해외 증시 및 글로벌 경제 동향을 다루는 코너예요.",
+          "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxOT2J5Z1pfNUZTMVRTNmhONFdFR1NPb0MtSXJYNE0zejRWWW1QOUdLem9wajBodFAwYnByM2M4UkpzTjR6Mk4xWnpVZTJxTUZTdjRlQWI4TE9NZnRlMmowNmltWS1iUUFIbzUwZW5SYk5ZSGxKMFg1V29HMm1MRFFOcmxuODRxZXVYUmowbVE4RXVqLTZ0bmJtZzJ4QXVmY0x4RnBN?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T14:00:55+00:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMinwFBVV95cUxPTFJySTJuQnQ2dE5sMWZid0JKUEY1cTYzSVJhRGI4QVdsRVZ4NUtXV0ZEWk9LQlUyQS1HLVVLOWtRZkpocmd2cGpfaGlIVWFDdm82MjZUS0JZTXdrVzY3clZHM3N0NDlwQ2I3eHVrSHRZVjZVNElCSjJSZDV4WDRoR3BLSHZGcVIxMWxlTEl5dHN1OUh5b3VxV1ROSjQzLW8",
+          "source": "rss:gnews-business-en",
+          "publisher": "Vermont Business Magazine",
+          "title": "Vermont’s unemployment rate holds at 2.6% in June, employment falls",
+          "titleOriginal": null,
+          "summary": "버몬트주의 6월 실업률이 2.6%로 전달과 동일하게 유지됐어요. 다만 전체 고용 인원은 줄어든 것으로 나타났어요.",
+          "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxPTFJySTJuQnQ2dE5sMWZid0JKUEY1cTYzSVJhRGI4QVdsRVZ4NUtXV0ZEWk9LQlUyQS1HLVVLOWtRZkpocmd2cGpfaGlIVWFDdm82MjZUS0JZTXdrVzY3clZHM3N0NDlwQ2I3eHVrSHRZVjZVNElCSjJSZDV4WDRoR3BLSHZGcVIxMWxlTEl5dHN1OUh5b3VxV1ROSjQzLW8?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T15:59:51+00:00",
+          "scope": "foreign",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMiWkFVX3lxTFAyU2haX25HQUNWVl9PbFF4dVdwNGM3M2x0TUN6d0plRl9TNWdtb29PbUtkWFZhUmxOemk5OW03Q21Ick95U2h2TEJ1cmhHYVg3TXRDcGZTdG5EZw",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "한국경제",
+          "title": "다카이치 '강한 경제' 청사진…2040년 GDP 1100조엔 목표",
+          "titleOriginal": null,
+          "summary": "일본 다카이치 총리가 2040년까지 명목 GDP 1100조엔을 목표로 하는 경제 성장 전략을 제시했어요. '강한 경제'를 내세운 정책 방향이 공개된 거예요.",
+          "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFAyU2haX25HQUNWVl9PbFF4dVdwNGM3M2x0TUN6d0plRl9TNWdtb29PbUtkWFZhUmxOemk5OW03Q21Ick95U2h2TEJ1cmhHYVg3TXRDcGZTdG5EZw?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T10:54:42+00:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMi2AFBVV95cUxQY2JCT0JDVjJxOWw4UkZ5Tk5ZYnU3TnJLVVRzY3MxLV9hRVhqeldULWhoWDZTdXJvU05ZLTk5ZlJzWXJsc3NuVlN3T2lCMVUxMEc4M1hMb1RfODZuMkI1RjlLSmJlZ3Rkck45NTJFVTNmSlMtcnNtUVJ0WUg5aldfbzBUYTlES0hzbGlUMm14Q3ZFYU9IcnE5bzZhZm5MSW1ETC1IV2E4Uk1OeTZLX2h6V2pwemQ2TE5YaGFuQzRmbEQtSDdvbkxWalIyWEJxcmgtX0N0MTRQRWE",
+          "source": "rss:gnews-business-en",
+          "publisher": "425business.com",
+          "title": "Conner Homes Appoints New Vice President of Business Operations",
+          "titleOriginal": null,
+          "summary": "Conner Homes가 새로운 사업운영 담당 부사장을 임명했어요. 회사의 운영 조직 강화를 위한 인사로 보여요.",
+          "url": "https://news.google.com/rss/articles/CBMi2AFBVV95cUxQY2JCT0JDVjJxOWw4UkZ5Tk5ZYnU3TnJLVVRzY3MxLV9hRVhqeldULWhoWDZTdXJvU05ZLTk5ZlJzWXJsc3NuVlN3T2lCMVUxMEc4M1hMb1RfODZuMkI1RjlLSmJlZ3Rkck45NTJFVTNmSlMtcnNtUVJ0WUg5aldfbzBUYTlES0hzbGlUMm14Q3ZFYU9IcnE5bzZhZm5MSW1ETC1IV2E4Uk1OeTZLX2h6V2pwemQ2TE5YaGFuQzRmbEQtSDdvbkxWalIyWEJxcmgtX0N0MTRQRWE?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T15:32:00+00:00",
+          "scope": "foreign",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMiT0FVX3lxTE1LNHJ3UkpyX2RkUnlGMTlBNG1TSVJjNE1DbzJwam5PNmtkMmlQRW9qQmoxSmZqd0EzamUzRWN1dGlqMGlRYU83Ukpwc3UxSFU",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "v.daum.net",
+          "title": "IBK증권 \"외국인 단기 과매도…코스피 7월말 재반등 시작 예상\"",
+          "titleOriginal": null,
+          "summary": "IBK증권은 외국인 투자자들의 단기 매도세가 과도했다며 7월 말부터 코스피가 반등할 가능성이 있다는 분석을 내놨어요.",
+          "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE1LNHJ3UkpyX2RkUnlGMTlBNG1TSVJjNE1DbzJwam5PNmtkMmlQRW9qQmoxSmZqd0EzamUzRWN1dGlqMGlRYU83Ukpwc3UxSFU?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-20T23:43:53+00:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMitwFBVV95cUxNTnZUa0F0Q3BIM2hqclVLQXR3NEVEUmk0ZnN0WVFTWGo2cXZuVE1XVFJLUjRQMkZCdVV3UVJYcEJ3M2FjcFlrTGdhaUdRYU9NbXJNU25wWFlaZmtpMnp0SWVnSW9KMUtXcngtN2hjblMtRWZtLUg0TlRfU1hWRXFXVGhtcnNzZDYwN09JdFZyNElwRWNPRnBYOGFDcXRVaEJ1dXRualA1djBGNkpZRlBqdmUxM2g2bjQ",
+          "source": "rss:gnews-business-en",
+          "publisher": "Statesman-Examiner",
+          "title": "Colville Couple Launches Pressure Washing Business With Community in Mind",
+          "titleOriginal": null,
+          "summary": "콜빌의 한 부부가 지역사회에 도움이 되고자 압력세척(파워워싱) 사업을 새로 시작했어요. 지역 밀착형 서비스를 목표로 하고 있어요.",
+          "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxNTnZUa0F0Q3BIM2hqclVLQXR3NEVEUmk0ZnN0WVFTWGo2cXZuVE1XVFJLUjRQMkZCdVV3UVJYcEJ3M2FjcFlrTGdhaUdRYU9NbXJNU25wWFlaZmtpMnp0SWVnSW9KMUtXcngtN2hjblMtRWZtLUg0TlRfU1hWRXFXVGhtcnNzZDYwN09JdFZyNElwRWNPRnBYOGFDcXRVaEJ1dXRualA1djBGNkpZRlBqdmUxM2g2bjQ?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T16:10:30+00:00",
+          "scope": "foreign",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMiWkFVX3lxTE5ORE5zZGJsaEREMTVxMzZyWmtTN25tNXRqMVNHWHF6VlF5Y3pIVE1WNzBiT2FfS3hoaDlvY0tYV3ZObEZ1Ni1MTm45REZGUGIwU2xFdmFzX3lNdw",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "한국경제",
+          "title": "[백광엽 칼럼] '우리 시대의 보너스'에 대하여",
+          "titleOriginal": null,
+          "summary": "백광엽 칼럼니스트가 우리 시대의 '보너스'라는 주제로 사회·경제적 단상을 풀어낸 칼럼이에요.",
+          "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE5ORE5zZGJsaEREMTVxMzZyWmtTN25tNXRqMVNHWHF6VlF5Y3pIVE1WNzBiT2FfS3hoaDlvY0tYV3ZObEZ1Ni1MTm45REZGUGIwU2xFdmFzX3lNdw?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T16:08:00+00:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMiogFBVV95cUxPa0E1enZDYU1EWFphbFNQbUgySnJhWjNzc2tIVmRHZS1zQjIySWNtdU5iWmVKRWJIeG9tNHV6VkNvNTdNdFBHS29sVzNfVVd2NmR2NXd6Vno4QkhMdFVqSXl6VUpvYWwyQ2dsdDk5YWowQi1KemFFRkQ2ZV95TTZZNFV6c2pkenBkYk9NN2l6ejAwTHYtb1lNTUxEMHJqWDRCUFE",
+          "source": "rss:gnews-business-en",
+          "publisher": "Yahoo Finance",
+          "title": "Is AMAT's Installed Base Business Built for Long-Term Growth?",
+          "titleOriginal": null,
+          "summary": "Applied Materials(AMAT)의 설치기반 사업이 장기 성장을 뒷받침할 수 있을지에 대한 분석이에요. 기존 장비 설치 기반을 활용한 서비스·업그레이드 매출이 관건으로 다뤄져요.",
+          "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPa0E1enZDYU1EWFphbFNQbUgySnJhWjNzc2tIVmRHZS1zQjIySWNtdU5iWmVKRWJIeG9tNHV6VkNvNTdNdFBHS29sVzNfVVd2NmR2NXd6Vno4QkhMdFVqSXl6VUpvYWwyQ2dsdDk5YWowQi1KemFFRkQ2ZV95TTZZNFV6c2pkenBkYk9NN2l6ejAwTHYtb1lNTUxEMHJqWDRCUFE?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T14:53:00+00:00",
+          "scope": "foreign",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://www.hankyung.com/article/202607217917i",
+          "source": "rss:hankyung",
+          "publisher": "",
+          "title": "노보, 릴리 \"비만치료제 허위광고\"혐의로 소송",
+          "titleOriginal": null,
+          "summary": "Novo Nordisk와 Eli Lilly가 비만치료제 관련 허위광고 혐의로 소송을 제기했다는 소식이에요. 경쟁 제품의 광고 내용을 둘러싼 법적 분쟁으로 보여요.",
+          "url": "https://www.hankyung.com/article/202607217917i",
+          "thumbnail": null,
+          "time": "2026-07-21T15:27:39+00:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://www.hankyung.com/article/202607217964i",
+          "source": "rss:hankyung",
+          "publisher": "",
+          "title": "美USTR대표,\"금주 만료될 10%관세 후속 조치 곧 발표\"",
+          "titleOriginal": null,
+          "summary": "미국 USTR 대표가 이번 주 만료 예정인 10% 관세와 관련해 후속 조치를 곧 발표하겠다고 밝혔어요.",
+          "url": "https://www.hankyung.com/article/202607217964i",
+          "thumbnail": null,
+          "time": "2026-07-21T15:19:28+00:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://www.bbc.co.uk/news/articles/cn8n5vnmjlzo#1",
+          "source": "rss:bbc-business",
+          "publisher": "",
+          "title": "Three reasons why UK electricity prices are so high",
+          "titleOriginal": null,
+          "summary": "영국 정부가 가정용 전기에 대한 부가가치세를 0%로 인하하겠다고 발표했어요. 하지만 영국인들은 여전히 다른 유럽 국가들보다 더 비싼 전기요금을 내고 있어요.",
+          "url": "https://www.bbc.co.uk/news/articles/cn8n5vnmjlzo?at_medium=RSS&at_campaign=rss",
+          "thumbnail": null,
+          "time": "2026-07-21T16:11:14+00:00",
+          "scope": "foreign",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMinwFBVV95cUxNMVVKS0dpVFR6eUtJSjc1VGlWRnhFaEwwUkNNUjN6ZU9HYWo5SEI0R3JYbjRkSnFlTTVVb1FmdG5GUm9Ma1JGcUw3Y3Z6ZHNQNE1DdUhLdnVIajYxS2Q0a2Z6cGFNc0Q1NnBtVlh5eEdoZWlXTDJmQlFRcUQtYXdvNXRUd3UwbG9jLUZzWnJKVHlqTzVzNWt1XzRwU2NOUFE",
+          "source": "rss:gnews-us-stocks-en",
+          "publisher": "Yahoo Finance",
+          "title": "In 15 Words, Fed Governor Christopher Waller Just Issued a Warning to Wall Street",
+          "titleOriginal": null,
+          "summary": "Christopher Waller 연준 이사가 짧은 발언으로 월가에 경고 메시지를 던졌어요. 통화정책 방향에 대한 시장의 주목을 받고 있어요.",
+          "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxNMVVKS0dpVFR6eUtJSjc1VGlWRnhFaEwwUkNNUjN6ZU9HYWo5SEI0R3JYbjRkSnFlTTVVb1FmdG5GUm9Ma1JGcUw3Y3Z6ZHNQNE1DdUhLdnVIajYxS2Q0a2Z6cGFNc0Q1NnBtVlh5eEdoZWlXTDJmQlFRcUQtYXdvNXRUd3UwbG9jLUZzWnJKVHlqTzVzNWt1XzRwU2NOUFE?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-20T09:55:00+00:00",
+          "scope": "foreign",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMiqgFBVV95cUxQb19sYWp3OG1LeW9IX3Zrb2FhcTlWb0xmSHIxR0JNSmlEbk9rcDR4eHlqeGZySnZpcS1YMlgyTDAtYURjY0pUUGZiQ05CWVRTczNpQTZrVmVjX2ViZGFLdXBTRFpFS0hicUk0WnZvT3BRNDU5bzl6bnl3ZF9WSWhEQUgyN3gyTVV3Rmo1N0xaV3lsX0l3Y0hnSS1SOHVqM3dDU3VQM0ZoLUw2QQ",
+          "source": "rss:gnews-us-markets-en",
+          "publisher": "Yahoo Finance",
+          "title": "Netflix initiated, Instacart upgraded: Wall Street's top analyst calls",
+          "titleOriginal": null,
+          "summary": "월가 애널리스트들이 Netflix에 대한 분석을 새로 시작하고 Instacart의 투자의견을 상향 조정했어요. 이번 주 주요 애널리스트 코멘트를 정리한 소식이에요.",
+          "url": "https://news.google.com/rss/articles/CBMiqgFBVV95cUxQb19sYWp3OG1LeW9IX3Zrb2FhcTlWb0xmSHIxR0JNSmlEbk9rcDR4eHlqeGZySnZpcS1YMlgyTDAtYURjY0pUUGZiQ05CWVRTczNpQTZrVmVjX2ViZGFLdXBTRFpFS0hicUk0WnZvT3BRNDU5bzl6bnl3ZF9WSWhEQUgyN3gyTVV3Rmo1N0xaV3lsX0l3Y0hnSS1SOHVqM3dDU3VQM0ZoLUw2QQ?oc=5",
+          "thumbnail": null,
+          "time": "2026-03-30T07:00:00+00:00",
+          "scope": "foreign",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        }
+      ],
+      "research": [],
+      "etf": [
+        {
+          "code": "069500",
+          "name": "KODEX 200",
+          "theme": "대형주",
+          "close": 108140.0,
+          "change": 4045.0,
+          "changePct": 3.89
+        },
+        {
+          "code": "102110",
+          "name": "TIGER 200",
+          "theme": "대형주",
+          "close": 108110.0,
+          "change": 4115.0,
+          "changePct": 3.96
+        },
+        {
+          "code": "229200",
+          "name": "KODEX KOSDAQ150",
+          "theme": "코스닥",
+          "close": 12650.0,
+          "change": 40.0,
+          "changePct": 0.32
+        },
+        {
+          "code": "261220",
+          "name": "KODEX 미국S&P500",
+          "theme": "미국주식",
+          "close": 22800.0,
+          "change": -550.0,
+          "changePct": -2.36
+        },
+        {
+          "code": "133690",
+          "name": "TIGER 미국나스닥100",
+          "theme": "미국주식",
+          "close": 188910.0,
+          "change": 1550.0,
+          "changePct": 0.83
+        },
+        {
+          "code": "148070",
+          "name": "KOSEF 국고채10년",
+          "theme": "채권",
+          "close": 103995.0,
+          "change": -10.0,
+          "changePct": -0.01
+        },
+        {
+          "code": "132030",
+          "name": "KODEX 골드선물",
+          "theme": "원자재",
+          "close": 22900.0,
+          "change": 355.0,
+          "changePct": 1.57
+        },
+        {
+          "code": "091160",
+          "name": "KODEX 반도체",
+          "theme": "반도체",
+          "close": 128025.0,
+          "change": 3520.0,
+          "changePct": 2.83
+        },
+        {
+          "code": "305720",
+          "name": "KODEX 2차전지산업",
+          "theme": "2차전지",
+          "close": 12790.0,
+          "change": 75.0,
+          "changePct": 0.59
+        },
+        {
+          "code": "364980",
+          "name": "TIGER Fn반도체TOP10",
+          "theme": "반도체",
+          "close": 8805.0,
+          "change": 130.0,
+          "changePct": 1.5
+        },
+        {
+          "code": "139220",
+          "name": "TIGER 200 IT",
+          "theme": "IT",
+          "close": 6630.0,
+          "change": 320.0,
+          "changePct": 5.07
+        },
+        {
+          "code": "448290",
+          "name": "TIGER 미국AI빅테크10",
+          "theme": "AI/빅테크",
+          "close": 17390.0,
+          "change": 60.0,
+          "changePct": 0.35
+        },
+        {
+          "code": "280930",
+          "name": "TIGER 코스피고배당",
+          "theme": "배당",
+          "close": 16780.0,
+          "change": 35.0,
+          "changePct": 0.21
+        },
+        {
+          "code": "091170",
+          "name": "KODEX 은행",
+          "theme": "금융",
+          "close": 15910.0,
+          "change": 65.0,
+          "changePct": 0.41
+        },
+        {
+          "code": "139270",
+          "name": "TIGER 200 에너지화학",
+          "theme": "에너지",
+          "close": 16910.0,
+          "change": 335.0,
+          "changePct": 2.02
+        }
+      ],
+      "hotIssues": {
+        "domestic": [],
+        "foreign": [
+          {
+            "rank": 1,
+            "asset": "전력망 인프라·송배전 설비",
+            "assetType": "theme",
+            "direction": "positive",
+            "signal": "전력요금 구조 고착",
+            "picks": [
+              {
+                "ticker": "NGG",
+                "name": "내셔널그리드 ADR",
+                "description": "영국 전기요금 상승분의 상당 부분이 송배전 네트워크 투자비 회수인데, 그 투자 주체이자 규제 자산기반 확대의 직접 수혜자가 National Grid예요. 요금 인상 뉴스가 곧 이 회사의 매출 인식 구조 확대를 뜻해요.",
+                "why_undiscovered": "대부분의 투자자는 전기요금 상승을 '유틸리티 소비자 부담' 악재로 읽지, 규제 사업자의 자산기반 확대 호재로 뒤집어 보지 않아요.",
+                "consensus_risk": "low",
+                "related_etf": {
+                  "ticker": "JXI",
+                  "name": "iShares Global Utilities ETF",
+                  "confidence": "low"
+                },
+                "domestic": null
+              },
+              {
+                "ticker": "NVT",
+                "name": "엔벤트일렉트릭",
+                "description": "전력망 증설 사이클에서 실제로 물량이 늘어나는 건 발전기가 아니라 배전반·인클로저·전기접속 부품이에요. nVent는 이 영역의 순수 공급업체라 그리드 자본지출 확대에 레버리지가 큰 편이에요.",
+                "why_undiscovered": "전력 테마 자금이 발전·원전·터빈 대형주에 쏠려 있어 배전 부품 단계는 커버리지가 얇아요.",
+                "consensus_risk": "medium",
+                "related_etf": {
+                  "ticker": "PAVE",
+                  "name": "Global X U.S. Infrastructure Development ETF",
+                  "confidence": "high"
+                },
+                "domestic": null
+              },
+              {
+                "ticker": "HUBB",
+                "name": "허벨",
+                "description": "변압기·계량기·배전 커넥터 등 교체 주기가 도래한 그리드 부품을 공급하며, 요금에 전가되는 네트워크 capex가 늘어날수록 수주가 누적돼요. 가격 결정력이 높아 원가 상승을 전가하기도 쉬운 구조예요.",
+                "why_undiscovered": "AI 데이터센터 전력 스토리에만 엮여 언급되고, 유럽·영국 요금 구조 개편이라는 별도 수요 축은 거의 논의되지 않아요.",
+                "consensus_risk": "medium",
+                "related_etf": {
+                  "ticker": "PAVE",
+                  "name": "Global X U.S. Infrastructure Development ETF",
+                  "confidence": "high"
+                },
+                "domestic": null
+              }
+            ],
+            "reason": "BBC가 UK 전기요금이 유럽 최고 수준인 이유로 가스 한계가격 연동, 네트워크(송배전) 투자비 전가, 재생에너지 보조금 부담 세 가지를 짚었어요. 세 요인 중 두 개가 '요금에 얹어 회수되는 인프라 자본지출'이라는 점이 핵심인데, 이는 규제 자산기반(RAB)이 커질수록 사업자 수익이 늘어나는 구조예요. 시장은 이 뉴스를 소비자 물가 이슈로만 소비하고 있어 송배전 설비 공급망 쪽 수혜 연결고리는 아직 덜 잡혀 있어요.",
+            "source": "BBC Business",
+            "url": "https://www.bbc.co.uk/news/articles/cn8n5vnmjlzo?at_medium=RSS&at_campaign=rss",
+            "cautions": "정치권이 요금 인하 압박을 규제 수익률(allowed return) 삭감으로 풀 경우 네트워크 사업자 마진이 직접 훼손될 수 있어요. 또한 영국 단일 국가 이슈라 글로벌 확산 속도가 예상보다 느릴 수 있어요."
+          },
+          {
+            "rank": 2,
+            "asset": "미국 2년물 국채금리",
+            "assetType": "macro",
+            "direction": "negative",
+            "signal": "연준 인하 신호",
+            "picks": [
+              {
+                "ticker": "AGNC",
+                "name": "AGNC인베스트먼트",
+                "description": "단기 조달금리가 내려가고 장단기 스프레드가 벌어지면 순이자마진이 곧바로 개선되는 에이전시 모기지 REIT예요. 금리 인하 기대 국면에서 배당 커버리지와 장부가가 동시에 개선되는 구조예요.",
+                "why_undiscovered": "금리 인하 수혜 논의가 대부분 성장주와 지방은행에 집중돼 모기지 REIT의 커브 레버리지는 뒤늦게 반영돼요.",
+                "consensus_risk": "medium",
+                "related_etf": {
+                  "ticker": "REM",
+                  "name": "iShares Mortgage Real Estate ETF",
+                  "confidence": "high"
+                },
+                "domestic": null
+              },
+              {
+                "ticker": "TREE",
+                "name": "렌딩트리",
+                "description": "금리가 내려가면 모기지 재융자와 개인대출 비교 트래픽이 급증하고, 이 회사는 대출을 직접 떠안지 않고 중개 수수료만 받아 신용위험 없이 물량 증가분을 그대로 수익화해요. 금리 사이클 초입에서 실적 탄력이 가장 큰 유형이에요.",
+                "why_undiscovered": "시가총액이 작아 대형 리서치 커버리지가 얇고, 금리 인하 수혜주 리스트에서 거의 호명되지 않아요.",
+                "consensus_risk": "low",
+                "related_etf": {
+                  "ticker": "XLF",
+                  "name": "Financial Select Sector SPDR Fund",
+                  "confidence": "low"
+                },
+                "domestic": null
+              },
+              {
+                "ticker": "RKT",
+                "name": "로켓컴퍼니스",
+                "description": "모기지 오리지네이션 점유율이 높아 재융자 사이클이 열리면 대출 실행 물량이 가장 먼저 늘어나요. 금리 하락 기대가 실제 신청 건수로 전환되는 시차가 짧은 편이에요.",
+                "why_undiscovered": "주택 경기 부진 이미지가 강해 금리 인하 트레이드의 1차 후보로 잘 거론되지 않아요.",
+                "consensus_risk": "medium",
+                "related_etf": {
+                  "ticker": "XLF",
+                  "name": "Financial Select Sector SPDR Fund",
+                  "confidence": "low"
+                },
+                "domestic": null
+              }
+            ],
+            "reason": "Fed 이사 Christopher Waller가 월가를 향해 짧은 경고성 발언을 내놓으며 정책 스탠스 전환 가능성을 시사했어요. 연준 내 매파로 분류되던 인사의 톤 변화는 통상 단기 금리 기대에 먼저 반영되기 때문에, 2년물 금리 하락과 커브 스티프닝이 가장 빠른 반응 경로예요. 아직 주식시장은 이를 '경기 둔화 우려'로만 소화하는 단계라 금리 민감 파생 수혜주는 미반영 구간이에요.",
+            "source": "Google News (미국 증시)",
+            "url": "https://news.google.com/rss/articles/CBMinwFBVV95cUxNMVVKS0dpVFR6eUtJSjc1VGlWRnhFaEwwUkNNUjN6ZU9HYWo5SEI0R3JYbjRkSnFlTTVVb1FmdG5GUm9Ma1JGcUw3Y3Z6ZHNQNE1DdUhLdnVIajYxS2Q0a2Z6cGFNc0Q1NnBtVlh5eEdoZWlXTDJmQlFRcUQtYXdvNXRUd3UwbG9jLUZzWnJKVHlqTzVzNWt1XzRwU2NOUFE?oc=5",
+            "cautions": "Waller는 위원 1인의 견해일 뿐이라 다음 CPI·고용지표가 강하게 나오면 인하 기대가 되돌려질 수 있어요. 단기금리 하락이 장기금리 동반 하락으로 이어지면 커브 스티프닝 전제 자체가 무너져요."
+          },
+          {
+            "rank": 3,
+            "asset": "반도체 장비 서비스·부품 공급망",
+            "assetType": "theme",
+            "direction": "positive",
+            "signal": "장비 가동률 회복",
+            "picks": [
+              {
+                "ticker": "UCTT",
+                "name": "울트라클린홀딩스",
+                "description": "장비사에 가스전달 모듈과 서브시스템을 납품하고 세정·분석 서비스까지 제공해, 신규 장비뿐 아니라 설치기반 유지보수 물량에서도 매출이 발생해요. 장비 사이클 대비 반응 속도가 빠른 편이에요.",
+                "why_undiscovered": "투자자 대부분이 반도체 장비를 AMAT·LRCX·ASML 세 종목으로만 인식해 그 하단 서브시스템 레이어는 시야 밖에 있어요.",
+                "consensus_risk": "low",
+                "related_etf": {
+                  "ticker": "XSD",
+                  "name": "SPDR S&P Semiconductor ETF",
+                  "confidence": "high"
+                },
+                "domestic": null
+              },
+              {
+                "ticker": "ICHR",
+                "name": "아이코어홀딩스",
+                "description": "유체 전달 시스템과 정밀 부품을 장비사에 공급하며, 설치기반 확대는 곧 소모성 부품 교체 수요 증가로 직결돼요. 자체 부품 내재화 비중을 높이며 마진 개선 여지도 있어요.",
+                "why_undiscovered": "장비 OEM 실적 발표에 가려진 2차 벤더라 별도 커버리지가 적고 뉴스 흐름에 거의 등장하지 않아요.",
+                "consensus_risk": "low",
+                "related_etf": {
+                  "ticker": "XSD",
+                  "name": "SPDR S&P Semiconductor ETF",
+                  "confidence": "high"
+                },
+                "domestic": null
+              },
+              {
+                "ticker": "MKSI",
+                "name": "MKS인스트루먼츠",
+                "description": "진공·계측·레이저 서브시스템을 장비사에 공급해 가동률이 오를수록 애프터마켓 매출이 함께 늘어나요. 설치기반 서비스 확대는 이 회사의 반복 매출 비중을 직접 끌어올려요.",
+                "why_undiscovered": "부채 부담 이슈로 논의가 재무구조에만 쏠려 있어 설치기반 연동 수익 구조가 저평가돼 있어요.",
+                "consensus_risk": "medium",
+                "related_etf": {
+                  "ticker": "SOXX",
+                  "name": "iShares Semiconductor ETF",
+                  "confidence": "low"
+                },
+                "domestic": null
+              }
+            ],
+            "reason": "Applied Materials의 설치기반(installed base) 서비스 사업이 장기 성장 동력으로 재조명되고 있어요. 설치기반 매출은 이미 팔린 장비의 가동률과 부품 교체 주기에 연동되기 때문에, 팹 가동률 회복이 신규 장비 발주보다 먼저 부품·서브시스템 공급망에 실적으로 잡혀요. 시장이 장비 대형주만 보는 사이 그 아래 서브시스템 단계가 먼저 움직이는 구간이에요.",
+            "source": "Google News (Business)",
+            "url": "https://news.google.com/rss/articles/CBMiogFBVV95cUxPa0E1enZDYU1EWFphbFNQbUgySnJhWjNzc2tIVmRHZS1zQjIySWNtdU5iWmVKRWJIeG9tNHV6VkNvNTdNdFBHS29sVzNfVVd2NmR2NXd6Vno4QkhMdFVqSXl6VUpvYWwyQ2dsdDk5YWowQi1KemFFRkQ2ZV95TTZZNFV6c2pkenBkYk9NN2l6ejAwTHYtb1lNTUxEMHJqWDRCUFE?oc=5",
+            "cautions": "중국향 장비 수출 규제가 추가로 강화되면 설치기반 서비스 매출의 지역 믹스가 훼손될 수 있어요. 팹 가동률 회복이 메모리 일부에 국한되면 부품 업체 수주 확산이 제한될 수 있어요."
+          }
+        ]
+      }
+    },
+    "ai": {
+      "domestic": [
+        {
+          "id": "CBMicEFVX3lxTFBPN3VMbDNQNngtbkpzYi00UnRjN3NJeUROTDNZRzhld0tBTUU2OXhhcjE4aEdzZ1lnR2Z4Nzh4SllkTXR1eTd1U04zQVZodlRVWEplSm1RUHo1VjZZa0w2OFlfalcxbnRuRXRxUkpkRTY",
+          "source": "rss:gnews-ai-kr",
+          "publisher": "Investing.com 한국어",
+          "title": "뱅크오브아메리카, 생성형 AI로 EricaAssist 기능 강화",
+          "titleOriginal": null,
+          "summary": "Bank of America가 생성형 AI 기술을 활용해 자사 서비스인 EricaAssist 기능을 강화했다는 소식이에요.",
+          "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBPN3VMbDNQNngtbkpzYi00UnRjN3NJeUROTDNZRzhld0tBTUU2OXhhcjE4aEdzZ1lnR2Z4Nzh4SllkTXR1eTd1U04zQVZodlRVWEplSm1RUHo1VjZZa0w2OFlfalcxbnRuRXRxUkpkRTY?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T16:09:00+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMibkFVX3lxTE9vaHdRXzdIRF9fS1d5QUVHcWxfQnRmLXF6eWhKMG9GX0sxZGgwXzcyN2ctRmV2MEJBdFFmSHBvdjcxMWVQMmw5bm5DZG11OGxGTG1FVVVoaXJ6ZFRwX2pKakcyQUpiX0NZaVVSODhB0gFyQVVfeXFMTXNqaC05RVE4OHFISmFEcWwyNXh3UzdobGx2WFgzR3RtUkdxbTJhai1rMUpBNmNCbDZmcDkyd2lJT2VFdjF2M3NncENWYmJiclY5VkNiQzB3SU8xb0tfQnpoQ01mdW5vcVVPcjJnaFE1T1pB",
+          "source": "rss:gnews-ai-kr",
+          "publisher": "울산신문",
+          "title": "농협중앙회 울산본부, 지역 농축협 임직원 생성형 AI 활용 교육",
+          "titleOriginal": null,
+          "summary": "농협중앙회 울산본부가 지역 농축협 임직원을 대상으로 생성형 AI 활용 교육을 진행했어요.",
+          "url": "https://news.google.com/rss/articles/CBMibkFVX3lxTE9vaHdRXzdIRF9fS1d5QUVHcWxfQnRmLXF6eWhKMG9GX0sxZGgwXzcyN2ctRmV2MEJBdFFmSHBvdjcxMWVQMmw5bm5DZG11OGxGTG1FVVVoaXJ6ZFRwX2pKakcyQUpiX0NZaVVSODhB0gFyQVVfeXFMTXNqaC05RVE4OHFISmFEcWwyNXh3UzdobGx2WFgzR3RtUkdxbTJhai1rMUpBNmNCbDZmcDkyd2lJT2VFdjF2M3NncENWYmJiclY5VkNiQzB3SU8xb0tfQnpoQ01mdW5vcVVPcjJnaFE1T1pB?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-20T11:10:00+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        }
+      ],
+      "foreign": [
+        {
+          "id": "https://news.ycombinator.com/item?id=48994169",
+          "source": "rss:hn-ai",
+          "publisher": "",
+          "title": "AI 워크플로 개선 위한 구조화된 평가 파이프라인",
+          "titleOriginal": "Structured Evaluation Pipelines to Improve Your AI Workflows",
+          "summary": "AI 워크플로를 개선하기 위해 구조화된 평가(evaluation) 파이프라인을 구축하는 방법을 다루는 글이에요. 체계적인 평가 체계가 어떻게 AI 시스템의 품질을 높이는지 설명해요.",
+          "url": "https://heltweg.org/posts/structured-evaluation-pipelines-to-improve-your-ai-workflows/",
+          "thumbnail": null,
+          "time": "2026-07-21T16:05:16+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.ycombinator.com/item?id=48994144",
+          "source": "rss:hn-ai",
+          "publisher": "",
+          "title": "로봇 자동화 연구 25년이 예고하는 AI와 일자리의 미래",
+          "titleOriginal": "What 25 Years of Robot Automation Research Predicts About AI and Your Job",
+          "summary": "지난 25년간의 로봇 자동화 연구가 AI와 일자리의 관계에 대해 무엇을 시사하는지 다루는 글이에요. 과거 자동화 흐름을 통해 향후 고용 변화를 전망해요.",
+          "url": "https://twitter.com/cahidarda/status/2073909304390746153",
+          "thumbnail": null,
+          "time": "2026-07-21T16:03:47+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMitwFBVV95cUxON1dWb3ZBNnMxdjZEYkkxYmRQQ19QWkhFeG5ERGRKS2UwZFBzQUppc2xJcmlCYWxuVWdyaGNFRnZVQzNKaXZ1UzhBRzJPLU94YmhrS3ZrSG1iY0V0ZGxGQ1dMZ1BnV3ZqZXdlRDZIeEwwcjNSOWluZXk2ZDNBZ3M2LVliSVpnenJGVVBfaXpyWi0zb3k0RzVrMUVZdWd3cThPWVh3QUdUOXJhclFKelhzN0Q0elM0aTA",
+          "source": "rss:gnews-ai-en",
+          "publisher": "citybiz",
+          "title": "OpenAI Codex·ChatGPT Work, AI 에이전트 확산 속 사용자 1000만 명 돌파",
+          "titleOriginal": "OpenAI’s Codex, ChatGPT Work Reach 10 Million Users as AI Agent Adoption Surges",
+          "summary": "OpenAI의 Codex와 ChatGPT Work 사용자가 1000만 명을 넘어섰어요. AI 에이전트 도입이 빠르게 확산되고 있는 흐름을 보여줘요.",
+          "url": "https://news.google.com/rss/articles/CBMitwFBVV95cUxON1dWb3ZBNnMxdjZEYkkxYmRQQ19QWkhFeG5ERGRKS2UwZFBzQUppc2xJcmlCYWxuVWdyaGNFRnZVQzNKaXZ1UzhBRzJPLU94YmhrS3ZrSG1iY0V0ZGxGQ1dMZ1BnV3ZqZXdlRDZIeEwwcjNSOWluZXk2ZDNBZ3M2LVliSVpnenJGVVBfaXpyWi0zb3k0RzVrMUVZdWd3cThPWVh3QUdUOXJhclFKelhzN0Q0elM0aTA?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T16:17:47+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMilAFBVV95cUxOcHBUNzdDNzY0Ukh1U1VOUnZmNzN4azNZOTBldi1xSGZRNEVWZnZtbElaS3R3Nkh3YkhrZ045eXdtbUY3X0lJM2VvQW5IcC0yTURGMVVaRTlTUV9KSTJzbXMyRTdtRENVa1h2Qkw3MVJlVkZSbEpZYVU3N2hxd1JsbzAyTTBMSHJKMXhWT1Nad19vVEZP",
+          "source": "rss:gnews-ai-en",
+          "publisher": "Droid Life",
+          "title": "Google, Gemini 4 출시 예고",
+          "titleOriginal": "Google Teases Gemini 4 Release",
+          "summary": "Google이 차기 모델인 Gemini 4의 출시를 예고했어요. 구체적인 출시 일정과 세부 내용은 아직 공개되지 않았어요.",
+          "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxOcHBUNzdDNzY0Ukh1U1VOUnZmNzN4azNZOTBldi1xSGZRNEVWZnZtbElaS3R3Nkh3YkhrZ045eXdtbUY3X0lJM2VvQW5IcC0yTURGMVVaRTlTUV9KSTJzbXMyRTdtRENVa1h2Qkw3MVJlVkZSbEpZYVU3N2hxd1JsbzAyTTBMSHJKMXhWT1Nad19vVEZP?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T16:14:50+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMitAFBVV95cUxPR1BuNFdad05ENVZoWFk2bWs3U2hncWZkc0FXUS1Dald3eDFWR1JJcDFBeDBfMGtXd3lzWHJ6bkF4WjRUWG1KMmkwcmd0U3NnT0tnSmtFZy15OWw1SkgyeUQ1c2RDYm5jYi1kNWtscWhIbEhjWHNTVTNpSW16MnhtWFFrUmpVNm1RUUQzVXRaQWVORnZuOEkzN0hMeFB0OTVOakpWRzlIa2ZldFBObkdKS0tSQmg",
+          "source": "rss:gnews-ai-en",
+          "publisher": "Thurrott.com",
+          "title": "Google, Gemini 3.6 Flash·3.5 Flash-Lite·3.5 Flash Cyber 신모델 출시",
+          "titleOriginal": "Google Releases New Gemini 3.6 Flash, 3.5 Flash-Lite, and 3.5 Flash Cyber Models",
+          "summary": "Google이 Gemini 3.6 Flash, 3.5 Flash-Lite, 3.5 Flash Cyber 등 새로운 모델을 공개했어요. 각 모델은 용도와 성능 면에서 차별화된 특징을 갖고 있어요.",
+          "url": "https://news.google.com/rss/articles/CBMitAFBVV95cUxPR1BuNFdad05ENVZoWFk2bWs3U2hncWZkc0FXUS1Dald3eDFWR1JJcDFBeDBfMGtXd3lzWHJ6bkF4WjRUWG1KMmkwcmd0U3NnT0tnSmtFZy15OWw1SkgyeUQ1c2RDYm5jYi1kNWtscWhIbEhjWHNTVTNpSW16MnhtWFFrUmpVNm1RUUQzVXRaQWVORnZuOEkzN0hMeFB0OTVOakpWRzlIa2ZldFBObkdKS0tSQmg?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T16:11:53+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMisAFBVV95cUxNdmJnUWFUTlZYTDJDb3NfWWc2c1BlUHgtazdjZVFzS2J6NnhEcDBFUzY3eXdEYUQ2dmhsR284WXA5UG9QcjR1ME1Td29sd2ppS04wc2dOcDNjOFNGRl9HZ3FBUTdwVXhlcXFTVUlRbTMtazZsNVhjWXprZncyazhUN2MxS1pFbWYzOHpxR2xfNmlEMFJNeEZOMkRSSjB6Q3RBNmRnSDMxQnZqa0VzbzNSOQ",
+          "source": "rss:gnews-ai-en",
+          "publisher": "AI News",
+          "title": "Google Gemini 3.6 Flash, 기업 에이전트 토큰 비용 절감 겨냥",
+          "titleOriginal": "Google’s Gemini 3.6 Flash targets enterprise agent token costs",
+          "summary": "Google의 Gemini 3.6 Flash가 기업용 AI 에이전트의 토큰 비용 절감을 목표로 출시됐어요. 효율성을 높여 엔터프라이즈 도입을 확대하려는 전략이에요.",
+          "url": "https://news.google.com/rss/articles/CBMisAFBVV95cUxNdmJnUWFUTlZYTDJDb3NfWWc2c1BlUHgtazdjZVFzS2J6NnhEcDBFUzY3eXdEYUQ2dmhsR284WXA5UG9QcjR1ME1Td29sd2ppS04wc2dOcDNjOFNGRl9HZ3FBUTdwVXhlcXFTVUlRbTMtazZsNVhjWXprZncyazhUN2MxS1pFbWYzOHpxR2xfNmlEMFJNeEZOMkRSSjB6Q3RBNmRnSDMxQnZqa0VzbzNSOQ?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T16:10:01+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMisgFBVV95cUxOVlQxV0dtZ0hMUF83MWxIQlJxUmV4MWh5VGgwSm5VV2lYRkptaVBWQ2JmdGtjQmdpeUtWVzFtSzdlU2czVFVaUkZoMEFaWE85ZkZidUhXQ1V3SFVrZDBsSGpWTEM1UzRmZWxjaWZEelpwLTFCVy1xd2tJZ0J0VVVZSFJRaXRBNDJXTTZTZVE4Q2FDSy1vTW9nWkN5OWd6TEVPMkFFNURwdFBLRjNUQXBiRFJR0gGwAUFVX3lxTFBYbnZtV3Z3WDZBSlZZTVVvZ3FCR2luSEhkRmplbXBMdzNKRFRScFRRNDB5dGhOeVVESU12RkhJb2NwNTBZMGNieGdSRUkzdGE2U1FaWkFJdDZfM2hWUkpwaEtMeHRjVERab3A4WXpvZWd1U2ZsNng2d19TUU5hR1Vyc0F2MU5BMkFHcFE5Ym1VZ0NCQm1Rd2d6QTBsTkNPOWZ3VVZjTnVoT21WUlVxTGlf",
+          "source": "rss:gnews-ai-en",
+          "publisher": "Neowin",
+          "title": "Google, 비플래그십 Gemini 3.x 모델 3종 공개하며 Gemini 4 예고",
+          "titleOriginal": "Google announces three new non-frontier Gemini 3.x models, hypes up upcoming Gemini 4",
+          "summary": "Google이 플래그십이 아닌 Gemini 3.x 계열 모델 세 가지를 새로 발표했어요. 동시에 차세대 모델인 Gemini 4에 대한 기대감도 키우고 있어요.",
+          "url": "https://news.google.com/rss/articles/CBMisgFBVV95cUxOVlQxV0dtZ0hMUF83MWxIQlJxUmV4MWh5VGgwSm5VV2lYRkptaVBWQ2JmdGtjQmdpeUtWVzFtSzdlU2czVFVaUkZoMEFaWE85ZkZidUhXQ1V3SFVrZDBsSGpWTEM1UzRmZWxjaWZEelpwLTFCVy1xd2tJZ0J0VVVZSFJRaXRBNDJXTTZTZVE4Q2FDSy1vTW9nWkN5OWd6TEVPMkFFNURwdFBLRjNUQXBiRFJR0gGwAUFVX3lxTFBYbnZtV3Z3WDZBSlZZTVVvZ3FCR2luSEhkRmplbXBMdzNKRFRScFRRNDB5dGhOeVVESU12RkhJb2NwNTBZMGNieGdSRUkzdGE2U1FaWkFJdDZfM2hWUkpwaEtMeHRjVERab3A4WXpvZWd1U2ZsNng2d19TUU5hR1Vyc0F2MU5BMkFHcFE5Ym1VZ0NCQm1Rd2d6QTBsTkNPOWZ3VVZjTnVoT21WUlVxTGlf?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T16:06:00+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMimAFBVV95cUxORmN4Tk5vWGVQMG5BUTJkVC1WWVJpcmhhN1VyUHpTUTBRT0lyOEVWYU1YVWhpM2RLWGhmZ3dfYTZKMEE4OU1pRUFpb2QzdjFsd2VkUkt4X2diNFpNdElNMFBqOUxUYmNCX2QwWnVHcmVyQ0dEUHJrS0FUd3A2Y2Z2bnVKT2FZVDZ3eEJmVzlwTm4zU3JUWHlfZw",
+          "source": "rss:gnews-ai-en",
+          "publisher": "Yahoo Finance UK",
+          "title": "Bank of America, 생성형 AI로 EricaAssist 고도화해 직원 응대 속도 개선",
+          "titleOriginal": "Bank of America Enhances EricaAssist with Generative AI to Help Employees Resolve Client Needs Faster",
+          "summary": "Bank of America가 생성형 AI를 적용해 EricaAssist를 강화했어요. 이를 통해 직원들이 고객 요청을 더 빠르게 처리할 수 있게 됐어요.",
+          "url": "https://news.google.com/rss/articles/CBMimAFBVV95cUxORmN4Tk5vWGVQMG5BUTJkVC1WWVJpcmhhN1VyUHpTUTBRT0lyOEVWYU1YVWhpM2RLWGhmZ3dfYTZKMEE4OU1pRUFpb2QzdjFsd2VkUkt4X2diNFpNdElNMFBqOUxUYmNCX2QwWnVHcmVyQ0dEUHJrS0FUd3A2Y2Z2bnVKT2FZVDZ3eEJmVzlwTm4zU3JUWHlfZw?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-21T16:00:00+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMilAFBVV95cUxQMzlfYzR4ZnZEU1p1akF0SWFIV0NZOUp1bWNBOGZNenRjY0lOSnA5Z1I1SWliR1NoNTB0RzNwaEU3NXo3YWhuNTBSc2FRMktjSmhOdXhaT1o3My1XT2dtSFZOUnEyb0xHWHg4VHBTVDdxWmh0MVc5WG1kVFdVS1dEUWljMG5WLU5KNHpYZ3lsX0tRMmpl",
+          "source": "rss:gnews-ai-en",
+          "publisher": "WIRED",
+          "title": "Google 신규 Gemini 요금제 작동 방식과 사용량 확인법",
+          "titleOriginal": "How Google’s New Gemini Rates Work and How to Track Your Usage",
+          "summary": "Google의 새로운 Gemini 요금 체계가 어떻게 작동하는지 설명하는 기사예요. 사용자가 자신의 사용량을 추적하는 방법도 함께 안내해요.",
+          "url": "https://news.google.com/rss/articles/CBMilAFBVV95cUxQMzlfYzR4ZnZEU1p1akF0SWFIV0NZOUp1bWNBOGZNenRjY0lOSnA5Z1I1SWliR1NoNTB0RzNwaEU3NXo3YWhuNTBSc2FRMktjSmhOdXhaT1o3My1XT2dtSFZOUnEyb0xHWHg4VHBTVDdxWmh0MVc5WG1kVFdVS1dEUWljMG5WLU5KNHpYZ3lsX0tRMmpl?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-18T10:00:00+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        }
+      ]
+    }
+  },
+  "glossary": {}
+}
