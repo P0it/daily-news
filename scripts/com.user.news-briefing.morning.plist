@@ -11,16 +11,25 @@
         <string>/usr/bin/env</string>
         <string>bash</string>
         <string>-lc</string>
-        <string>cd "$HOME/dev/daily-news" &amp;&amp; ./.venv/bin/python -m news_briefing morning &gt;&gt; data/briefing.log 2&gt;&amp;1</string>
+        <string>cd "$HOME/GitHub/daily-news" &amp;&amp; /usr/bin/caffeinate -i ./.venv/bin/python -m news_briefing morning &gt;&gt; data/briefing.log 2&gt;&amp;1</string>
     </array>
+
+    <!-- launchd 는 로그인 셸 PATH 를 물려받지 않는다. bash -lc 는 ~/.bash_profile
+         만 읽어 Homebrew PATH(~/.zshrc 에 설정)가 빠지고, `claude` CLI 를 못 찾아
+         LLM 단계가 조용히 전부 실패한다(exit 0 로 껍데기 브리핑 발송). 명시 고정. -->
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>PATH</key>
+        <string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin</string>
+    </dict>
 
     <key>StartCalendarInterval</key>
     <array>
-        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>6</integer><key>Minute</key><integer>0</integer></dict>
-        <dict><key>Weekday</key><integer>2</integer><key>Hour</key><integer>6</integer><key>Minute</key><integer>0</integer></dict>
-        <dict><key>Weekday</key><integer>3</integer><key>Hour</key><integer>6</integer><key>Minute</key><integer>0</integer></dict>
-        <dict><key>Weekday</key><integer>4</integer><key>Hour</key><integer>6</integer><key>Minute</key><integer>0</integer></dict>
-        <dict><key>Weekday</key><integer>5</integer><key>Hour</key><integer>6</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Weekday</key><integer>1</integer><key>Hour</key><integer>7</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Weekday</key><integer>2</integer><key>Hour</key><integer>7</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Weekday</key><integer>3</integer><key>Hour</key><integer>7</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Weekday</key><integer>4</integer><key>Hour</key><integer>7</integer><key>Minute</key><integer>0</integer></dict>
+        <dict><key>Weekday</key><integer>5</integer><key>Hour</key><integer>7</integer><key>Minute</key><integer>0</integer></dict>
     </array>
 
     <key>RunAtLoad</key>
