@@ -112,12 +112,17 @@ function HomeInner() {
 
   const current = briefing.tabs.current
   const filterScope = (arr: NewsItem[]) => arr.filter((n) => n.scope === scope)
-  const allCurrentNews = [
+  // 같은 기사가 여러 카테고리에 분류될 수 있어 id 기준 중복 제거 (React key 충돌 방지)
+  const dedupeById = (arr: NewsItem[]) => {
+    const seen = new Set<string>()
+    return arr.filter((n) => (seen.has(n.id) ? false : (seen.add(n.id), true)))
+  }
+  const allCurrentNews = dedupeById([
     ...filterScope(current.politics),
     ...filterScope(current.society),
     ...filterScope(current.international),
     ...filterScope(current.tech),
-  ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
+  ]).sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime())
   const hasCurrentNews = allCurrentNews.length > 0
 
   return (

@@ -1,4 +1,11 @@
-@import "tailwindcss";
+/* Tailwind v4 자동 소스 탐지의 베이스를 frontend로 고정한다(이 CSS 기준 ../../).
+   기본값은 git 루트(.git=레포 최상단)를 베이스로 삼아 재컴파일마다 외장 볼륨의
+   레포 전체(data·fonts·python 소스)를 스캔 → CPU 폭주·렉의 주원인이었다.
+   베이스를 frontend로 좁히면 스캔이 frontend 안으로 한정된다.
+   (참고: Next의 postcss 워커가 @import "tailwindcss"를 레포 루트 기준으로
+   중복 해석하려다 내뱉는 "Can't resolve 'tailwindcss'" 로그는 이와 별개이며
+   CSS 생성·스타일에는 영향이 없는 비치명적 노이즈다.) */
+@import "tailwindcss" source("../../");
 
 @font-face {
   font-family: 'Toss Face Font Web';
