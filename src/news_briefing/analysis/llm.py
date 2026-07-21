@@ -13,6 +13,7 @@ import shutil
 import sqlite3
 import subprocess
 import tempfile
+from dataclasses import dataclass
 
 from news_briefing.storage.cache import cache_get, cache_put
 
@@ -22,6 +23,61 @@ log = logging.getLogger(__name__)
 def _resolve(cmd: str) -> str:
     """PATH 에서 실행 파일 전체 경로 찾기. Windows `.cmd`/`.bat` 확장자 지원."""
     return shutil.which(cmd) or cmd
+
+
+# LLM 호출이 전부 실패해도 각 호출부가 예외를 삼키고 WARNING 만 남기므로,
+# 파이프라인은 exit 0 으로 끝나고 요약·번역이 텅 빈 브리핑이 발송된다.
+# (실제 사고: launchd 의 PATH 에 Homebrew 가 없어 `claude` 를 못 찾음.)
+# 호출 결과를 집계해 발송 직전에 "이 브리핑을 믿을 수 있는가" 를 판단한다.
+MAX_LLM_FAILURE_RATE = 0.5
+
+
+@dataclass
+class LLMStats:
+    """한 번의 파이프라인 실행 동안 누적된 Claude CLI 호출 통계."""
+
+    calls: int = 0
+    failures: int = 0
+
+    @property
+    def failure_rate(self) -> float:
+        """실패 비율. 호출이 0건이면 0.0 (0 나눗셈 방지)."""
+        if self.calls == 0:
+            return 0.0
+        return self.failures / self.calls
+
+
+_stats = LLMStats()
+
+
+def llm_stats() -> LLMStats:
+    """현재 누적된 호출 통계를 반환."""
+    return _stats
+
+
+def reset_llm_stats() -> None:
+    """통계를 초기화. 파이프라인 시작 시·테스트 격리용."""
+    global _stats
+    _stats = LLMStats()
+
+
+def preflight_claude() -> bool:
+    """`claude` 실행 파일이 PATH 에서 발견되는지 확인.
+
+    launchd 는 로그인 셸 PATH 를 물려받지 않아 여기서 걸리는 경우가 있다.
+    호출 한 번 없이도 환경 문제를 조기에 감지하기 위한 사전 점검.
+    """
+    return shutil.which("claude") is not None
+
+
+def llm_output_is_trustworthy() -> bool:
+    """LLM 산출물을 신뢰할 수 있는지 판단. 발송 여부 결정에 사용.
+
+    실행 파일이 아예 없거나, 실패율이 `MAX_LLM_FAILURE_RATE` 를 넘으면 False.
+    """
+    if not preflight_claude():
+        return False
+    return _stats.failure_rate <= MAX_LLM_FAILURE_RATE
 
 
 SUMMARIZE_TASK = "summarize"
@@ -67,26 +123,32 @@ def _call_claude(prompt: str, timeout: int = 45, model: str | None = None) -> st
     cmd = [_resolve("claude"), "-p", "--output-format", "text"]
     if model:
         cmd += ["--model", model]
-    with tempfile.TemporaryDirectory(prefix="news_briefing_llm_") as tmpdir:
-        result = subprocess.run(
-            cmd,
-            input=prompt,
-            capture_output=True,
-            text=True,
-            encoding="utf-8",
-            errors="replace",
-            timeout=timeout,
-            check=False,
-            cwd=tmpdir,
-        )
-    if result.returncode != 0:
-        raise RuntimeError(
-            f"claude cli returncode={result.returncode} stderr={result.stderr[:500]}"
-        )
-    output = (result.stdout or "").strip()
-    if not output:
-        stderr_hint = (result.stderr or "").strip()[:300]
-        raise RuntimeError(f"claude cli returned empty stdout (stderr={stderr_hint!r})")
+    _stats.calls += 1
+    try:
+        with tempfile.TemporaryDirectory(prefix="news_briefing_llm_") as tmpdir:
+            result = subprocess.run(
+                cmd,
+                input=prompt,
+                capture_output=True,
+                text=True,
+                encoding="utf-8",
+                errors="replace",
+                timeout=timeout,
+                check=False,
+                cwd=tmpdir,
+            )
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"claude cli returncode={result.returncode} stderr={result.stderr[:500]}"
+            )
+        output = (result.stdout or "").strip()
+        if not output:
+            stderr_hint = (result.stderr or "").strip()[:300]
+            raise RuntimeError(f"claude cli returned empty stdout (stderr={stderr_hint!r})")
+    except Exception:
+        # 호출부가 예외를 삼키더라도 실패 사실은 통계에 남겨야 발송 가드가 동작한다.
+        _stats.failures += 1
+        raise
     return output
 
 

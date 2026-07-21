@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+import os
 import sys
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -19,7 +20,14 @@ from news_briefing.analysis.hot_issues import (
     analyze_hot_issues_domestic,
     foreign_news_weight,
 )
-from news_briefing.analysis.llm import summarize_batch, translate_batch
+from news_briefing.analysis.llm import (
+    llm_output_is_trustworthy,
+    llm_stats,
+    preflight_claude,
+    reset_llm_stats,
+    summarize_batch,
+    translate_batch,
+)
 from news_briefing.analysis.scoring import score_consensus, score_edgar, score_report
 from news_briefing.collectors.base import CollectedItem
 from news_briefing.collectors.dart import fetch_dart_list
@@ -30,7 +38,7 @@ from news_briefing.collectors.krx_etf import ETFSnapshot, fetch_krx_etf
 from news_briefing.collectors.macro import fetch_macro
 from news_briefing.collectors.research import fetch_research_reports
 from news_briefing.collectors.rss import fetch_all_rss
-from news_briefing.config import Config
+from news_briefing.config import PROJECT_ROOT, Config
 from news_briefing.delivery.digest import format_digest, write_digest
 from news_briefing.delivery.discord import send_message as discord_send
 from news_briefing.delivery.json_builder import (
@@ -85,6 +93,17 @@ def run_morning(
     now = now or datetime.now()
     t_total = time.perf_counter()
     log.info("morning start date=%s dry_run=%s", now.date(), dry_run)
+
+    # launchd 는 로그인 셸 PATH 를 물려받지 않아 `claude` 를 못 찾는 사고가 있었다.
+    # 2분 넘게 수집·분석을 돌린 뒤에야 알게 되는 대신 시작 시점에 크게 남긴다.
+    reset_llm_stats()
+    if not preflight_claude():
+        log.error(
+            "`claude` 실행 파일을 PATH 에서 찾을 수 없다. LLM 단계가 전부 실패하고 "
+            "요약·번역이 빈 브리핑이 만들어진다. launchd plist 의 PATH 를 확인할 것. "
+            "PATH=%s",
+            os.environ.get("PATH", ""),
+        )
 
     conn = get_client(cfg.supabase_url, cfg.supabase_service_key)
     try:
@@ -496,14 +515,39 @@ def run_morning(
         sent = False
         sig_above = sum(1 for _, s, _ in scored if s >= MIN_SIGNAL_SCORE)
         log.info("[TIMER] %-40s %.1fs", "TOTAL", time.perf_counter() - t_total)
+        stats = llm_stats()
+        log.info(
+            "LLM 호출 %d건 중 실패 %d건 (실패율 %.0f%%)",
+            stats.calls,
+            stats.failures,
+            stats.failure_rate * 100,
+        )
         if not dry_run:
-            link_url = f"{cfg.vercel_base_url}/?date={now.strftime('%Y-%m-%d')}&tab=ai"
-            message = (
-                f"**데일리 브리핑 · {now.strftime('%m월 %d일')}**\n"
-                f"AI {len(ai_news)}건 · 공시 {sig_above}건 · 뉴스 {len(fresh_news)}건\n"
-                f"{link_url}"
-            )
-            sent = _send_discord(cfg, message)
+            # LLM 이 대부분 실패했다면 요약·번역이 빈 껍데기 브리핑이다.
+            # 아무도 안 보는 새벽에 도는 배치라 잘못 발송되면 알아채기 어렵다.
+            # 발송하는 대신 크게 로그를 남겨 실패를 드러낸다.
+            if not llm_output_is_trustworthy():
+                log.error(
+                    "LLM 실패율이 높아(%d/%d) 브리핑 발송을 중단한다. "
+                    "요약·번역이 비어 있을 가능성이 크다. data/briefing.log 확인 필요.",
+                    stats.failures,
+                    stats.calls,
+                )
+            else:
+                # 발송 전에 배포부터 — 링크를 받은 시점에 사이트가 옛날 데이터면
+                # 브리핑을 열어도 어제 내용이 보인다.
+                with _timed("9a. git publish"):
+                    from news_briefing.delivery.publish import publish_briefing
+
+                    publish_briefing(PROJECT_ROOT, now.strftime("%Y-%m-%d"))
+
+                link_url = f"{cfg.vercel_base_url}/?date={now.strftime('%Y-%m-%d')}&tab=ai"
+                message = (
+                    f"**데일리 브리핑 · {now.strftime('%m월 %d일')}**\n"
+                    f"AI {len(ai_news)}건 · 공시 {sig_above}건 · 뉴스 {len(fresh_news)}건\n"
+                    f"{link_url}"
+                )
+                sent = _send_discord(cfg, message)
         else:
             sys.stdout.buffer.write((text + "\n").encode("utf-8", errors="replace"))
 
