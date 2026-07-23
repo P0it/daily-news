@@ -230,6 +230,10 @@ dotenvx run -- python -m news_briefing weekly
 # 과거 브리핑을 Supabase에서 로컬로 복원 (달력 백필)
 dotenvx run -- python -m news_briefing export-briefings
 
+# 급상승 종목 조회 (KRX 거래대금 급증 + 같은 날 공시 대조, LLM 없음)
+dotenvx run -- python -m news_briefing surge
+dotenvx run -- python -m news_briefing surge --date 20260721 --top 30 --min-multiple 5
+
 # 상태 확인
 dotenvx run -- python -m news_briefing status
 
