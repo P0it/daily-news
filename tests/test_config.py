@@ -57,6 +57,7 @@ def test_config_dataclass_is_immutable(tmp_path) -> None:
         vercel_deploy_hook_url="",
         edgar_user_agent="",
         fmp_api_key="",
+        krx_api_key="",
     )
     with pytest.raises((AttributeError, Exception)):
         cfg.dart_api_key = "z"  # type: ignore[misc]

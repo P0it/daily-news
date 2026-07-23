@@ -11,6 +11,7 @@
   python -m news_briefing picks [--date YYYY-MM-DD] [--short]
   python -m news_briefing outcomes [--no-backfill] [--since YYYY-MM-DD]
   python -m news_briefing export-briefings [--days N]
+  python -m news_briefing surge [--date YYYYMMDD] [--top N] [--no-dart]
 """
 
 from __future__ import annotations
@@ -50,6 +51,7 @@ def _cmd_status(args: argparse.Namespace) -> int:
         f"  Discord 웹훅: {'설정됨' if cfg.discord_webhook_url else '없음 (.env에 DISCORD_WEBHOOK_URL 추가 필요)'}"
     )
     print(f"  DART 키: {'설정됨' if cfg.dart_api_key else '없음'}")
+    print(f"  KRX 키: {'설정됨' if cfg.krx_api_key else '없음'}")
     print(f"  EDGAR UA: {'설정됨' if cfg.edgar_user_agent else '없음'}")
     print(f"  Ollama: {'ON' if cfg.ollama_enabled else 'OFF'}")
     digests = sorted(cfg.digests_dir.glob("*.txt"), reverse=True)[:3]
@@ -416,6 +418,62 @@ def _cmd_ask(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_surge(args: argparse.Namespace) -> int:
+    from datetime import datetime
+
+    from news_briefing.analysis.surge import attach_disclosures, find_surges
+    from news_briefing.collectors.krx_market import fetch_recent_trading_days
+
+    cfg = load_config()
+    if not cfg.krx_api_key:
+        print(
+            "KRX_API_KEY 가 없습니다. openapi.krx.co.kr 에서 무료 AUTH_KEY 를 발급받아\n"
+            ".env 에 KRX_API_KEY=... 로 추가하세요.",
+            file=sys.stderr,
+        )
+        return 1
+
+    asof = datetime.strptime(args.date, "%Y%m%d").date() if args.date else None
+    series = fetch_recent_trading_days(cfg.krx_api_key, asof=asof, days=args.baseline + 1)
+    if not series:
+        print("KRX 데이터를 받지 못했습니다.", file=sys.stderr)
+        return 1
+
+    surges = find_surges(
+        series,
+        min_change_pct=args.min_change,
+        min_multiple=args.min_multiple,
+        top_n=args.top,
+    )
+
+    # 급등 이유를 사람이 바로 보게끔 같은 날 공시를 붙인다 (LLM 호출 없음)
+    if surges and not args.no_dart and cfg.dart_api_key:
+        from news_briefing.collectors.dart import fetch_dart_list
+
+        day = series[0][0].bas_dd
+        surges = attach_disclosures(surges, fetch_dart_list(cfg.dart_api_key, day, end_date=day))
+
+    target = series[0][0].bas_dd
+    baseline_days = len(series) - 1
+    print(f"\n{target} 급상승 종목 (직전 {baseline_days}거래일 평균 거래대금 대비)\n")
+    if not surges:
+        print("  조건을 통과한 종목이 없습니다.")
+        return 0
+
+    for i, s in enumerate(surges, 1):
+        print(f"{i:2}. {s.name} ({s.code} · {s.market})  {s.change_pct:+.2f}%  {s.close:,.0f}원")
+        print(
+            f"    거래대금 {s.value / 1e8:,.0f}억 = 평균의 {s.value_multiple:.1f}배  ·  "
+            f"시총 {s.market_cap / 1e8:,.0f}억"
+        )
+        if s.disclosures:
+            for title in s.disclosures:
+                print(f"    공시: {title}")
+        else:
+            print("    공시: 없음 (이유 미확인)")
+    return 0
+
+
 def main(argv: list[str] | None = None) -> int:
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
@@ -482,6 +540,17 @@ def main(argv: list[str] | None = None) -> int:
     p_picks.add_argument("--date", help="조회할 날짜 YYYY-MM-DD (기본: 최신)")
     p_picks.add_argument("--short", action="store_true", help="종목명만 간단히")
     p_picks.set_defaults(func=_cmd_picks)
+
+    p_surge = sub.add_parser("surge", help="급상승 종목 조회 (KRX 거래대금 급증 + 공시 대조)")
+    p_surge.add_argument("--date", help="기준일 YYYYMMDD (기본: 최근 거래일)")
+    p_surge.add_argument("--top", type=int, default=20, help="출력 종목 수 (기본 20)")
+    p_surge.add_argument("--baseline", type=int, default=5, help="비교 기준 거래일 수 (기본 5)")
+    p_surge.add_argument("--min-change", type=float, default=5.0, help="최소 등락률 %% (기본 5)")
+    p_surge.add_argument(
+        "--min-multiple", type=float, default=3.0, help="평균 거래대금 대비 최소 배수 (기본 3)"
+    )
+    p_surge.add_argument("--no-dart", action="store_true", help="공시 대조 생략 (빠름)")
+    p_surge.set_defaults(func=_cmd_surge)
 
     args = parser.parse_args(argv)
     if not getattr(args, "func", None):

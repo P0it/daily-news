@@ -27,6 +27,7 @@ def _cfg(tmp_path: Path) -> Config:
         vercel_deploy_hook_url="",
         edgar_user_agent="",
         fmp_api_key="",
+        krx_api_key="",
     )
 
 

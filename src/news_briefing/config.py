@@ -33,6 +33,7 @@ class Config:
     vercel_deploy_hook_url: str
     edgar_user_agent: str
     fmp_api_key: str
+    krx_api_key: str
 
 
 def load_config(project_root: Path | None = None) -> Config:
@@ -78,4 +79,5 @@ def load_config(project_root: Path | None = None) -> Config:
         vercel_deploy_hook_url=os.environ.get("VERCEL_DEPLOY_HOOK_URL", ""),
         edgar_user_agent=os.environ.get("EDGAR_USER_AGENT", ""),
         fmp_api_key=os.environ.get("FMP_API_KEY", ""),
+        krx_api_key=os.environ.get("KRX_API_KEY", ""),
     )
