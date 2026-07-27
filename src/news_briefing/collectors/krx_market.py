@@ -96,7 +96,7 @@ def fetch_krx_daily(
     auth_key: str,
     bas_dd: str,  # YYYYMMDD
     *,
-    timeout: int = 20,
+    timeout: int = 90,
 ) -> list[KrxDaily]:
     """지정일의 코스피+코스닥 전종목 일별매매정보를 반환한다.
 
