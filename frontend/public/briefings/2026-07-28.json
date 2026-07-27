@@ -1,0 +1,1609 @@
+{
+  "date": "2026-07-28",
+  "generatedAt": "2026-07-27T22:04:20.857014+00:00",
+  "version": 1,
+  "hero": null,
+  "tabs": {
+    "current": {
+      "politics": [
+        {
+          "id": "CBMiT0FVX3lxTE5oS2NHdVA1cWVHS0FBUVMxRmFlN29KRlE3T3VKUld3bTkzN2VGNUVBZnEyelRNdmdrUkMyY3hYYmxueE1ONHI4emQxWGNKcXM",
+          "source": "rss:gnews-politics-kr",
+          "publisher": "v.daum.net",
+          "title": "당분간 유가 변동성 불가피…정부 “수급 상황 점검”",
+          "titleOriginal": null,
+          "summary": "당분간 유가 변동성 불가피…정부 “수급 상황 점검” v.daum.net",
+          "url": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE5oS2NHdVA1cWVHS0FBUVMxRmFlN29KRlE3T3VKUld3bTkzN2VGNUVBZnEyelRNdmdrUkMyY3hYYmxueE1ONHI4emQxWGNKcXM?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T21:43:39+00:00",
+          "scope": "domestic",
+          "category": "politics",
+          "glossaryTermId": null,
+          "curationScore": 36
+        },
+        {
+          "id": "CBMib0FVX3lxTE9BMVFWcmgtMFBrZnlKVVZMajV1UzZZaGNjbnJsaDJYTEtTRWRETjU2OTFFQ2IwYzJ0dHpRYUF1amNkanlXb2ZCeTROLUxMck42RVJvVHJxMnFNTkdwcWlJVEFlcWpYdjdsOGJiRXhDWdIBc0FVX3lxTE54c2doZzIycTFGbjVsdVpsYmNoaXdaNjJDZS0wNlNJdTRoSW1zWGtpTHphR1ktY2Z3WEc3SGg2cXVfUDFuNTRkZ1l5dEFaUDRUT2pvR2E4TnpSRHlUVWhPMXMxWDRla3dEOXVXd2l0RndZLXM",
+          "source": "rss:gnews-politics-kr",
+          "publisher": "데일리한국",
+          "title": "한성숙 '부동산 어려움에 무거운 책임감…반드시 해결해야'",
+          "titleOriginal": null,
+          "summary": "한성숙 '부동산 어려움에 무거운 책임감…반드시 해결해야' 데일리한국",
+          "url": "https://news.google.com/rss/articles/CBMib0FVX3lxTE9BMVFWcmgtMFBrZnlKVVZMajV1UzZZaGNjbnJsaDJYTEtTRWRETjU2OTFFQ2IwYzJ0dHpRYUF1amNkanlXb2ZCeTROLUxMck42RVJvVHJxMnFNTkdwcWlJVEFlcWpYdjdsOGJiRXhDWdIBc0FVX3lxTE54c2doZzIycTFGbjVsdVpsYmNoaXdaNjJDZS0wNlNJdTRoSW1zWGtpTHphR1ktY2Z3WEc3SGg2cXVfUDFuNTRkZ1l5dEFaUDRUT2pvR2E4TnpSRHlUVWhPMXMxWDRla3dEOXVXd2l0RndZLXM?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T21:37:11+00:00",
+          "scope": "domestic",
+          "category": "politics",
+          "glossaryTermId": null,
+          "curationScore": 36
+        },
+        {
+          "id": "CBMicEFVX3lxTE9pU3BZRGR4ZnNHVmZfdEJTTTdHT2dYZDg3dVV1QUlxdkw5ZzhPMktfQXJxaTV6UXNrWklFc3JlV29jaUNxeW5HcWwxRTROX1NSZklndFZmbFZlYVFCbGNWQVVoc0ljc2FMTml4MFBJYlk",
+          "source": "rss:gnews-politics-kr",
+          "publisher": "매일노동뉴스",
+          "title": "신장식·김종훈 ‘제3 정당 전략’ 재정비 시동",
+          "titleOriginal": null,
+          "summary": "신장식·김종훈 ‘제3 정당 전략’ 재정비 시동 매일노동뉴스",
+          "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE9pU3BZRGR4ZnNHVmZfdEJTTTdHT2dYZDg3dVV1QUlxdkw5ZzhPMktfQXJxaTV6UXNrWklFc3JlV29jaUNxeW5HcWwxRTROX1NSZklndFZmbFZlYVFCbGNWQVVoc0ljc2FMTml4MFBJYlk?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T21:30:05+00:00",
+          "scope": "domestic",
+          "category": "politics",
+          "glossaryTermId": null,
+          "curationScore": 35
+        },
+        {
+          "id": "CBMicEFVX3lxTE01LVJiUDlPZDdaVlYzczk3T2tkZUh0V0owQzVZOE1qcW4yMXljOXNweHBYNU5FdkZ4MEx1Mm5jS1dGNDJBRjIwWE9ncURmZlJjZUZBUXJvSXMxTVllZlJMak92OFYzQ00ybk1BUjhxWno",
+          "source": "rss:gnews-politics-kr",
+          "publisher": "매일노동뉴스",
+          "title": "‘원청 책임 확대’ 중대재해처벌법안 상정",
+          "titleOriginal": null,
+          "summary": "‘원청 책임 확대’ 중대재해처벌법안 상정 매일노동뉴스",
+          "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE01LVJiUDlPZDdaVlYzczk3T2tkZUh0V0owQzVZOE1qcW4yMXljOXNweHBYNU5FdkZ4MEx1Mm5jS1dGNDJBRjIwWE9ncURmZlJjZUZBUXJvSXMxTVllZlJMak92OFYzQ00ybk1BUjhxWno?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T21:30:03+00:00",
+          "scope": "domestic",
+          "category": "politics",
+          "glossaryTermId": null,
+          "curationScore": 35
+        },
+        {
+          "id": "CBMicEFVX3lxTE96YWgzd1Bmd1BxNjVnY0JTU29fNy1QS0MyMnBpdE45OEs4RmtmSGxqc1F1ZEUwT0E4T3Q2bTcydEJaRXNqSlNVRVNCSGZNeHo4S2YtX0tMWERoUjR1TnBYcmZ2a2ZIYmtfMnFwMXlMVmc",
+          "source": "rss:gnews-politics-kr",
+          "publisher": "매일노동뉴스",
+          "title": "“이동노동자 등 경유 의존도 높은 계층 부담 완화해야”",
+          "titleOriginal": null,
+          "summary": "“이동노동자 등 경유 의존도 높은 계층 부담 완화해야” 매일노동뉴스",
+          "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE96YWgzd1Bmd1BxNjVnY0JTU29fNy1QS0MyMnBpdE45OEs4RmtmSGxqc1F1ZEUwT0E4T3Q2bTcydEJaRXNqSlNVRVNCSGZNeHo4S2YtX0tMWERoUjR1TnBYcmZ2a2ZIYmtfMnFwMXlMVmc?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T21:30:04+00:00",
+          "scope": "domestic",
+          "category": "politics",
+          "glossaryTermId": null,
+          "curationScore": 35
+        }
+      ],
+      "society": [
+        {
+          "id": "CBMicEFVX3lxTE1xNnVGelpfYk05YWVKOUVQSXpDQUNmS1F0Qzdxa2E2eFJZNmdMTkJDSm50UDNTbTBuSzcxM0tORERTN2Z1aTlNMHlBMmlzV3Z2eUVvekg4OGtGYjNyQ3pPd2g4Rm5BcW1ELWtHdDVGZWQ",
+          "source": "rss:gnews-society-kr",
+          "publisher": "매일노동뉴스",
+          "title": "“대통령 약속대로” 건보 국고지원 20% 반영 촉구",
+          "titleOriginal": null,
+          "summary": "“대통령 약속대로” 건보 국고지원 20% 반영 촉구 매일노동뉴스",
+          "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE1xNnVGelpfYk05YWVKOUVQSXpDQUNmS1F0Qzdxa2E2eFJZNmdMTkJDSm50UDNTbTBuSzcxM0tORERTN2Z1aTlNMHlBMmlzV3Z2eUVvekg4OGtGYjNyQ3pPd2g4Rm5BcW1ELWtHdDVGZWQ?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T21:30:05+00:00",
+          "scope": "domestic",
+          "category": "society",
+          "glossaryTermId": null,
+          "curationScore": 35
+        },
+        {
+          "id": "CBMiXkFVX3lxTE81ZEdQTWpIcTNfXy01MnJCZkxjRU1UdXNnQWtncDlISVpTeFltcWJVUzRlbVpHM1NMUDQyWWtpQk81RWZ2QUxveF9xc09BTXJpOFMzOEtpVE1LcFd0WWfSAWNBVV95cUxQc3YxWmx3eTVOZHVvOUFiOGdLY1FwWE52OEUzbXlsQ2V4dC05dXJYWURucEhtbEY2RHhoejl5T3FjRUtCS21wU1lXVUd2MklheUhpU2F1OVpKeGkwRTZId1BlY28",
+          "source": "rss:gnews-society-kr",
+          "publisher": "스포츠경향",
+          "title": "미스토코리아, 자원순환 사회공헌 캠페인 ‘리턴 투 케어’ 세 번째 프로젝트 진행···성북구 취약계층 여성 지원",
+          "titleOriginal": null,
+          "summary": "미스토코리아, 자원순환 사회공헌 캠페인 ‘리턴 투 케어’ 세 번째 프로젝트 진행···성북구 취약계층 여성 지원 스포츠경향",
+          "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE81ZEdQTWpIcTNfXy01MnJCZkxjRU1UdXNnQWtncDlISVpTeFltcWJVUzRlbVpHM1NMUDQyWWtpQk81RWZ2QUxveF9xc09BTXJpOFMzOEtpVE1LcFd0WWfSAWNBVV95cUxQc3YxWmx3eTVOZHVvOUFiOGdLY1FwWE52OEUzbXlsQ2V4dC05dXJYWURucEhtbEY2RHhoejl5T3FjRUtCS21wU1lXVUd2MklheUhpU2F1OVpKeGkwRTZId1BlY28?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T21:29:00+00:00",
+          "scope": "domestic",
+          "category": "society",
+          "glossaryTermId": null,
+          "curationScore": 35
+        },
+        {
+          "id": "CBMiXkFVX3lxTE5haTJnN1hfMkxnX2w1c3gwRkFBV0JuQS1SaDF1S1BMcGQ1cVFZbGNUdy1GdmV0eFF1dm1zMlBrVTFXLV9sTmx1eTE3S1U0dTBsRm5vLWJHdU56UC15SFHSAWNBVV95cUxNMDlMdHJfUkdSeVRVWE5UN2doWFNmN2VPaVdmNVZ0MGk1dzlldGlmRjBkUE1wX1dMckxrcUZkV2VPU0pZRl91TVdNckszQVFlOWdvc2ZhakZoT083a1gzMWpXWlU",
+          "source": "rss:gnews-society-kr",
+          "publisher": "스포츠경향",
+          "title": "멕시카나치킨, 지역사회와 함께한 상반기 사회공헌…세대·문화 잇는 나눔 실천",
+          "titleOriginal": null,
+          "summary": "멕시카나치킨, 지역사회와 함께한 상반기 사회공헌…세대·문화 잇는 나눔 실천 스포츠경향",
+          "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE5haTJnN1hfMkxnX2w1c3gwRkFBV0JuQS1SaDF1S1BMcGQ1cVFZbGNUdy1GdmV0eFF1dm1zMlBrVTFXLV9sTmx1eTE3S1U0dTBsRm5vLWJHdU56UC15SFHSAWNBVV95cUxNMDlMdHJfUkdSeVRVWE5UN2doWFNmN2VPaVdmNVZ0MGk1dzlldGlmRjBkUE1wX1dMckxrcUZkV2VPU0pZRl91TVdNckszQVFlOWdvc2ZhakZoT083a1gzMWpXWlU?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T21:24:00+00:00",
+          "scope": "domestic",
+          "category": "society",
+          "glossaryTermId": null,
+          "curationScore": 35
+        }
+      ],
+      "international": [
+        {
+          "id": "https://www.bbc.co.uk/news/articles/c70gkg62w0ro#0",
+          "source": "rss:bbc-world",
+          "publisher": "",
+          "title": "US singer D4vd to go on trial for murder in death of teen",
+          "titleOriginal": null,
+          "summary": "D4vd는 Celeste Rivas Hernandez를 살해한 혐의를 받고 있어요. 그녀의 유해는 D4vd의 주소로 등록된 Tesla 차량에서 발견됐어요.",
+          "url": "https://www.bbc.co.uk/news/articles/c70gkg62w0ro?at_medium=RSS&at_campaign=rss",
+          "thumbnail": null,
+          "time": "2026-07-27T21:37:59+00:00",
+          "scope": "foreign",
+          "category": "international",
+          "glossaryTermId": null,
+          "curationScore": 65
+        },
+        {
+          "id": "CBMiUEFVX3lxTE5QT3p1WUk5VkxPRE8zX0dkUkVwRVFBVGllWi0zYnlhVjA5bEstN3UzZGdRWDVza1ZsdjFOZmRVWHlheUNidG9CZzdrT01nR3g5",
+          "source": "rss:gnews-intl-kr",
+          "publisher": "문화일보",
+          "title": "종로구 “해외연수 같은 원어민 영어캠프, 다음 달 7일까지 운영”",
+          "titleOriginal": null,
+          "summary": "종로구 “해외연수 같은 원어민 영어캠프, 다음 달 7일까지 운영” 문화일보",
+          "url": "https://news.google.com/rss/articles/CBMiUEFVX3lxTE5QT3p1WUk5VkxPRE8zX0dkUkVwRVFBVGllWi0zYnlhVjA5bEstN3UzZGdRWDVza1ZsdjFOZmRVWHlheUNidG9CZzdrT01nR3g5?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T21:50:24+00:00",
+          "scope": "foreign",
+          "category": "international",
+          "glossaryTermId": null,
+          "curationScore": 37
+        },
+        {
+          "id": "https://www.bbc.co.uk/news/articles/c62xn4vzmnpo#0",
+          "source": "rss:bbc-world",
+          "publisher": "",
+          "title": "Trump says Iran war talks taking place during lull in strikes",
+          "titleOriginal": null,
+          "summary": "트럼프 미국 대통령은 \"뭔가 일어날 가능성이 크다\"고 밝혔는데, 이란은 직접 협상 중이라는 사실을 부인하고 있어요. 공습이 잠시 소강 상태에 접어든 가운데 나온 발언이에요.",
+          "url": "https://www.bbc.co.uk/news/articles/c62xn4vzmnpo?at_medium=RSS&at_campaign=rss",
+          "thumbnail": null,
+          "time": "2026-07-27T21:10:56+00:00",
+          "scope": "foreign",
+          "category": "international",
+          "glossaryTermId": null,
+          "curationScore": 61
+        }
+      ],
+      "tech": [
+        {
+          "id": "CBMiYkFVX3lxTE5paWV6djdIY0FkZ2VjbFRGNEZMelUxa3lXbEJiYXhoUWdYMWE2eGlFZXpzU1dvRXJ4UExUUzNOTEZTQk11TVFMN2lPZ2owRmxsQlRpazRPNmV6M05kUHgwcXlB",
+          "source": "rss:gnews-tech-kr",
+          "publisher": "이코노미스트",
+          "title": "샤넬·디올도 긴장한 ‘K뷰티 2.0’…가격 넘어 기술로 [K뷰티 글로벌 패권이 되다]②",
+          "titleOriginal": null,
+          "summary": "샤넬·디올도 긴장한 ‘K뷰티 2.0’…가격 넘어 기술로 [K뷰티 글로벌 패권이 되다]② 이코노미스트",
+          "url": "https://news.google.com/rss/articles/CBMiYkFVX3lxTE5paWV6djdIY0FkZ2VjbFRGNEZMelUxa3lXbEJiYXhoUWdYMWE2eGlFZXpzU1dvRXJ4UExUUzNOTEZTQk11TVFMN2lPZ2owRmxsQlRpazRPNmV6M05kUHgwcXlB?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T21:33:49+00:00",
+          "scope": "domestic",
+          "category": "tech",
+          "glossaryTermId": null,
+          "curationScore": 36
+        },
+        {
+          "id": "CBMie0FVX3lxTE5VT0pEMjlXMjA3a2JiY2lPWTVUMWtucThtN3BOTHZoQWVFM1NLQ1d6THJ4WGhhXzUtZTRLMW5GZVRpcDNScGhhdlZtVXBSdGV2SmRxWEZuQU9PSmhMTXI0cDV5anpsbW5OV0dXaUJ0U05Hak9scnJXV1pkUdIBgAFBVV95cUxQRURhbTQ0WEl6NDFGWVY3VHpLSE5BX2V6WHViTm9leVg5M25LUGNTNlF6YXFRWTBfYmRiSTd4ZVYtR2R3UlBkWHBtcTRETzhwSVlaQno0WE12RTNheTVCVjRzNmlJeDFVendfcFlsQlhjREZycHJucjlJbkRNclloTQ",
+          "source": "rss:gnews-tech-kr",
+          "publisher": "뉴데일리",
+          "title": "中 노광장비 자체설비 생산설에 ASML 8%대 급락 … 심상치 않은 중국발 IT한파",
+          "titleOriginal": null,
+          "summary": "中 노광장비 자체설비 생산설에 ASML 8%대 급락 … 심상치 않은 중국발 IT한파 뉴데일리",
+          "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTE5VT0pEMjlXMjA3a2JiY2lPWTVUMWtucThtN3BOTHZoQWVFM1NLQ1d6THJ4WGhhXzUtZTRLMW5GZVRpcDNScGhhdlZtVXBSdGV2SmRxWEZuQU9PSmhMTXI0cDV5anpsbW5OV0dXaUJ0U05Hak9scnJXV1pkUdIBgAFBVV95cUxQRURhbTQ0WEl6NDFGWVY3VHpLSE5BX2V6WHViTm9leVg5M25LUGNTNlF6YXFRWTBfYmRiSTd4ZVYtR2R3UlBkWHBtcTRETzhwSVlaQno0WE12RTNheTVCVjRzNmlJeDFVendfcFlsQlhjREZycHJucjlJbkRNclloTQ?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T21:40:06+00:00",
+          "scope": "domestic",
+          "category": "tech",
+          "glossaryTermId": null,
+          "curationScore": 36
+        }
+      ]
+    },
+    "economy": {
+      "indices": [
+        {
+          "symbol": "S&P 500",
+          "ticker": "^GSPC",
+          "close": 7413.18,
+          "change": 1.2002,
+          "changePct": 0.02,
+          "currency": "USD",
+          "group": "us_equity"
+        },
+        {
+          "symbol": "NASDAQ",
+          "ticker": "^IXIC",
+          "close": 24932.08,
+          "change": -43.7383,
+          "changePct": -0.18,
+          "currency": "USD",
+          "group": "us_equity"
+        },
+        {
+          "symbol": "DOW",
+          "ticker": "^DJI",
+          "close": 52210.08,
+          "change": 262.8281,
+          "changePct": 0.51,
+          "currency": "USD",
+          "group": "us_equity"
+        },
+        {
+          "symbol": "KOSPI",
+          "ticker": "^KS11",
+          "close": 6690.62,
+          "change": -406.27,
+          "changePct": -5.72,
+          "currency": "KRW",
+          "group": "kr_equity"
+        },
+        {
+          "symbol": "KOSDAQ",
+          "ticker": "^KQ11",
+          "close": 748.22,
+          "change": -42.0601,
+          "changePct": -5.32,
+          "currency": "KRW",
+          "group": "kr_equity"
+        },
+        {
+          "symbol": "USD/KRW",
+          "ticker": "KRW=X",
+          "close": 1465.79,
+          "change": -8.25,
+          "changePct": -0.56,
+          "currency": "KRW",
+          "group": "fx"
+        },
+        {
+          "symbol": "WTI 원유",
+          "ticker": "CL=F",
+          "close": 81.91,
+          "change": -7.4,
+          "changePct": -8.29,
+          "currency": "USD",
+          "group": "commodity"
+        },
+        {
+          "symbol": "금",
+          "ticker": "GC=F",
+          "close": 4078.6,
+          "change": 11.0,
+          "changePct": 0.27,
+          "currency": "USD",
+          "group": "commodity"
+        },
+        {
+          "symbol": "미 10Y 국채",
+          "ticker": "^TNX",
+          "close": 4.64,
+          "change": -0.038,
+          "changePct": -0.81,
+          "currency": "%",
+          "group": "bond"
+        },
+        {
+          "symbol": "VIX",
+          "ticker": "^VIX",
+          "close": 18.67,
+          "change": 0.09,
+          "changePct": 0.48,
+          "currency": "",
+          "group": "volatility"
+        }
+      ],
+      "signals": [
+        {
+          "id": "20260727000408",
+          "source": "dart",
+          "company": "한국첨단소재",
+          "companyCode": "062970",
+          "headline": "주요사항보고서(전환사채권발행결정)",
+          "summary": "",
+          "score": 85,
+          "direction": "mixed",
+          "scope": "domestic",
+          "time": "2026-07-28T00:00:00",
+          "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727000408",
+          "glossaryTermId": "convertible_bond",
+          "attentionPhase": 1,
+          "attentionLabel": "초기 진입 구간",
+          "priceLead": 0.0
+        }
+      ],
+      "news": [
+        {
+          "id": "CBMieEFVX3lxTE1ZazFEbTF2UXFNT1UyWFV6V1RsRV9BZHhHVFhaeklHemhGejRwY001VWJzYTJtaVFzNS1ENnFPdFhFWUlxNU5CWWg2c0RHaS1fYkpQaUpmX0NSNi1SanhjOHRNeEE1LWdqMVFtd2FMVTZNM1QxLW5zbg",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "조선일보",
+          "title": "獨 1위 기업 시총이 삼성전자 4분의 1... 세계 3위 경제대국의 추락",
+          "titleOriginal": null,
+          "summary": "독일 1위 기업의 시가총액이 삼성전자의 4분의 1 수준으로 줄어들며 독일 경제의 상대적 위상 하락을 조명하는 기사예요.",
+          "url": "https://news.google.com/rss/articles/CBMieEFVX3lxTE1ZazFEbTF2UXFNT1UyWFV6V1RsRV9BZHhHVFhaeklHemhGejRwY001VWJzYTJtaVFzNS1ENnFPdFhFWUlxNU5CWWg2c0RHaS1fYkpQaUpmX0NSNi1SanhjOHRNeEE1LWdqMVFtd2FMVTZNM1QxLW5zbg?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T08:09:04+00:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMiigFBVV95cUxQQ1E2cVpWakd3Y1BsUTFzdVQxbmNWOHc1RjlWVnRodnlrdVZsdDNIZlkzQ1ZROWpDZk9kWHFlNGsxVzItbEg3S3lYWEhEenZjQVhxSGRFZ2Y2TGJOQnhJQnJEYzVuaGFnT0ZfOWx4b1NWOFpFNnBHTnFhdUZCU0dJbUJwblVQUFlGYVE",
+          "source": "rss:gnews-business-en",
+          "publisher": "CBS News",
+          "title": "Steelers training camp brings big crowds, economic boost to Latrobe-area businesses",
+          "titleOriginal": null,
+          "summary": "Steelers 훈련 캠프에 많은 관중이 몰리면서 Latrobe 지역 소상공인들의 매출이 늘고 있어요. 지역 경제에 긍정적인 영향을 주고 있는 거예요.",
+          "url": "https://news.google.com/rss/articles/CBMiigFBVV95cUxQQ1E2cVpWakd3Y1BsUTFzdVQxbmNWOHc1RjlWVnRodnlrdVZsdDNIZlkzQ1ZROWpDZk9kWHFlNGsxVzItbEg3S3lYWEhEenZjQVhxSGRFZ2Y2TGJOQnhJQnJEYzVuaGFnT0ZfOWx4b1NWOFpFNnBHTnFhdUZCU0dJbUJwblVQUFlGYVE?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T21:42:39+00:00",
+          "scope": "foreign",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMiowFBVV95cUxPVmlxZVlNbHNSMmJ4bkQxSmZrX3dhRXZlOEJtTnc0b0hfM2JXM3Vyc2JvSU9FeVNVcUtoVTRYYTM1X0t6Qm5lRjMzeHZyYzgzZW9OYVAzOXpubnA5emREUnNmbDFZajV5UV9UZlRkd3d2THZHcmF3YnI3eG8xa29ITElCSk8yV1gyVXdiakJpVDRJdjJrb1FxYU42WEtpQWNFdEVF",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "한국경제TV",
+          "title": "굿모닝 한경 글로벌마켓",
+          "titleOriginal": null,
+          "summary": "간밤 글로벌 증시와 주요 지표 흐름을 정리해 전달하는 한국경제의 아침 시황 코너예요.",
+          "url": "https://news.google.com/rss/articles/CBMiowFBVV95cUxPVmlxZVlNbHNSMmJ4bkQxSmZrX3dhRXZlOEJtTnc0b0hfM2JXM3Vyc2JvSU9FeVNVcUtoVTRYYTM1X0t6Qm5lRjMzeHZyYzgzZW9OYVAzOXpubnA5emREUnNmbDFZajV5UV9UZlRkd3d2THZHcmF3YnI3eG8xa29ITElCSk8yV1gyVXdiakJpVDRJdjJrb1FxYU42WEtpQWNFdEVF?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T21:55:34+00:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMie0FVX3lxTE5IQW5ROEhabWlSNHBqNU5mMmtrNUFGejcyd2wyekJMaUFESkc0b1ZRWThTUVRaLWFOTEFQZWljQWlXbE9rblJXb0tRMlppUW9YMmxRM2pUMlQ5bzl6TXZENzRnNzlFMWpERFBLcFRMODRRUUZZWWRFdGJYTQ",
+          "source": "rss:gnews-business-en",
+          "publisher": "WMUR",
+          "title": "Merrimack business owners complain of ongoing road construction",
+          "titleOriginal": null,
+          "summary": "Merrimack 지역 소상공인들이 계속되는 도로 공사로 매출 타격을 입고 있다고 호소하고 있어요. 공사가 예상보다 길어지면서 불만이 커지고 있는 거예요.",
+          "url": "https://news.google.com/rss/articles/CBMie0FVX3lxTE5IQW5ROEhabWlSNHBqNU5mMmtrNUFGejcyd2wyekJMaUFESkc0b1ZRWThTUVRaLWFOTEFQZWljQWlXbE9rblJXb0tRMlppUW9YMmxRM2pUMlQ5bzl6TXZENzRnNzlFMWpERFBLcFRMODRRUUZZWWRFdGJYTQ?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T21:28:00+00:00",
+          "scope": "foreign",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMiiAFBVV95cUxPdm44S1dZbGl2aVdmbTRCekxfX1hKcWY5NFkwZ1NKd09XS1VGbTgxRXN6VFlJaXFTZ0JEdDZwdEZScXpXVExLMlN3WXlVSUQxQ1lyQkY2V0ZXYm1mS21NYlBxQmZVbUg1WlFQOUl6dHJrckhvcDJFSmNHVjJCUEdLYjNyWkRmWnBX",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "대한민국 정책브리핑",
+          "title": "(설명) 한국경제(온라인), \"[단독] 기금형 퇴직연금 '수탁자 책임' 강화 추진…무과실 입증 못하면 배상\" 기사 관련",
+          "titleOriginal": null,
+          "summary": "기금형 퇴직연금에서 수탁자의 책임을 강화해 무과실 입증이 안 되면 배상 책임을 지도록 하는 방안이 추진되고 있다는 단독 보도예요.",
+          "url": "https://news.google.com/rss/articles/CBMiiAFBVV95cUxPdm44S1dZbGl2aVdmbTRCekxfX1hKcWY5NFkwZ1NKd09XS1VGbTgxRXN6VFlJaXFTZ0JEdDZwdEZScXpXVExLMlN3WXlVSUQxQ1lyQkY2V0ZXYm1mS21NYlBxQmZVbUg1WlFQOUl6dHJrckhvcDJFSmNHVjJCUEdLYjNyWkRmWnBX?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T14:46:22+00:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMihgFBVV95cUxNZGRkaTVkdzVrNWpLamlRWWRNRl9sbzBpc0M3RG9Vb3Z4UXZpOEJ1Sy1ZcmxYNHJlckJLbG5hRkxrdEhLSDVsT2tQSmZDOGliMjByeHRDcVNtOEI4bmpwWFVMNzVqaTFZQU1VeXFLbUx1cFUyNkcwYk1CaVF5LTNFelljUmtsZw",
+          "source": "rss:gnews-business-en",
+          "publisher": "Baltimore Sun",
+          "title": "Downtown Salisbury projects are stalled. Business leaders blame the mayor.",
+          "titleOriginal": null,
+          "summary": "Salisbury 도심의 여러 개발 프로젝트가 멈춰 서 있어요. 지역 재계 리더들은 그 원인으로 시장의 리더십 부재를 지목하고 있어요.",
+          "url": "https://news.google.com/rss/articles/CBMihgFBVV95cUxNZGRkaTVkdzVrNWpLamlRWWRNRl9sbzBpc0M3RG9Vb3Z4UXZpOEJ1Sy1ZcmxYNHJlckJLbG5hRkxrdEhLSDVsT2tQSmZDOGliMjByeHRDcVNtOEI4bmpwWFVMNzVqaTFZQU1VeXFLbUx1cFUyNkcwYk1CaVF5LTNFelljUmtsZw?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T21:19:26+00:00",
+          "scope": "foreign",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMiZ0FVX3lxTE9hZzBpSldPaXdiQWZ4Mkx5N2NPcnJrVW5MdF9QdS1rMkFtVFd2SWxxZU5ibW5wYjZCSFVhUnF1eUpIdHU3aGZGQU9XVFViMUtKNGtWRnV5V1VCMUxPMXVLQW9GdWxxYUU",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "연합뉴스TV",
+          "title": "[경제읽기] 샌프란서 ’AI 협력’…부동산 국민 대토론회",
+          "titleOriginal": null,
+          "summary": "샌프란시스코에서 논의된 AI 협력 방안과 부동산 관련 국민 대토론회 소식을 함께 다루는 경제 뉴스 코너예요.",
+          "url": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE9hZzBpSldPaXdiQWZ4Mkx5N2NPcnJrVW5MdF9QdS1rMkFtVFd2SWxxZU5ibW5wYjZCSFVhUnF1eUpIdHU3aGZGQU9XVFViMUtKNGtWRnV5V1VCMUxPMXVLQW9GdWxxYUU?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T03:49:00+00:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMijwFBVV95cUxQYXdsclA3U0NVR0Vxd2pLbEpRMFhiMUxaak1JcXhTWlo1U1dVODZHVTViWjJMS0p5RWl0WEZENjl1LVlMWFpKcnNtVHlpTXZjeU5HWTU3RjZaNUpvTEpJMWw3WFpVOU15cWtacnZVaVlFRnNiMXBrSW95NV9Ia0lMNXMtMzFoRnZfLVBQbUdza9IBlAFBVV95cUxQbE5DRkp1RXdnSno0Wm5kdUJIeGVNNUdvTzNnZnBTX1AwY0hoTnBUWlg1M1NJLV9QRXdXVDRuWktubVQ0YXlRdm5oQVNlNzVnZ0VZOFE5VTJ3Y18xSW1aTlRBVFE2Q0MzNUI4SjFTOWZneU1QMllXTTdKOEcwd3EyaVYwN1pYeGpvcVVmbVV0d3lCR2pF",
+          "source": "rss:gnews-business-en",
+          "publisher": "Fox Business",
+          "title": "Cracker Barrel CEO Julie Masino to step down",
+          "titleOriginal": null,
+          "summary": "Cracker Barrel의 CEO인 Julie Masino가 곧 물러날 예정이에요. 회사의 향후 리더십 교체가 주목받고 있어요.",
+          "url": "https://news.google.com/rss/articles/CBMijwFBVV95cUxQYXdsclA3U0NVR0Vxd2pLbEpRMFhiMUxaak1JcXhTWlo1U1dVODZHVTViWjJMS0p5RWl0WEZENjl1LVlMWFpKcnNtVHlpTXZjeU5HWTU3RjZaNUpvTEpJMWw3WFpVOU15cWtacnZVaVlFRnNiMXBrSW95NV9Ia0lMNXMtMzFoRnZfLVBQbUdza9IBlAFBVV95cUxQbE5DRkp1RXdnSno0Wm5kdUJIeGVNNUdvTzNnZnBTX1AwY0hoTnBUWlg1M1NJLV9QRXdXVDRuWktubVQ0YXlRdm5oQVNlNzVnZ0VZOFE5VTJ3Y18xSW1aTlRBVFE2Q0MzNUI4SjFTOWZneU1QMllXTTdKOEcwd3EyaVYwN1pYeGpvcVVmbVV0d3lCR2pF?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T15:24:00+00:00",
+          "scope": "foreign",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMiXkFVX3lxTE80SWI3RVZvS0E2bE5naE5xTE5qZjBsd2dtUTAzaDMwYXhNMU1EODhlQW5mWGFyTWRPNGZBN29CeGpiSHYxci1DTVY5c1pQUWpTUUdNWFg5UEFVeGxrcmc",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "뉴스투데이",
+          "title": "[N2 뷰] 토큰증권 D-6개월…달라지는 자본시장",
+          "titleOriginal": null,
+          "summary": "토큰증권 제도 시행을 6개월 앞두고 자본시장에 예상되는 변화를 짚어보는 심층 분석 기사예요.",
+          "url": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE80SWI3RVZvS0E2bE5naE5xTE5qZjBsd2dtUTAzaDMwYXhNMU1EODhlQW5mWGFyTWRPNGZBN29CeGpiSHYxci1DTVY5c1pQUWpTUUdNWFg5UEFVeGxrcmc?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T20:28:00+00:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMidEFVX3lxTFBJYzdMUW9oUXUzZTBlOFMtaGhxclFqS0k1Y3NaSjhMeWppa0gzcE80YTVwS3ZfSnVZemg0WkxJbFVmeWFqTVdka3ViTmVVaHp2ZmZMT25mSHRSMzJDdUxucUhxLUpidlVJY2tsLTNfVnhpSlNG",
+          "source": "rss:gnews-business-en",
+          "publisher": "Axios",
+          "title": "Small businesses launch new Trump tariff challenge",
+          "titleOriginal": null,
+          "summary": "미국 소상공인들이 Trump 행정부의 관세 정책에 맞서 새로운 소송을 제기했어요. 관세 부담이 경영에 큰 타격을 주고 있다고 주장하고 있는 거예요.",
+          "url": "https://news.google.com/rss/articles/CBMidEFVX3lxTFBJYzdMUW9oUXUzZTBlOFMtaGhxclFqS0k1Y3NaSjhMeWppa0gzcE80YTVwS3ZfSnVZemg0WkxJbFVmeWFqTVdka3ViTmVVaHp2ZmZMT25mSHRSMzJDdUxucUhxLUpidlVJY2tsLTNfVnhpSlNG?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T20:20:10+00:00",
+          "scope": "foreign",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMiWkFVX3lxTFBUeFN2YmNqbl8tZi1qR2d2cElYUTVRN2w0WklLb09xcFhmMzM2OExFWFd3RTFUcm5WT3M4ZWtsMkwtQW82QjA1aFZBd0lDYnZVVy03VzZqT0pFUQ",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "농민신문",
+          "title": "NH투자증권, ‘퇴직연금 전용 ELS 시즌2’ 이벤트 진행",
+          "titleOriginal": null,
+          "summary": "NH투자증권이 퇴직연금 가입자를 대상으로 ELS 관련 시즌2 이벤트를 진행한다는 소식이에요.",
+          "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBUeFN2YmNqbl8tZi1qR2d2cElYUTVRN2w0WklLb09xcFhmMzM2OExFWFd3RTFUcm5WT3M4ZWtsMkwtQW82QjA1aFZBd0lDYnZVVy03VzZqT0pFUQ?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T09:10:00+00:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMicEFVX3lxTE1FU3ZUbGpmT1dkREcwWXNVcThWQmFRdUo2Q01tSVdrYTlJd1l1U3BvTTI4Z1ZaMUJTazVqTE1FWnVsTUd5dnRENzh3aXlvSUdCSlNJbTR4ZDJSbzRWNHNfQzRxM29QTEppQ1BhbmJsZGY",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "연합인포맥스",
+          "title": "iM증권, 2분기 영업이익 275억원…전년 대비 16.3% 줄어",
+          "titleOriginal": null,
+          "summary": "iM증권의 2분기 영업이익이 275억원으로 전년 동기 대비 16.3% 감소했다는 실적 발표예요.",
+          "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE1FU3ZUbGpmT1dkREcwWXNVcThWQmFRdUo2Q01tSVdrYTlJd1l1U3BvTTI4Z1ZaMUJTazVqTE1FWnVsTUd5dnRENzh3aXlvSUdCSlNJbTR4ZDJSbzRWNHNfQzRxM29QTEppQ1BhbmJsZGY?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T07:58:19+00:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMilwFBVV95cUxOdkU3d3VzOE4zRkpkeGMwMWpVckgtRDcwTEp4TVl3ZjZLUndfekJwTUhhYXRTaHVkbGZZUXJHZWtKQkdVZXlaLTJ4OUVvcWg1STlBNFJPN29zY3hsSVptQmhianFpU2lPblNSem8yVk1Lekt0MHNZU0w4ZnFDVXUyYWIwaHNhZ0k2R1ZUSm1ha1lPQU1iS3Rr",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "매일경제 마켓",
+          "title": "삼성전자(005930)",
+          "titleOriginal": null,
+          "summary": "삼성전자 관련 종목 정보 페이지예요.",
+          "url": "https://news.google.com/rss/articles/CBMilwFBVV95cUxOdkU3d3VzOE4zRkpkeGMwMWpVckgtRDcwTEp4TVl3ZjZLUndfekJwTUhhYXRTaHVkbGZZUXJHZWtKQkdVZXlaLTJ4OUVvcWg1STlBNFJPN29zY3hsSVptQmhianFpU2lPblNSem8yVk1Lekt0MHNZU0w4ZnFDVXUyYWIwaHNhZ0k2R1ZUSm1ha1lPQU1iS3Rr?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T15:40:36+00:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMickFVX3lxTE14RzJXTW5MSzA4a3Z0RGEwNTdCSGFSbmtGXzF2TkllUi1BMTRiYlFUVjB5T0JnMGloRmFkcnRRdVZ4eFdqVnRfYWcxLWkyNUd6S2R2ajNIRnBtTndoOU1pb3REUHZ5UXhEY2RyT1BPQldxZw",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "KB Think",
+          "title": "136분간 이어진 한-브라질 정상회담…공급망·방산·우주 총망라한 '경제안보 동맹'",
+          "titleOriginal": null,
+          "summary": "한국과 브라질 정상이 136분간 회담하며 공급망, 방산, 우주 협력을 아우르는 경제안보 동맹을 논의했다는 소식이에요.",
+          "url": "https://news.google.com/rss/articles/CBMickFVX3lxTE14RzJXTW5MSzA4a3Z0RGEwNTdCSGFSbmtGXzF2TkllUi1BMTRiYlFUVjB5T0JnMGloRmFkcnRRdVZ4eFdqVnRfYWcxLWkyNUd6S2R2ajNIRnBtTndoOU1pb3REUHZ5UXhEY2RyT1BPQldxZw?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T19:35:54+00:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMiWkFVX3lxTFBEeS1VTXNYeEZHWVpkWk9wVFBQeHowVW5CVUdKTVpCMDJlR1djaHE5cVpnTm9QS3Y3aU8tUG0zbGRVVWJ0MTR2R0kzdGpmSmhrbUhoaVU2RjZ0d9IBX0FVX3lxTFA4YlJkSEpFVmVBSFBIcjJRcmZ6dV9ON29qWnVONGU1TE5WUVVSU2l0eS1lZEwyeXQwb1VvQ0dOZ1VScVJTTFhoNEZYTTUxMVdZZEZXM2FiODJEWC0wRFpZ",
+          "source": "rss:gnews-economy-kr",
+          "publisher": "경향신문",
+          "title": "‘영수증=입장권’ 아이디어로 지역경제 활기···구미시 골목상권 살린 묘수는?",
+          "titleOriginal": null,
+          "summary": "영수증을 입장권처럼 활용하는 아이디어로 구미시 골목상권에 활기를 불어넣은 사례를 소개하는 기사예요.",
+          "url": "https://news.google.com/rss/articles/CBMiWkFVX3lxTFBEeS1VTXNYeEZHWVpkWk9wVFBQeHowVW5CVUdKTVpCMDJlR1djaHE5cVpnTm9QS3Y3aU8tUG0zbGRVVWJ0MTR2R0kzdGpmSmhrbUhoaVU2RjZ0d9IBX0FVX3lxTFA4YlJkSEpFVmVBSFBIcjJRcmZ6dV9ON29qWnVONGU1TE5WUVVSU2l0eS1lZEwyeXQwb1VvQ0dOZ1VScVJTTFhoNEZYTTUxMVdZZEZXM2FiODJEWC0wRFpZ?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T21:00:00+00:00",
+          "scope": "domestic",
+          "category": "stock",
+          "glossaryTermId": null,
+          "curationScore": 0
+        }
+      ],
+      "research": [],
+      "etf": [
+        {
+          "code": "069500",
+          "name": "KODEX 200",
+          "theme": "대형주",
+          "close": 107730.0,
+          "change": 1365.0,
+          "changePct": 1.28
+        },
+        {
+          "code": "102110",
+          "name": "TIGER 200",
+          "theme": "대형주",
+          "close": 107570.0,
+          "change": 1145.0,
+          "changePct": 1.08
+        },
+        {
+          "code": "229200",
+          "name": "KODEX KOSDAQ150",
+          "theme": "코스닥",
+          "close": 12950.0,
+          "change": 440.0,
+          "changePct": 3.52
+        },
+        {
+          "code": "261220",
+          "name": "KODEX 미국S&P500",
+          "theme": "미국주식",
+          "close": 23295.0,
+          "change": -2085.0,
+          "changePct": -8.22
+        },
+        {
+          "code": "133690",
+          "name": "TIGER 미국나스닥100",
+          "theme": "미국주식",
+          "close": 185790.0,
+          "change": 1435.0,
+          "changePct": 0.78
+        },
+        {
+          "code": "148070",
+          "name": "KOSEF 국고채10년",
+          "theme": "채권",
+          "close": 103965.0,
+          "change": 920.0,
+          "changePct": 0.89
+        },
+        {
+          "code": "132030",
+          "name": "KODEX 골드선물",
+          "theme": "원자재",
+          "close": 23060.0,
+          "change": 355.0,
+          "changePct": 1.56
+        },
+        {
+          "code": "091160",
+          "name": "KODEX 반도체",
+          "theme": "반도체",
+          "close": 124470.0,
+          "change": 3715.0,
+          "changePct": 3.08
+        },
+        {
+          "code": "305720",
+          "name": "KODEX 2차전지산업",
+          "theme": "2차전지",
+          "close": 13315.0,
+          "change": 40.0,
+          "changePct": 0.3
+        },
+        {
+          "code": "364980",
+          "name": "TIGER Fn반도체TOP10",
+          "theme": "반도체",
+          "close": 9180.0,
+          "change": 60.0,
+          "changePct": 0.66
+        },
+        {
+          "code": "139220",
+          "name": "TIGER 200 IT",
+          "theme": "IT",
+          "close": 7110.0,
+          "change": -5.0,
+          "changePct": -0.07
+        },
+        {
+          "code": "448290",
+          "name": "TIGER 미국AI빅테크10",
+          "theme": "AI/빅테크",
+          "close": 17380.0,
+          "change": 175.0,
+          "changePct": 1.02
+        },
+        {
+          "code": "280930",
+          "name": "TIGER 코스피고배당",
+          "theme": "배당",
+          "close": 16810.0,
+          "change": 185.0,
+          "changePct": 1.11
+        },
+        {
+          "code": "091170",
+          "name": "KODEX 은행",
+          "theme": "금융",
+          "close": 16140.0,
+          "change": 265.0,
+          "changePct": 1.67
+        },
+        {
+          "code": "139270",
+          "name": "TIGER 200 에너지화학",
+          "theme": "에너지",
+          "close": 17090.0,
+          "change": 165.0,
+          "changePct": 0.97
+        }
+      ],
+      "hotIssues": {
+        "domestic": [
+          {
+            "rank": 1,
+            "asset": "FCCL·연성동박적층판 소재",
+            "assetType": "theme",
+            "direction": "positive",
+            "signal": "CB 발행 결정 공시",
+            "picks": [
+              {
+                "ticker": "251370",
+                "name": "와이엠티",
+                "description": "PCB·FCCL 표면처리 화학소재를 공급하는 회사라, 기판 소재업체들의 가동률이 올라가면 소모성 약품 매출이 곧바로 따라 올라가는 구조예요. 설비 증설보다 먼저 반응하는 후행 아닌 동행 지표 성격의 종목이에요.",
+                "why_undiscovered": "시장은 기판 테마를 대형 PCB 세트업체 중심으로만 보고, 그 아래 화학소재 단계까지는 연결해서 보지 않고 있어요.",
+                "consensus_risk": "low",
+                "related_etf": {
+                  "ticker": "",
+                  "name": "TIGER 코스닥150",
+                  "confidence": "low"
+                },
+                "domestic": null
+              },
+              {
+                "ticker": "272290",
+                "name": "이녹스첨단소재",
+                "description": "FPCB용 절연·접착 필름과 방열 소재를 공급해 FCCL 수요 증가의 직접적인 파생 수혜를 받는 종목이에요. AI 기기용 고주파 저손실 소재 비중이 커질수록 판가 믹스가 개선되는 구조예요.",
+                "why_undiscovered": "시장 인식이 여전히 OLED 소재주에 묶여 있어서, 기판 소재 사이클과의 연결고리는 아직 덜 반영돼 있어요.",
+                "consensus_risk": "medium",
+                "related_etf": {
+                  "ticker": "",
+                  "name": "TIGER 코스닥150",
+                  "confidence": "low"
+                },
+                "domestic": null
+              },
+              {
+                "ticker": "051370",
+                "name": "인터플렉스",
+                "description": "국내 대표 FPCB 업체로 FCCL을 원재료로 받아 쓰는 전방 수요처예요. 소재단 조달·증설 움직임은 통상 FPCB 물량 확대를 선반영하는 신호로 읽을 수 있어요.",
+                "why_undiscovered": "실적 변동성이 커 장기간 소외돼 있어, 기판 소재 사이클 반등과 묶어 보는 시각이 거의 없어요.",
+                "consensus_risk": "low",
+                "related_etf": {
+                  "ticker": "",
+                  "name": "TIGER 코스닥150",
+                  "confidence": "low"
+                },
+                "domestic": null
+              }
+            ],
+            "reason": "7월 27일 한국첨단소재가 주요사항보고서(전환사채권발행결정)를 DART에 접수했어요. 이 회사는 FCCL·연성동박적층판을 만드는 코스닥 소재기업인데, 실적이 부진한 국면에서 메자닌으로 자금을 조달한다는 건 설비·운전자금 수요가 되살아나고 있다는 뜻이에요. AI 서버·온디바이스 기기용 고다층·고주파 기판 수요가 국내 FCCL 밸류체인 전반의 가동률을 끌어올리는 초기 신호로 볼 수 있어요.",
+            "source": "DART 전자공시",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727000408",
+            "cautions": "전환사채는 그 자체로 발행사 주주에겐 희석 요인이고, 조달 목적이 증설이 아니라 채무상환·운영자금이라면 산업 사이클 회복 신호로 해석하기 어려워요. 정정공시로 발행조건이 바뀌거나 청약이 미달될 가능성도 확인이 필요해요."
+          },
+          {
+            "rank": 2,
+            "asset": "코스닥 메자닌 자금조달",
+            "assetType": "theme",
+            "direction": "positive",
+            "signal": "CB 발행 재개 신호",
+            "picks": [
+              {
+                "ticker": "030210",
+                "name": "다올투자증권",
+                "description": "중소형 IB·구조화 딜 비중이 높아 코스닥 메자닌 시장이 살아나면 수수료와 자기자본 투자 손익이 함께 개선되는 구조예요. 부동산 익스포저 축소 이후 IB 회복이 실적 레버리지로 작동해요.",
+                "why_undiscovered": "시장은 이 회사를 여전히 부동산 PF 리스크 종목으로만 보고, 메자닌 딜 회복 수혜로는 보지 않고 있어요.",
+                "consensus_risk": "low",
+                "related_etf": {
+                  "ticker": "102970",
+                  "name": "KODEX 증권",
+                  "confidence": "low"
+                },
+                "domestic": null
+              },
+              {
+                "ticker": "190650",
+                "name": "코리아에셋투자증권",
+                "description": "코스닥 중소형사 CB·BW 인수와 주선에 특화된 소형 증권사라, 메자닌 발행 건수 증가에 가장 민감하게 반응하는 종목이에요. 시가총액이 작아 딜 회복 시 이익 개선 폭이 상대적으로 커요.",
+                "why_undiscovered": "거래대금이 적어 리서치 커버가 거의 없고, 메자닌 사이클과 직접 연결해 보는 투자자가 드물어요.",
+                "consensus_risk": "low",
+                "related_etf": {
+                  "ticker": "102970",
+                  "name": "KODEX 증권",
+                  "confidence": "low"
+                },
+                "domestic": null
+              },
+              {
+                "ticker": "021080",
+                "name": "에이티넘인베스트먼트",
+                "description": "신기술금융·벤처투자 본업 특성상 코스닥 기업의 CB를 인수하는 자금 공급 주체예요. 메자닌 발행이 늘면 투자 집행과 회수 사이클이 동시에 정상화돼요.",
+                "why_undiscovered": "창투사는 IPO 시장 이슈로만 소비되고, CB 인수 주체라는 측면은 거의 언급되지 않아요.",
+                "consensus_risk": "medium",
+                "related_etf": {
+                  "ticker": "",
+                  "name": "TIGER 코스닥150",
+                  "confidence": "low"
+                },
+                "domestic": null
+              }
+            ],
+            "reason": "코스닥 소재기업의 전환사채 발행 결정이 다시 공시되기 시작했다는 건 메자닌 시장의 위험선호가 돌아오고 있다는 뜻이에요. CB는 인수 주체가 있어야 성립하는 상품이라, 발행 건수 증가는 곧 중소형 증권사와 신기술금융사의 딜 파이프라인 회복을 의미해요. 발행사보다 인수·주선 쪽이 리스크 대비 수혜가 깔끔한 구간이에요.",
+            "source": "DART 전자공시",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727000408",
+            "cautions": "단일 공시 한 건으로 시장 전체의 조달 회복을 단정하긴 이르고, 금리가 다시 튀거나 코스닥 지수가 조정받으면 메자닌 딜은 가장 먼저 얼어붙어요. 인수 물량이 평가손으로 돌아오는 역방향 리스크도 있어요."
+          },
+          {
+            "rank": 3,
+            "asset": "PCB 검사·계측 장비",
+            "assetType": "theme",
+            "direction": "positive",
+            "signal": "소재 증설 선행 수요",
+            "picks": [
+              {
+                "ticker": "064290",
+                "name": "인텍플러스",
+                "description": "반도체·기판 외관 검사 장비를 만드는 회사로, 기판 층수와 미세화가 진행될수록 검사 공정 수가 늘어나 장비 채택률이 올라가요. 기판 고객사 비중이 커지면 실적 변동성도 완화돼요.",
+                "why_undiscovered": "반도체 후공정 검사주로만 분류돼 있어 기판 소재 사이클과 엮어 보는 시각이 거의 없어요.",
+                "consensus_risk": "low",
+                "related_etf": {
+                  "ticker": "",
+                  "name": "TIGER 코스닥150",
+                  "confidence": "low"
+                },
+                "domestic": null
+              },
+              {
+                "ticker": "420770",
+                "name": "기가비스",
+                "description": "고다층 패키지기판 광학검사·리페어 장비를 공급해 AI용 기판 증설의 직접 수혜를 받는 종목이에요. 층수 증가가 곧 검사 장비 대수 증가로 이어지는 구조예요.",
+                "why_undiscovered": "AI 기판 테마에서 소재·기판 업체만 주목받고 검사 단계는 후순위로 밀려 있어요.",
+                "consensus_risk": "medium",
+                "related_etf": {
+                  "ticker": "",
+                  "name": "TIGER 코스닥150",
+                  "confidence": "low"
+                },
+                "domestic": null
+              }
+            ],
+            "reason": "기판 소재단에서 자금조달이 시작되면 통상 6~12개월 시차를 두고 검사·계측 장비 발주가 뒤따라요. 특히 AI 서버용 고다층 기판은 층수가 올라갈수록 미세 결함 검출 난이도가 급격히 높아져 검사 장비 단가가 구조적으로 상승하는 영역이에요. 소재 사이클의 초기 신호를 장비단에서 선취하는 구간이에요.",
+            "source": "DART 전자공시",
+            "url": "https://dart.fss.or.kr/dsaf001/main.do?rcpNo=20260727000408",
+            "cautions": "장비 발주는 발행사 조달 목적이 실제 증설로 확정돼야 현실화되는 만큼 시차와 불발 위험이 커요. 전방 세트 수요가 꺾이면 발주가 통째로 이연될 수 있어요."
+          }
+        ],
+        "foreign": [
+          {
+            "rank": 1,
+            "asset": "WTI원유",
+            "assetType": "macro",
+            "direction": "negative",
+            "signal": "지정학 리스크 프리미엄 소멸",
+            "picks": [
+              {
+                "ticker": "LYB",
+                "name": "라이온델바젤 (석유화학)",
+                "description": "나프타·에탄 등 원유 연동 원료가 원가의 대부분을 차지하는 석유화학 기업이에요. 제품 가격은 계약 기준으로 천천히 내려가는 반면 투입 원가는 즉시 반영돼, 유가 하락 초반 1~2분기에 스프레드가 가장 크게 벌어지는 구조예요.",
+                "why_undiscovered": "시장은 유가 하락을 'XLE 매도' 프레임으로만 보고, 같은 에너지 밸류체인 안에서 원가 수혜를 보는 화학 업종은 함께 팔아버리는 경향이 있어요.",
+                "consensus_risk": "low",
+                "related_etf": {
+                  "ticker": "XLB",
+                  "name": "Materials Select Sector SPDR Fund",
+                  "confidence": "high"
+                },
+                "domestic": null
+              },
+              {
+                "ticker": "SHW",
+                "name": "셔윈윌리엄스 (페인트·코팅)",
+                "description": "페인트의 핵심 원료인 수지·용제·티타늄디옥사이드가 모두 원유 파생 제품이에요. 유가 하락 국면에서 판가는 유지하고 원가만 떨어지는 전형적인 마진 확장 종목이에요.",
+                "why_undiscovered": "셔윈윌리엄스는 보통 미국 주택시장 지표로만 트레이딩되고, 유가와의 원가 연결고리는 애널리스트 노트에서도 후순위로 다뤄져요.",
+                "consensus_risk": "medium",
+                "related_etf": {
+                  "ticker": "XLB",
+                  "name": "Materials Select Sector SPDR Fund",
+                  "confidence": "high"
+                },
+                "domestic": null
+              },
+              {
+                "ticker": "CCL",
+                "name": "카니발 (크루즈)",
+                "description": "연료비가 영업비용의 10% 내외를 차지하는데다, 항공사와 달리 헤지 비율이 낮아 유가 하락이 손익에 더 빨리 반영돼요. 여기에 유럽 여름 성수기 예약 흐름이 겹치면 레버리지가 커요.",
+                "why_undiscovered": "유가 하락 수혜주 하면 대부분 항공사(JETS·DAL)로 자금이 몰리고, 연료 노출도가 비슷한 크루즈는 논의에서 거의 빠져 있어요.",
+                "consensus_risk": "medium",
+                "related_etf": {
+                  "ticker": "XLY",
+                  "name": "Consumer Discretionary Select Sector SPDR Fund",
+                  "confidence": "high"
+                },
+                "domestic": null
+              }
+            ],
+            "reason": "US와 Iran이 상호 공격을 중단하면서 유가가 급락했어요. 중동 충돌 국면에서 배럴당 얹혀 있던 지정학 프리미엄이 빠지는 국면이라, 원유 자체보다는 원유를 '비용'으로 쓰는 산업의 마진 개선이 훨씬 빠르게 나타날 거예요. 에너지주 숏은 이미 붐비는 트레이드라, 연료·나프타 원가가 매출원가의 10~30%를 차지하는 다운스트림 소비 기업 쪽이 실질 수혜예요.",
+            "source": "BBC Business",
+            "url": "https://www.bbc.co.uk/news/articles/clyj834jn5lo?at_medium=RSS&at_campaign=rss",
+            "cautions": "휴전이 아니라 '일시 중단'에 불과해 재공격 한 번이면 프리미엄이 즉시 복원될 수 있어요. 또한 유가 급락이 지정학 완화가 아니라 글로벌 수요 둔화 신호로 해석되면 소비·산업재 수혜 논리 자체가 무너져요."
+          },
+          {
+            "rank": 2,
+            "asset": "관세·무역 컴플라이언스",
+            "assetType": "theme",
+            "direction": "positive",
+            "signal": "관세 원가 전가 본격화",
+            "picks": [
+              {
+                "ticker": "DSGX",
+                "name": "데카르트시스템즈 (무역·관세 소프트웨어)",
+                "description": "HS 코드 분류, 원산지 판정, 관세 계산을 자동화하는 글로벌 무역 컴플라이언스 SaaS 기업이에요. 관세 체계가 복잡해질수록 화주 1곳당 트랜잭션 과금이 늘어나는, 관세 자체에 롱 포지션인 구조예요.",
+                "why_undiscovered": "관세 뉴스가 나오면 시장은 소매·의류주 매도만 떠올리고, 관세 복잡성 자체를 매출로 바꾸는 소프트웨어 기업이 있다는 사실은 거의 회자되지 않아요.",
+                "consensus_risk": "low",
+                "related_etf": {
+                  "ticker": "IGV",
+                  "name": "iShares Expanded Tech-Software Sector ETF",
+                  "confidence": "low"
+                },
+                "domestic": null
+              },
+              {
+                "ticker": "EXPD",
+                "name": "익스페디터스 (국제물류·통관중개)",
+                "description": "자산을 보유하지 않는 포워더 겸 통관 브로커라, 관세 규정이 복잡해질수록 건당 통관 대행 수수료와 컨설팅 매출이 늘어요. 운임 하락기에도 브로커리지 마진이 방어되는 점이 강점이에요.",
+                "why_undiscovered": "물류주는 대개 운임 지수와 물동량으로만 평가받아, 관세 복잡성이 오히려 브로커 수익원이라는 역발상 연결고리는 잘 반영되지 않아요.",
+                "consensus_risk": "medium",
+                "related_etf": {
+                  "ticker": "IYT",
+                  "name": "iShares U.S. Transportation ETF",
+                  "confidence": "high"
+                },
+                "domestic": null
+              },
+              {
+                "ticker": "ROST",
+                "name": "로스스토어스 (오프프라이스 리테일)",
+                "description": "Shein·Temu 같은 초저가 직구 채널이 관세로 가격 경쟁력을 잃으면, 미국 내 재고를 싸게 매입해 파는 오프프라이스 매장이 그 수요를 흡수해요. 국내 재고 기반 매입 구조라 관세 원가 노출도 상대적으로 낮아요.",
+                "why_undiscovered": "Shein 적자는 '중국 이커머스 악재'로만 소비되고, 그 수요가 어디로 이동하는지에 대한 반대편 수혜 분석은 아직 드물어요.",
+                "consensus_risk": "medium",
+                "related_etf": {
+                  "ticker": "XLY",
+                  "name": "Consumer Discretionary Select Sector SPDR Fund",
+                  "confidence": "high"
+                },
+                "domestic": null
+              }
+            ],
+            "reason": "Shein이 Trump 관세 여파로 9,900만 달러 적자로 전환했고, 같은 날 미국 소상공인들이 관세에 대한 새로운 법적 소송을 제기했어요. 관세가 '위협'이 아니라 실제 손익계산서에 찍히는 단계로 넘어갔다는 뜻이라, 앞으로는 관세를 맞는 쪽이 아니라 관세 복잡성을 처리해주고 수수료를 받는 쪽의 실적이 올라와요.",
+            "source": "BBC Business",
+            "url": "https://www.bbc.co.uk/news/articles/clyj8v0rek8o?at_medium=RSS&at_campaign=rss",
+            "cautions": "소송에서 관세의 법적 근거가 무효화되면 관세율 자체가 되돌려지면서 컴플라이언스 수요가 급감할 수 있어요. 또한 대중국 물동량 자체가 줄면 건당 수수료 증가분을 물량 감소가 상쇄할 위험이 있어요."
+          },
+          {
+            "rank": 3,
+            "asset": "중국 반도체 자립",
+            "assetType": "theme",
+            "direction": "positive",
+            "signal": "중국 팹 증설 재가속",
+            "picks": [
+              {
+                "ticker": "ACMR",
+                "name": "ACM리서치 (웨이퍼 세정장비)",
+                "description": "미국 상장사이면서 매출 대부분이 중국 팹에서 나오는 세정·도금 장비 기업이에요. 중국의 국산 장비 채택 확대가 곧바로 수주로 연결되는 구조라, 중국 팹 증설 재개의 가장 직접적인 미국 상장 프록시예요.",
+                "why_undiscovered": "시가총액이 작아 대형 하우스 커버리지가 얇고, 대다수 투자자는 중국 반도체 뉴스를 AMAT·LRCX 같은 대형 장비주로만 연결해요.",
+                "consensus_risk": "low",
+                "related_etf": {
+                  "ticker": "XSD",
+                  "name": "SPDR S&P Semiconductor ETF",
+                  "confidence": "high"
+                },
+                "domestic": null
+              },
+              {
+                "ticker": "KLIC",
+                "name": "쿨리케앤소파 (후공정 본딩장비)",
+                "description": "선단 공정이 막힌 중국 팹은 첨단 패키징으로 성능을 보완할 수밖에 없는데, 그 핵심이 와이어·플립칩 본더예요. 수출 통제 대상에서 상대적으로 자유로운 후공정 장비라는 점이 구조적 이점이에요.",
+                "why_undiscovered": "본딩 장비는 전공정 대비 뉴스 노출이 거의 없어, 중국 자립 테마의 수혜 리스트에 잘 올라가지 않아요.",
+                "consensus_risk": "low",
+                "related_etf": {
+                  "ticker": "XSD",
+                  "name": "SPDR S&P Semiconductor ETF",
+                  "confidence": "high"
+                },
+                "domestic": null
+              },
+              {
+                "ticker": "COHU",
+                "name": "코후 (테스트 핸들러)",
+                "description": "신규 팹이 양산에 들어가면 반드시 따라붙는 것이 테스트·핸들링 장비예요. 증설 사이클에서 전공정 장비보다 두세 분기 늦게 수주가 들어와, 지금이 오히려 선반영이 덜 된 진입 구간이에요.",
+                "why_undiscovered": "테스트 장비는 사이클 후반 수혜라 초기 뉴스 국면에서는 주가가 거의 반응하지 않고, 커버리지도 자동차 반도체 업황 위주로 쏠려 있어요.",
+                "consensus_risk": "medium",
+                "related_etf": {
+                  "ticker": "XSD",
+                  "name": "SPDR S&P Semiconductor ETF",
+                  "confidence": "high"
+                },
+                "domestic": null
+              }
+            ],
+            "reason": "중국 반도체 기업이 상장 첫날 약 470% 급등하며 데뷔했어요. 이 정도 밸류에이션이 인정되면 후속 기업들의 IPO 조달과 설비 투자 사이클이 다시 살아난다는 뜻이라, 상장된 개별 중국 종목보다 그 팹에 장비·소재를 납품하는 미국 상장 공급사가 실질적인 수혜 경로예요.",
+            "source": "BBC Business",
+            "url": "https://www.bbc.co.uk/news/articles/c9q9w3x9qn2o?at_medium=RSS&at_campaign=rss",
+            "cautions": "미국의 대중국 수출 통제가 추가로 강화되면 장비 납품 자체가 막혀 수혜 논리가 즉시 뒤집혀요. 또한 상장 첫날 급등은 유통 물량이 적어 생긴 착시일 수 있어, 실제 capex 집행으로 이어지지 않을 위험이 있어요."
+          }
+        ]
+      }
+    },
+    "ai": {
+      "domestic": [
+        {
+          "id": "https://news.hada.io/topic?id=31884",
+          "source": "rss:geeknews",
+          "publisher": "",
+          "title": "Vercel의 Scriptc - 바이너리에 JavaScript 엔진을 포함하지 않는 TypeScript 네이티브 컴파일러",
+          "titleOriginal": null,
+          "summary": "Vercel이 바이너리에 JavaScript 엔진을 포함하지 않는 TypeScript 네이티브 컴파일러 Scriptc를 공개했다는 기술 소식이에요.",
+          "url": "https://news.hada.io/topic?id=31884",
+          "thumbnail": null,
+          "time": "2026-07-27T21:33:27+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.hada.io/topic?id=31883",
+          "source": "rss:geeknews",
+          "publisher": "",
+          "title": "아이들에게 Forth를 가르쳐 본 경험",
+          "titleOriginal": null,
+          "summary": "아이들에게 Forth 언어를 가르친 경험을 다루는 개발 관련 글이에요.",
+          "url": "https://news.hada.io/topic?id=31883",
+          "thumbnail": null,
+          "time": "2026-07-27T17:02:01+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.hada.io/topic?id=31882",
+          "source": "rss:geeknews",
+          "publisher": "",
+          "title": "관측 사상 가장 강력한 엘니뇨",
+          "titleOriginal": null,
+          "summary": "관측 이래 가장 강력한 것으로 기록된 엘니뇨 현상을 다루는 기사예요.",
+          "url": "https://news.hada.io/topic?id=31882",
+          "thumbnail": null,
+          "time": "2026-07-27T16:34:51+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.hada.io/topic?id=31880",
+          "source": "rss:geeknews",
+          "publisher": "",
+          "title": "Kimi K3 weight 공개",
+          "titleOriginal": null,
+          "summary": "Kimi K3 모델의 가중치가 공개됐다는 AI 관련 소식이에요.",
+          "url": "https://news.hada.io/topic?id=31880",
+          "thumbnail": null,
+          "time": "2026-07-27T15:14:05+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.hada.io/topic?id=31878",
+          "source": "rss:geeknews",
+          "publisher": "",
+          "title": "디자인은 타협이다",
+          "titleOriginal": null,
+          "summary": "디자인 작업에서 타협이 갖는 의미를 다루는 글이에요.",
+          "url": "https://news.hada.io/topic?id=31878",
+          "thumbnail": null,
+          "time": "2026-07-27T13:33:16+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.hada.io/topic?id=31876",
+          "source": "rss:geeknews",
+          "publisher": "",
+          "title": "Show GN: 크롬 원격 데스크탑에서 언어 변경이 불편할 때 - LangToggle",
+          "titleOriginal": null,
+          "summary": "크롬 원격 데스크탑 사용 시 불편했던 언어 변경 문제를 해결하기 위해 만든 LangToggle 도구를 소개하는 글이에요.",
+          "url": "https://news.hada.io/topic?id=31876",
+          "thumbnail": null,
+          "time": "2026-07-27T11:22:56+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.hada.io/topic?id=31875",
+          "source": "rss:geeknews",
+          "publisher": "",
+          "title": "GitHub 보안팀은 도대체 어떤 일을 하는가?",
+          "titleOriginal": null,
+          "summary": "GitHub 보안팀이 실제로 담당하는 업무와 역할을 설명하는 글이에요.",
+          "url": "https://news.hada.io/topic?id=31875",
+          "thumbnail": null,
+          "time": "2026-07-27T09:50:55+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.hada.io/topic?id=31873",
+          "source": "rss:geeknews",
+          "publisher": "",
+          "title": "Show GN: 에이전트를 22개까지 늘렸다가 17개로 줄인 이야기",
+          "titleOriginal": null,
+          "summary": "에이전트를 22개까지 늘렸다가 다시 17개로 줄이게 된 과정과 이유를 다룬 경험담이에요.",
+          "url": "https://news.hada.io/topic?id=31873",
+          "thumbnail": null,
+          "time": "2026-07-27T08:47:41+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.hada.io/topic?id=31869",
+          "source": "rss:geeknews",
+          "publisher": "",
+          "title": "Show GN: [직접 공부하면서 만들었습니다.] 사주 판정은 코드로, 풀이는 LLM으로 하는 사주 서비스, 방울당",
+          "titleOriginal": null,
+          "summary": "사주 판정은 코드로 처리하고 해석은 LLM이 담당하는 방식으로 만든 사주 서비스 '방울당'을 소개하는 글이에요.",
+          "url": "https://news.hada.io/topic?id=31869",
+          "thumbnail": null,
+          "time": "2026-07-27T08:18:41+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.hada.io/topic?id=31868",
+          "source": "rss:geeknews",
+          "publisher": "",
+          "title": "Show GN: 브라우저에서 동작하는 벡터 애니메이션 엔진 데모 (ThorVG 1.1)",
+          "titleOriginal": null,
+          "summary": "브라우저에서 동작하는 벡터 애니메이션 엔진 ThorVG 1.1의 데모를 공유하는 글이에요.",
+          "url": "https://news.hada.io/topic?id=31868",
+          "thumbnail": null,
+          "time": "2026-07-27T07:52:19+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.hada.io/topic?id=31867",
+          "source": "rss:geeknews",
+          "publisher": "",
+          "title": "Show GN: Solar Open 2 Technical Report를 초심자도 이해할 수 있는 인터랙티브 강의로 만들었습니다",
+          "titleOriginal": null,
+          "summary": "Solar Open 2 기술 리포트를 초심자도 이해할 수 있도록 인터랙티브 강의 형태로 재구성했다는 소개예요.",
+          "url": "https://news.hada.io/topic?id=31867",
+          "thumbnail": null,
+          "time": "2026-07-27T07:31:07+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.hada.io/topic?id=31865",
+          "source": "rss:geeknews",
+          "publisher": "",
+          "title": "Show GN: 브라우저 작업을 사용자 설명서로 자동 변환하는 AI 매뉴얼 생성기",
+          "titleOriginal": null,
+          "summary": "브라우저에서 수행한 작업을 자동으로 사용자 설명서로 변환해주는 AI 매뉴얼 생성기를 소개하는 글이에요.",
+          "url": "https://news.hada.io/topic?id=31865",
+          "thumbnail": null,
+          "time": "2026-07-27T07:20:03+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.hada.io/topic?id=31864",
+          "source": "rss:geeknews",
+          "publisher": "",
+          "title": "프랑스 소방관들이 처음 마주한 ‘화재적운’",
+          "titleOriginal": null,
+          "summary": "프랑스 소방관들이 처음 목격한 화재적운 현상을 다룬 기사예요.",
+          "url": "https://news.hada.io/topic?id=31864",
+          "thumbnail": null,
+          "time": "2026-07-27T06:33:38+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.hada.io/topic?id=31863",
+          "source": "rss:geeknews",
+          "publisher": "",
+          "title": "Decker — HyperCard와 클래식 macOS의 유산을 잇는 대화형 문서 플랫폼",
+          "titleOriginal": null,
+          "summary": "HyperCard와 클래식 macOS의 유산을 이어받은 대화형 문서 플랫폼 Decker를 소개하는 글이에요.",
+          "url": "https://news.hada.io/topic?id=31863",
+          "thumbnail": null,
+          "time": "2026-07-27T05:34:03+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.hada.io/topic?id=31861",
+          "source": "rss:geeknews",
+          "publisher": "",
+          "title": "ESP32로 만든 책상용 항공기 레이더",
+          "titleOriginal": null,
+          "summary": "ESP32를 활용해 만든 책상용 항공기 레이더 프로젝트를 소개하는 글이에요.",
+          "url": "https://news.hada.io/topic?id=31861",
+          "thumbnail": null,
+          "time": "2026-07-27T04:33:10+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.hada.io/topic?id=31860",
+          "source": "rss:geeknews",
+          "publisher": "",
+          "title": "공항 수색 중 GrapheneOS 휴대폰이 초기화돼 기소된 미국 시민",
+          "titleOriginal": null,
+          "summary": "공항 수색 과정에서 GrapheneOS 휴대폰이 초기화된 것과 관련해 기소된 미국 시민의 사례를 다룬 기사예요.",
+          "url": "https://news.hada.io/topic?id=31860",
+          "thumbnail": null,
+          "time": "2026-07-27T03:33:47+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.hada.io/topic?id=31859",
+          "source": "rss:geeknews",
+          "publisher": "",
+          "title": "Show GN: comux - AI 코딩 에이전트를 위한 tmux",
+          "titleOriginal": null,
+          "summary": "AI 코딩 에이전트 작업을 위한 tmux 형태의 도구 comux를 소개하는 글이에요.",
+          "url": "https://news.hada.io/topic?id=31859",
+          "thumbnail": null,
+          "time": "2026-07-27T03:17:24+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMicEFVX3lxTE45ZW1wa1JqTGhJTUlKZ01yX2hhN2hFM3ZPYTNFUW0wRklWd3NjUXg4a3g2cDdJRG1uYmNhdVlkZEtBSEVxZVd6UTZUUnVJZTQ5V2VzSmQwbFVpMDlwQ2xSa1JmUEZyRGtnQUkxZ2ZSV1g",
+          "source": "rss:gnews-ai-kr",
+          "publisher": "한국강사신문",
+          "title": "[황미선의 위기탈출] 생성형 AI 시대, 디지털 성폭력 예방교육은 선택이 아닌 필수다",
+          "titleOriginal": null,
+          "summary": "생성형 AI 시대에 디지털 성폭력 예방교육이 선택이 아닌 필수라는 내용의 칼럼이에요. AI 기술 확산에 따른 위험성과 대응 필요성을 다루고 있어요.",
+          "url": "https://news.google.com/rss/articles/CBMicEFVX3lxTE45ZW1wa1JqTGhJTUlKZ01yX2hhN2hFM3ZPYTNFUW0wRklWd3NjUXg4a3g2cDdJRG1uYmNhdVlkZEtBSEVxZVd6UTZUUnVJZTQ5V2VzSmQwbFVpMDlwQ2xSa1JmUEZyRGtnQUkxZ2ZSV1g?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T21:48:34+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMiS0FVX3lxTFBEZVVKREpmVG53NmNnRDZ2VXZIUVNkWC1zU3o3RUR6d3ZWdkxvazBodGVzOVhQRjFxUzg3WTNhTHU0WklHLXpDdmJJb9IBQkFVX3lxTE0ydmpleUp4MG1WdXYySTJ3Ri1YUkFSc2hXMzlBY0IzaF95ODhOMXhZMU15ZDRsWmQzYW43RWtqY1gxdw",
+          "source": "rss:gnews-ai-kr",
+          "publisher": "VOI.ID",
+          "title": "OpenAI, ChatGPT, 스마트 안경 및 웨어러블 장치에 진입",
+          "titleOriginal": null,
+          "summary": "OpenAI, ChatGPT, 스마트 안경 및 웨어러블 장치에 진입 VOI.ID",
+          "url": "https://news.google.com/rss/articles/CBMiS0FVX3lxTFBEZVVKREpmVG53NmNnRDZ2VXZIUVNkWC1zU3o3RUR6d3ZWdkxvazBodGVzOVhQRjFxUzg3WTNhTHU0WklHLXpDdmJJb9IBQkFVX3lxTE0ydmpleUp4MG1WdXYySTJ3Ri1YUkFSc2hXMzlBY0IzaF95ODhOMXhZMU15ZDRsWmQzYW43RWtqY1gxdw?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T18:32:03+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "CBMiSkFVX3lxTFBiejdxM25XaGFuYlpiZ01LeFRJTWNZbXVUTjhrREhHLXZoMlJvN2RPNzFnVGNfdGZtSzZhMTNEdGNDMEVjVzZ3MUVn",
+          "source": "rss:gnews-ai-kr",
+          "publisher": "뉴스N연합",
+          "title": "생성형 AI 시대, 기업 노션 활용 '구축보다 정착'… 실무 경험이 만드는 슈크림마을 노션 생태계",
+          "titleOriginal": null,
+          "summary": "생성형 AI 시대, 기업 노션 활용 '구축보다 정착'… 실무 경험이 만드는 슈크림마을 노션 생태계 뉴스N연합",
+          "url": "https://news.google.com/rss/articles/CBMiSkFVX3lxTFBiejdxM25XaGFuYlpiZ01LeFRJTWNZbXVUTjhrREhHLXZoMlJvN2RPNzFnVGNfdGZtSzZhMTNEdGNDMEVjVzZ3MUVn?oc=5",
+          "thumbnail": null,
+          "time": "2026-07-27T18:05:10+00:00",
+          "scope": "domestic",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        }
+      ],
+      "foreign": [
+        {
+          "id": "yt:video:w9cCOUD-qDM",
+          "source": "rss:yt-matthew-berman",
+          "publisher": "",
+          "title": "AI can't READ this",
+          "titleOriginal": null,
+          "summary": "Join My Newsletter for Regular AI Updates 👇🏼 https://forwardfuture.com My Links 🔗 👉🏻 X: https://x.com/matthewberman 👉🏻 Forward Future X: https://x.com/forwardfuture 👉🏻 Instagram: https://www.instagram.com/matthewberman_ai 👉🏻 Discord: https://discord.gg/u7wTTGWhuJ 👉🏻 Spotify: https://open.spotify.com/show/6dBxDwxtHl1hpqHhfoXmy8 Media/Sponsorship Inquiries ✅ https://bit.ly/44TC45V",
+          "url": "https://www.youtube.com/shorts/w9cCOUD-qDM",
+          "thumbnail": null,
+          "time": "2026-07-27T21:17:57+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://openai.com/index/how-ai-is-expanding-what-people-do-at-work",
+          "source": "rss:openai",
+          "publisher": "",
+          "title": "How AI is expanding what people do at work",
+          "titleOriginal": null,
+          "summary": "New OpenAI research shows how AI is expanding what workers do, with ChatGPT users taking on tasks across roles and reshaping job boundaries.",
+          "url": "https://openai.com/index/how-ai-is-expanding-what-people-do-at-work",
+          "thumbnail": null,
+          "time": "2026-07-27T03:30:00+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.ycombinator.com/item?id=49075954",
+          "source": "rss:hn-ai",
+          "publisher": "",
+          "title": "The GTM Co-Founder – open-source GTM skills for solo dev-tool/AI founders",
+          "titleOriginal": null,
+          "summary": "Article URL: https://github.com/AIDevGTM/gtm-cofounder Comments URL: https://news.ycombinator.com/item?id=49075954 Points: 1 # Comments: 0",
+          "url": "https://github.com/AIDevGTM/gtm-cofounder",
+          "thumbnail": null,
+          "time": "2026-07-27T21:51:56+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.ycombinator.com/item?id=49075745",
+          "source": "rss:hn-ai",
+          "publisher": "",
+          "title": "Anthropic used robots.txt to hide shared Claude chats; the pages have no noindex",
+          "titleOriginal": null,
+          "summary": "Article URL: https://www.wired.com/story/private-claude-chats-exposed-in-google-and-bing-search-results/ Comments URL: https://news.ycombinator.com/item?id=49075745 Points: 2 # Comments: 1",
+          "url": "https://www.wired.com/story/private-claude-chats-exposed-in-google-and-bing-search-results/",
+          "thumbnail": null,
+          "time": "2026-07-27T21:27:45+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.ycombinator.com/item?id=49075654",
+          "source": "rss:hn-ai",
+          "publisher": "",
+          "title": "60 Minute Creator – Node-based AI content workflows using your own API keys",
+          "titleOriginal": null,
+          "summary": "Article URL: https://60minutecreator.com/ Comments URL: https://news.ycombinator.com/item?id=49075654 Points: 1 # Comments: 0",
+          "url": "https://60minutecreator.com/",
+          "thumbnail": null,
+          "time": "2026-07-27T21:18:56+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.ycombinator.com/item?id=49075639",
+          "source": "rss:hn-ai",
+          "publisher": "",
+          "title": "AMD Advancing AI 2026: Talking CDNA5 with AMD's Alan Smith",
+          "titleOriginal": null,
+          "summary": "Article URL: https://chipsandcheese.com/p/amd-advancing-ai-2026-talking-cdna5 Comments URL: https://news.ycombinator.com/item?id=49075639 Points: 2 # Comments: 0",
+          "url": "https://chipsandcheese.com/p/amd-advancing-ai-2026-talking-cdna5",
+          "thumbnail": null,
+          "time": "2026-07-27T21:17:44+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.ycombinator.com/item?id=49075625",
+          "source": "rss:hn-ai",
+          "publisher": "",
+          "title": "Distributing LLM Inference in DwarfStar",
+          "titleOriginal": null,
+          "summary": "Article URL: https://antirez.com/news/167 Comments URL: https://news.ycombinator.com/item?id=49075625 Points: 1 # Comments: 0",
+          "url": "https://antirez.com/news/167",
+          "thumbnail": null,
+          "time": "2026-07-27T21:15:57+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.ycombinator.com/item?id=49075297",
+          "source": "rss:hn-ai",
+          "publisher": "",
+          "title": "Using AI with a Critical Eye",
+          "titleOriginal": null,
+          "summary": "Article URL: https://www.loserbydesign.com/new-page-3 Comments URL: https://news.ycombinator.com/item?id=49075297 Points: 1 # Comments: 0",
+          "url": "https://www.loserbydesign.com/new-page-3",
+          "thumbnail": null,
+          "time": "2026-07-27T20:45:52+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.ycombinator.com/item?id=49075115",
+          "source": "rss:hn-ai",
+          "publisher": "",
+          "title": "Claude shared chats and Artifacts may have ended up on Google",
+          "titleOriginal": null,
+          "summary": "Article URL: https://techcrunch.com/2026/07/27/psa-your-claude-shared-chats-and-artifacts-may-have-ended-up-on-google/ Comments URL: https://news.ycombinator.com/item?id=49075115 Points: 9 # Comments: 0",
+          "url": "https://techcrunch.com/2026/07/27/psa-your-claude-shared-chats-and-artifacts-may-have-ended-up-on-google/",
+          "thumbnail": null,
+          "time": "2026-07-27T20:28:07+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.ycombinator.com/item?id=49075015",
+          "source": "rss:hn-ai",
+          "publisher": "",
+          "title": "A political compass for AI where anyone can add their stance",
+          "titleOriginal": null,
+          "summary": "Article URL: https://theaicompass.io/?preview=default Comments URL: https://news.ycombinator.com/item?id=49075015 Points: 1 # Comments: 0",
+          "url": "https://theaicompass.io/?preview=default",
+          "thumbnail": null,
+          "time": "2026-07-27T20:18:00+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.ycombinator.com/item?id=49074995",
+          "source": "rss:hn-ai",
+          "publisher": "",
+          "title": "ThinkFull: A 22-specialist Claude Code skill, not an agent pipeline",
+          "titleOriginal": null,
+          "summary": "Article URL: https://github.com/SuperNotesOnline/ThinkFull Comments URL: https://news.ycombinator.com/item?id=49074995 Points: 1 # Comments: 0",
+          "url": "https://github.com/SuperNotesOnline/ThinkFull",
+          "thumbnail": null,
+          "time": "2026-07-27T20:16:20+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.ycombinator.com/item?id=49074974",
+          "source": "rss:hn-ai",
+          "publisher": "",
+          "title": "Platform engineering 2.0 mitigates AI security and compliance risks",
+          "titleOriginal": null,
+          "summary": "Article URL: https://platformengineering.org/blog/how-platform-engineering-2-0-mitigates-ai-security-and-compliance-risks Comments URL: https://news.ycombinator.com/item?id=49074974 Points: 4 # Comments: 1",
+          "url": "https://platformengineering.org/blog/how-platform-engineering-2-0-mitigates-ai-security-and-compliance-risks",
+          "thumbnail": null,
+          "time": "2026-07-27T20:14:12+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.ycombinator.com/item?id=49074964",
+          "source": "rss:hn-ai",
+          "publisher": "",
+          "title": "Anthropic changed a Claude Code default–how I insulated my framework",
+          "titleOriginal": null,
+          "summary": "Article URL: https://mauroepce.dev/blog/trust-boundaries-claude-code Comments URL: https://news.ycombinator.com/item?id=49074964 Points: 1 # Comments: 0",
+          "url": "https://mauroepce.dev/blog/trust-boundaries-claude-code",
+          "thumbnail": null,
+          "time": "2026-07-27T20:12:59+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.ycombinator.com/item?id=49074937",
+          "source": "rss:hn-ai",
+          "publisher": "",
+          "title": "A call for AI models with open weights, open source, and open corpus",
+          "titleOriginal": null,
+          "summary": "Article URL: https://www.argmin.net/p/public-intelligence Comments URL: https://news.ycombinator.com/item?id=49074937 Points: 1 # Comments: 0",
+          "url": "https://www.argmin.net/p/public-intelligence",
+          "thumbnail": null,
+          "time": "2026-07-27T20:10:52+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.ycombinator.com/item?id=49074935",
+          "source": "rss:hn-ai",
+          "publisher": "",
+          "title": "Why aren't we using LLM's to chemically redesign old drugs?",
+          "titleOriginal": null,
+          "summary": "I was fooling around with Cisplatin, a chemo drug that made testicular cancer curable. Then I was like, I wonder how Chat GPT would improve this drug. It tried. Is this a good idea? \"The best chemical improvement is unlikely to be “a stronger cisplatin.” It should be a less reactive circulating molecule that becomes ordinary cisplatin only after tumor uptake. My preferred candidate is therefore: A neutral, asymmetric cisplatin-based Pt(IV) prodrug with one stabilized albumin-binding axial ligand and one reduction-released glutathione-synthesis inhibitor, with the axial electronics deliberately tuned to prevent premature blood reduction.\" Comments URL: https://news.ycombinator.com/item?id=49074935 Points: 2 # Comments: 0",
+          "url": "https://news.ycombinator.com/item?id=49074935",
+          "thumbnail": null,
+          "time": "2026-07-27T20:10:45+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.ycombinator.com/item?id=49074899",
+          "source": "rss:hn-ai",
+          "publisher": "",
+          "title": "Kimi Panic Is a Sputnik Moment for 'Open' AI",
+          "titleOriginal": null,
+          "summary": "Article URL: https://www.bloomberg.com/opinion/articles/2026-07-27/kimi-panic-is-a-sputnik-moment-for-open-ai Comments URL: https://news.ycombinator.com/item?id=49074899 Points: 1 # Comments: 1",
+          "url": "https://www.bloomberg.com/opinion/articles/2026-07-27/kimi-panic-is-a-sputnik-moment-for-open-ai",
+          "thumbnail": null,
+          "time": "2026-07-27T20:07:10+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.ycombinator.com/item?id=49074896",
+          "source": "rss:hn-ai",
+          "publisher": "",
+          "title": "AI in the Classroom, Part 1: What's Happening Now",
+          "titleOriginal": null,
+          "summary": "Article URL: https://forta.com/blog/ai-in-the-classroom-part-1-whats-actually-happening-now Comments URL: https://news.ycombinator.com/item?id=49074896 Points: 1 # Comments: 0",
+          "url": "https://forta.com/blog/ai-in-the-classroom-part-1-whats-actually-happening-now",
+          "thumbnail": null,
+          "time": "2026-07-27T20:06:38+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.ycombinator.com/item?id=49074853",
+          "source": "rss:hn-ai",
+          "publisher": "",
+          "title": "The Captain Strategy: Stop using AI to become the boss you hate",
+          "titleOriginal": null,
+          "summary": "Article URL: https://everythingengineer.substack.com/p/the-captain-strategy-stop-chatting-and-use-ai-functions Comments URL: https://news.ycombinator.com/item?id=49074853 Points: 1 # Comments: 0",
+          "url": "https://everythingengineer.substack.com/p/the-captain-strategy-stop-chatting-and-use-ai-functions",
+          "thumbnail": null,
+          "time": "2026-07-27T20:02:11+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.ycombinator.com/item?id=49074777",
+          "source": "rss:hn-ai",
+          "publisher": "",
+          "title": "Google AI Studio's \"Delete\" button is misleading",
+          "titleOriginal": null,
+          "summary": "Article URL: https://www.youtube.com/watch?v=LBQfNbPCxQw Comments URL: https://news.ycombinator.com/item?id=49074777 Points: 1 # Comments: 1",
+          "url": "https://www.youtube.com/watch?v=LBQfNbPCxQw",
+          "thumbnail": null,
+          "time": "2026-07-27T19:54:31+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        },
+        {
+          "id": "https://news.ycombinator.com/item?id=49074768",
+          "source": "rss:hn-ai",
+          "publisher": "",
+          "title": "Google Uses AI Reinforcement Learning for Quantum Error Correction",
+          "titleOriginal": null,
+          "summary": "Article URL: https://www.nextplatform.com/compute/2026/07/20/google-uses-ai-reinforcement-learning-for-quantum-error-correction/5275023 Comments URL: https://news.ycombinator.com/item?id=49074768 Points: 1 # Comments: 0",
+          "url": "https://www.nextplatform.com/compute/2026/07/20/google-uses-ai-reinforcement-learning-for-quantum-error-correction/5275023",
+          "thumbnail": null,
+          "time": "2026-07-27T19:53:45+00:00",
+          "scope": "foreign",
+          "category": "ai",
+          "glossaryTermId": null,
+          "curationScore": 0
+        }
+      ]
+    }
+  },
+  "glossary": {
+    "convertible_bond": {
+      "shortLabel": "전환사채 발행",
+      "explanation": "일정 조건에서 주식으로 전환할 수 있는 채권을 발행하는 결정이에요. 자금 조달은 긍정이지만 전환 시 지분 희석이 따라와요. 전환가·전환조건이 핵심 변수예요.",
+      "direction": "mixed"
+    },
+    "supplementary_budget": {
+      "shortLabel": "추경 (추가경정예산)",
+      "explanation": "한 해 예산을 다 짜둔 뒤, 큰 변수(재난·경기 침체 등)가 생겨 추가로 편성하는 예산이에요. 규모·용도·재원 조달 방식이 핵심 쟁점이에요. 국채 발행으로 조달하면 재정 건전성 논쟁이 따라와요.",
+      "direction": "mixed"
+    },
+    "exchange_rate": {
+      "shortLabel": "환율",
+      "explanation": "두 나라 통화 간 교환 비율이에요. 원·달러 환율 상승 = 원화 약세 = 수출에 유리·수입에 불리. 미국 금리·무역수지·지정학 리스크 등 다양한 변수로 움직여요.",
+      "direction": "mixed"
+    },
+    "fed_fomc": {
+      "shortLabel": "연준 FOMC (연방공개시장위원회)",
+      "explanation": "미국 중앙은행(Fed) 의 통화정책 결정 회의예요. 1년에 8번 열리고 연방기금금리(FFR) 조정·양적완화 등을 결정해요. 한국 포함 전 세계 금융시장이 이 발표를 주시해요.",
+      "direction": "mixed"
+    }
+  }
+}
