@@ -447,7 +447,8 @@ def _cmd_surge(args: argparse.Namespace) -> int:
     )
 
     # 급등 이유를 사람이 바로 보게끔 같은 날 공시를 붙인다 (LLM 호출 없음)
-    if surges and not args.no_dart and cfg.dart_api_key:
+    dart_checked = bool(surges) and not args.no_dart and bool(cfg.dart_api_key)
+    if dart_checked:
         from news_briefing.collectors.dart import fetch_dart_list
 
         day = series[0][0].bas_dd
@@ -469,8 +470,10 @@ def _cmd_surge(args: argparse.Namespace) -> int:
         if s.disclosures:
             for title in s.disclosures:
                 print(f"    공시: {title}")
-        else:
+        elif dart_checked:
             print("    공시: 없음 (이유 미확인)")
+        else:
+            print("    공시: 조회 안 함 (--no-dart)")
     return 0
 
 
