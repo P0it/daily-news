@@ -259,6 +259,14 @@ picks 작성 원칙 (★ 핵심 — 가장 중요):
 - domestic 필드는 반드시 null (picks 자체가 국내 종목)
 - direction=negative이면 수혜받는 국내 종목을 picks로 제시
 
+시장 반응 참고 (★ 프롬프트 끝에 '── 시장 반응 ──' 블록이 있을 때만 적용):
+- 그 블록은 어제 거래대금이 급증한 종목이다. 급등은 촉매가 아니라 이미 벌어진 시장
+  반응이므로, 이것만으로는 절대 pick 하지 마라. 목록에 있어도 강한 DART 공시 촉매가
+  없으면 픽하지 않는다.
+- 유일한 용도: 위 공시 촉매로 이미 선정한 pick 이 그 목록에도 있으면, description 에
+  "거래대금이 평균의 N배로 늘며 시장이 이미 반응 중"이라는 색을 한 문장 덧붙일 수 있다.
+  이미 큰 폭으로 오른 종목이면 "다소 늦은 진입일 수 있다"는 뉘앙스도 함께 담아라.
+
 출력 규칙:
 - JSON 배열만 반환. 마크다운 코드블록·설명 텍스트 없이 배열 그대로.
 - 배열 길이 최대 5. 강한 촉매 수만큼만 — 부족하면 2~3개라도 좋다. 약한 촉매로 5개를 채우지 마라.
@@ -485,6 +493,7 @@ def analyze_hot_issues_domestic(
     candidates: list[tuple[CollectedItem, int]],
     *,
     phase_map: dict[str, int] | None = None,
+    surge_context: list[str] | None = None,
 ) -> list[dict]:
     """국내 소스(DART·리서치·한경·매경) 기반 오늘 주목할 종목·테마 Top 5 선정.
 
@@ -492,6 +501,9 @@ def analyze_hot_issues_domestic(
     Tier 2 (한경·매경·연합): 기업 중복 제거 후 최대 12개.
     Tier 3 (Google News): 최대 3개.
     phase_map: {ext_id: phase} — 있으면 각 항목에 [P숫자] 태그 추가해 LLM이 P1·P2 우선 선정.
+    surge_context: KRX 거래대금 급증 종목 라인(선택). 점수·선별엔 전혀 관여하지 않고,
+        이미 공시 촉매로 뽑힌 pick 의 '시장이 이미 반응 중' 설명 색으로만 프롬프트 말미에
+        덧붙인다 (급등=반응, 촉매 아님 — DECISIONS #17/#21).
     실패 시 빈 리스트 반환.
     """
     from news_briefing.analysis.llm import _call_claude  # noqa: PLC0415
@@ -506,6 +518,9 @@ def analyze_hot_issues_domestic(
 
     lines = _pool_to_prompt_lines(pool, phase_map)
     prompt = _PROMPT_SYSTEM_DOMESTIC + "\n\n---\n\n" + "\n".join(lines)
+    # 급등 목록은 후보 풀(_build_pool) 밖에서 프롬프트 색으로만 붙인다 — 선별에 영향 없음.
+    if surge_context:
+        prompt += "\n\n── 시장 반응 (거래대금 급증, 촉매 아님) ──\n" + "\n".join(surge_context)
     log.info(
         "hot_issues(domestic): 프롬프트 %d개 항목 (Tier1=%d Tier2=%d Tier3=%d)",
         len(pool),

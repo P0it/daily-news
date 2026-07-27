@@ -47,7 +47,7 @@ def test_build_briefing_has_required_top_level_keys() -> None:
     assert "ai" not in data["tabs"]
     assert "hero" not in data
     econ = data["tabs"]["economy"]
-    assert set(econ.keys()) == {"indices", "research", "etf", "hotIssues", "watchlist"}
+    assert set(econ.keys()) == {"indices", "research", "etf", "hotIssues", "watchlist", "surge"}
     assert "signals" not in econ
     assert "news" not in econ
 
@@ -79,6 +79,38 @@ def test_research_list_built() -> None:
     assert research[0]["company"] == "삼성전자"
     assert research[0]["tpDirection"] == "상향"
     assert research[0]["score"] == 82
+
+
+def test_surge_section_built() -> None:
+    from news_briefing.analysis.surge import Surge
+
+    s = Surge(
+        code="192250",
+        name="케이사인",
+        market="KOSDAQ",
+        sector="",
+        close=7580.0,
+        change_pct=9.54,
+        value=9_300_000_000,
+        avg_value=75_000_000,
+        value_multiple=123.3,
+        market_cap=53_600_000_000,
+        disclosures=["단일판매공급계약체결"],
+    )
+    data = build_briefing_json(date=datetime(2026, 6, 15), surge=[s])
+    surge = data["tabs"]["economy"]["surge"]
+    assert surge["foreign"] == []  # KRX 는 국내 전용
+    assert len(surge["domestic"]) == 1
+    row = surge["domestic"][0]
+    assert row["code"] == "192250"
+    assert row["ticker"] == "192250.KQ"
+    assert row["valueMultiple"] == 123.3
+    assert row["disclosures"] == ["단일판매공급계약체결"]
+
+
+def test_surge_section_empty_default() -> None:
+    data = build_briefing_json(date=datetime(2026, 6, 15))
+    assert data["tabs"]["economy"]["surge"] == {"domestic": [], "foreign": []}
 
 
 def test_write_briefing_creates_json_and_index(tmp_path: Path) -> None:

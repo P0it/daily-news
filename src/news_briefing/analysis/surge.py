@@ -149,3 +149,19 @@ def attach_disclosures(surges: list[Surge], disclosures: list) -> list[Surge]:
         )
         for s in surges
     ]
+
+
+def surge_prompt_lines(surges: list[Surge]) -> list[str]:
+    """급등 종목을 국내 픽 프롬프트의 '시장 반응 참고' 색으로 넣을 텍스트 라인.
+
+    급등은 촉매가 아니라 반응이므로, 이 라인들은 pick 선정 근거가 아니라 이미 공시
+    촉매로 뽑힌 pick 의 설명을 풍부하게 하는 용도로만 쓰인다(호출부 프롬프트 참고).
+    """
+    lines: list[str] = []
+    for s in surges:
+        disc = f" · 공시: {s.disclosures[0]}" if s.disclosures else " · 공시 없음"
+        lines.append(
+            f"- {s.name}({s.code}): 거래대금 평균의 {s.value_multiple:.1f}배 급증, "
+            f"{s.change_pct:+.1f}%{disc}"
+        )
+    return lines

@@ -2,7 +2,12 @@
 
 from __future__ import annotations
 
-from news_briefing.analysis.surge import Surge, attach_disclosures, find_surges
+from news_briefing.analysis.surge import (
+    Surge,
+    attach_disclosures,
+    find_surges,
+    surge_prompt_lines,
+)
 from news_briefing.collectors.krx_market import KrxDaily, parse_krx_rows
 
 
@@ -155,3 +160,44 @@ def test_krx_응답_파싱_콤마와_결측치_처리():
     assert rows[0].change_pct == -1.11
     assert rows[0].value == 880_000_000_000
     assert rows[1].close == 0.0 and rows[1].value == 0
+
+
+def test_surge_prompt_lines_format() -> None:
+    surges = [
+        Surge(
+            code="192250",
+            name="케이사인",
+            market="KOSDAQ",
+            sector="",
+            close=7580.0,
+            change_pct=9.54,
+            value=9_300_000_000,
+            avg_value=75_000_000,
+            value_multiple=123.3,
+            market_cap=53_600_000_000,
+            disclosures=["단일판매공급계약체결"],
+        ),
+        Surge(
+            code="463020",
+            name="뉴엔AI",
+            market="KOSDAQ",
+            sector="",
+            close=6810.0,
+            change_pct=15.62,
+            value=7_100_000_000,
+            avg_value=131_000_000,
+            value_multiple=53.9,
+            market_cap=60_500_000_000,
+            disclosures=[],
+        ),
+    ]
+    lines = surge_prompt_lines(surges)
+    assert (
+        lines[0]
+        == "- 케이사인(192250): 거래대금 평균의 123.3배 급증, +9.5% · 공시: 단일판매공급계약체결"
+    )
+    assert lines[1] == "- 뉴엔AI(463020): 거래대금 평균의 53.9배 급증, +15.6% · 공시 없음"
+
+
+def test_surge_prompt_lines_empty() -> None:
+    assert surge_prompt_lines([]) == []

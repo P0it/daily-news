@@ -18,6 +18,7 @@ from news_briefing.analysis.hot_issues import (
     foreign_news_weight,
 )
 from news_briefing.analysis.scoring import score_consensus, score_edgar, score_report, score_wire
+from news_briefing.analysis.surge import attach_disclosures, find_surges, surge_prompt_lines
 from news_briefing.collectors.analyst_ratings import fetch_analyst_ratings
 from news_briefing.collectors.base import CollectedItem
 from news_briefing.collectors.congress_trades import fetch_congress_trades
@@ -28,6 +29,7 @@ from news_briefing.collectors.gov_contracts import fetch_gov_contracts
 from news_briefing.collectors.insider_cluster import fetch_insider_clusters
 from news_briefing.collectors.institutional_13f import fetch_institutional_13f
 from news_briefing.collectors.krx_etf import fetch_krx_etf
+from news_briefing.collectors.krx_market import fetch_recent_trading_days
 from news_briefing.collectors.macro import fetch_macro
 from news_briefing.collectors.press_wire import fetch_press_wires
 from news_briefing.collectors.research import fetch_research_reports
@@ -157,6 +159,20 @@ def run_morning(
             research_raw = fetch_research_reports()
         with _timed("1. collect KRX ETF"):
             etf_snapshots = fetch_krx_etf()
+
+        # 1b. KRX 급상승 — 거래대금 급증 + 같은 기간 DART 공시 대조.
+        #   급등은 촉매가 아니라 시장 반응이라 picks 점수·선별엔 넣지 않는다(DECISIONS #17/#21).
+        #   웹 전용 표시 + 국내 픽 '왜 움직였나' 설명 색으로만 쓴다. 캐시 덕에 매일 신규
+        #   거래일 하나만 새로 받으므로 배치 비용이 크지 않다.
+        surges: list = []
+        with _timed("1b. KRX surge"):
+            try:
+                if cfg.krx_api_key:
+                    series = fetch_recent_trading_days(cfg.krx_api_key, days=6)
+                    surges = attach_disclosures(find_surges(series, top_n=15), disclosures)
+                    log.info("KRX 급상승 %d종목", len(surges))
+            except Exception as e:
+                log.warning("KRX 급상승 수집 실패 (건너뜀): %s", e)
 
         # 선행 지표 수집기 (실패해도 파이프라인 계속)
         gov_items: list = []
@@ -377,7 +393,11 @@ def run_morning(
             return analyze_hot_issues(foreign_candidates, phase_map=phase_int_map)
 
         def _run_domestic() -> list[dict]:
-            return analyze_hot_issues_domestic(domestic_candidates, phase_map=phase_int_map)
+            return analyze_hot_issues_domestic(
+                domestic_candidates,
+                phase_map=phase_int_map,
+                surge_context=surge_prompt_lines(surges) if surges else None,
+            )
 
         with _timed("7. hot_issues (foreign+domestic 병렬)"):
             with ThreadPoolExecutor(max_workers=2) as pool:
@@ -473,6 +493,7 @@ def run_morning(
                 macro_indices=macro_indices,
                 research_scored=research_scored,
                 etf_snapshots=etf_snapshots,
+                surge=surges,
             )
             briefing_json_path = write_briefing(
                 public_briefings_dir=cfg.public_briefings_dir, briefing=briefing

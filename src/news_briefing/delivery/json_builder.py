@@ -25,10 +25,12 @@ def build_briefing_json(
     macro_indices: list | None = None,
     research_scored: list[tuple[CollectedItem, int, str]] | None = None,
     etf_snapshots: list | None = None,
+    surge: list | None = None,
 ) -> dict:
     """picks 중심 브리핑 JSON 생성.
 
-    economy 탭 = 시장지수 + 증권사 리서치 + KRX ETF + hotIssues(picks).
+    economy 탭 = 시장지수 + 증권사 리서치 + KRX ETF + hotIssues(picks) + 급상승(웹 전용).
+    surge 는 KRX 거래대금 급증 종목 — 국내 전용이라 foreign 은 항상 빈 배열.
     """
     indices_list = [
         {
@@ -74,6 +76,24 @@ def build_briefing_json(
         for e in (etf_snapshots or [])
     ]
 
+    # 급상승 종목 — 웹 전용 표시. 거래대금 급증은 촉매가 아니라 시장 반응이라
+    # picks 와 분리해 별도 섹션으로만 노출한다 (DECISIONS #17/#21).
+    surge_list = [
+        {
+            "code": s.code,
+            "name": s.name,
+            "market": s.market,
+            "ticker": s.ticker,
+            "close": s.close,
+            "changePct": s.change_pct,
+            "value": s.value,
+            "valueMultiple": s.value_multiple,
+            "marketCap": s.market_cap,
+            "disclosures": list(s.disclosures),
+        }
+        for s in (surge or [])
+    ]
+
     economy_tab: dict = {
         "indices": indices_list,
         "research": research_list,
@@ -87,6 +107,8 @@ def build_briefing_json(
             "domestic": watchlist_domestic or [],
             "foreign": watchlist_foreign or [],
         },
+        # 급상승 종목 — 국내 전용(KRX). foreign 은 항상 빈 배열.
+        "surge": {"domestic": surge_list, "foreign": []},
     }
 
     return {
