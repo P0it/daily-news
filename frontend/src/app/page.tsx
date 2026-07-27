@@ -11,6 +11,7 @@ import { getStoredLang, t, type Lang } from '@/lib/i18n'
 import { parseDateFromSearch, parseScopeFromSearch } from '@/lib/tabs'
 import type { Briefing } from '@/lib/types'
 import { HotIssuesCard } from '@/components/HotIssuesCard'
+import { SurgeCard } from '@/components/SurgeCard'
 import { WatchlistCard } from '@/components/WatchlistCard'
 import { PicksHistoryView } from '@/components/PicksHistoryView'
 import { DiscoveryView } from '@/components/DiscoveryView'
@@ -86,6 +87,9 @@ function HomeInner() {
       : hotIssues.domestic
     : []
 
+  // 급상승 종목 — 국내 전용(KRX). picks 와 분리된 별도 섹션(웹 전용).
+  const surgeItems = scope === 'domestic' ? (briefing.tabs.economy.surge?.domestic ?? []) : []
+
   if (issues.length === 0) {
     const watchlist = briefing.tabs.economy.watchlist
     const watchItems = watchlist
@@ -104,6 +108,7 @@ function HomeInner() {
           </p>
         </div>
         <WatchlistCard items={watchItems} />
+        <SurgeCard items={surgeItems} />
       </div>
     )
   }
@@ -111,6 +116,7 @@ function HomeInner() {
   return (
     <div>
       <HotIssuesCard issues={issues} scope={scope} />
+      <SurgeCard items={surgeItems} />
     </div>
   )
 }

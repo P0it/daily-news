@@ -16,6 +16,22 @@ export interface EconomyTab {
   hotIssues?: { domestic: HotIssue[]; foreign: HotIssue[] }
   // 관찰 리스트 — 해당 scope 픽이 0인 날만 채워진다(보조 참고).
   watchlist?: { domestic: WatchItem[]; foreign: WatchItem[] }
+  // 급상승 종목 — 거래대금 급증(웹 전용). 국내 전용이라 foreign 은 항상 빈 배열.
+  surge?: { domestic: SurgeItem[]; foreign: SurgeItem[] }
+}
+
+// 급상승 종목 — 거래대금 급증은 촉매가 아니라 시장 반응. picks 와 분리해 표시.
+export interface SurgeItem {
+  code: string
+  name: string
+  market: string          // KOSPI | KOSDAQ
+  ticker: string          // 192250.KQ 형태
+  close: number
+  changePct: number
+  value: number           // 당일 거래대금 (원)
+  valueMultiple: number   // 직전 평균 거래대금 대비 배수
+  marketCap: number
+  disclosures: string[]   // 같은 기간 DART 공시 제목 (없으면 빈 배열)
 }
 
 // 관찰 항목 — 강한 촉매 픽엔 못 들었지만 지켜볼 만한 그날의 공시.
