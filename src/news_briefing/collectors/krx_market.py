@@ -97,12 +97,22 @@ def fetch_krx_daily(
     bas_dd: str,  # YYYYMMDD
     *,
     timeout: int = 90,
+    use_cache: bool = True,
 ) -> list[KrxDaily]:
     """지정일의 코스피+코스닥 전종목 일별매매정보를 반환한다.
 
+    확정된 과거 거래일은 로컬 캐시에서 즉시 반환한다(요청당 26~30초 소요를 회피).
     휴장일이면 빈 리스트가 온다(에러 아님). 키가 없거나 인증 실패면 경고만 남기고
     빈 리스트 — 수집기 하나가 죽어도 파이프라인은 계속 간다는 원칙을 따른다.
     """
+    # 순환 import 방지 위해 지연 로드 (krx_cache 가 KrxDaily 를 참조)
+    from news_briefing.storage.krx_cache import load_cached_day, save_cached_day
+
+    if use_cache:
+        cached = load_cached_day(bas_dd)
+        if cached is not None:
+            return cached
+
     if not auth_key:
         log.warning("KRX_API_KEY 없음, KRX 수집 스킵")
         return []
@@ -123,6 +133,9 @@ def fetch_krx_daily(
             items.extend(parse_krx_rows(resp.json(), market))
         except Exception as e:
             log.error("KRX 수집 실패 endpoint=%s bas_dd=%s: %s", endpoint, bas_dd, e)
+
+    if use_cache:
+        save_cached_day(bas_dd, items)
     return items
 
 
