@@ -1,6 +1,246 @@
 {
-  "updatedAt": "2026-07-27T22:05:11.330034+00:00",
+  "updatedAt": "2026-07-28T22:53:11.474369+00:00",
   "records": [
+    {
+      "id": "2026-07-29-205100",
+      "date": "2026-07-29",
+      "ticker": "205100",
+      "name": "엑셈",
+      "scope": "domestic",
+      "direction": "positive",
+      "theme": "AIOps·IT 인프라 운영자동화",
+      "rationale": "데이터베이스 성능관리(MaxGauge)와 AIOps 솔루션(InterMax)을 함께 보유해, 데이터센터·클라우드 운영 규모가 커질수록 라이선스와 유지보수 매출이 동시에 늘어나는 구조예요. AI 인프라 증설의 수혜가 GPU가 아니라 '운영 소프트웨어' 쪽으로도 흐른다는 점이 핵심이에요.",
+      "priceAtRec": 1435.0,
+      "currency": "KRW",
+      "currentPrice": 1435.0,
+      "currentPriceAt": "2026-07-28T22:52:07.691941+00:00",
+      "changePct": 0.0
+    },
+    {
+      "id": "2026-07-29-049480",
+      "date": "2026-07-29",
+      "ticker": "049480",
+      "name": "오픈베이스",
+      "scope": "domestic",
+      "direction": "positive",
+      "theme": "AIOps·IT 인프라 운영자동화",
+      "rationale": "네트워크·보안 인프라 구축과 운영 자동화를 함께 담당하는 인프라 SI로, 데이터센터 신설 프로젝트마다 트래픽 관리와 운영 관제 물량이 따라붙는 구조예요. 대형 클라우드 사업자의 국내 리전 확장이 직접적인 수주 통로가 돼요.",
+      "priceAtRec": 1744.0,
+      "currency": "KRW",
+      "currentPrice": 1744.0,
+      "currentPriceAt": "2026-07-28T22:52:08.733007+00:00",
+      "changePct": 0.0
+    },
+    {
+      "id": "2026-07-29-093320",
+      "date": "2026-07-29",
+      "ticker": "093320",
+      "name": "케이아이엔엑스",
+      "scope": "domestic",
+      "direction": "positive",
+      "theme": "AIOps·IT 인프라 운영자동화",
+      "rationale": "중립형 인터넷 익스체인지(IX)와 코로케이션을 운영해, AI 서비스 트래픽이 늘어날수록 상면·회선 단가가 함께 올라가는 사업 모델이에요. 운영 자동화 수요 확대의 물리적 기반 역할을 맡고 있어요.",
+      "priceAtRec": 136400.0,
+      "currency": "KRW",
+      "currentPrice": 136400.0,
+      "currentPriceAt": "2026-07-28T22:52:09.775317+00:00",
+      "changePct": 0.0
+    },
+    {
+      "id": "2026-07-29-322180",
+      "date": "2026-07-29",
+      "ticker": "322180",
+      "name": "티라유텍",
+      "scope": "domestic",
+      "direction": "positive",
+      "theme": "물류 자동화·스마트물류",
+      "rationale": "물류 실행 소프트웨어(WMS·WCS)와 스마트팩토리 MES를 함께 공급해, 물류센터 자동화 프로젝트에서 하드웨어보다 먼저 계약이 잡히는 위치에 있어요. 자율주행 물류로봇 연계 매출도 확대되고 있어요.",
+      "priceAtRec": 3650.0,
+      "currency": "KRW",
+      "currentPrice": 3650.0,
+      "currentPriceAt": "2026-07-28T22:52:10.760117+00:00",
+      "changePct": 0.0
+    },
+    {
+      "id": "2026-07-29-077280",
+      "date": "2026-07-29",
+      "ticker": "077280",
+      "name": "케이엘넷",
+      "scope": "domestic",
+      "direction": "positive",
+      "theme": "물류 자동화·스마트물류",
+      "rationale": "항만물류 정보시스템과 물류 EDI를 운영해, 물류 디지털 전환 예산이 늘어날 때 반복 과금형 매출이 함께 커지는 구조예요. 수출입 물동량과 직접 연동된다는 점이 차별점이에요.",
+      "priceAtRec": null,
+      "currency": "KRW",
+      "currentPrice": null,
+      "currentPriceAt": null,
+      "changePct": null
+    },
+    {
+      "id": "2026-07-29-056190",
+      "date": "2026-07-29",
+      "ticker": "056190",
+      "name": "에스에프에이",
+      "scope": "domestic",
+      "direction": "positive",
+      "theme": "물류 자동화·스마트물류",
+      "rationale": "디스플레이 장비 이미지가 강하지만 실제로는 국내 대형 물류센터 자동화 설비(스태커 크레인·소터)의 주요 공급사예요. 물류 부문 수주가 늘면 전사 매출 믹스가 개선되는 효과가 있어요.",
+      "priceAtRec": 19420.0,
+      "currency": "KRW",
+      "currentPrice": 19420.0,
+      "currentPriceAt": "2026-07-28T22:52:16.029352+00:00",
+      "changePct": 0.0
+    },
+    {
+      "id": "2026-07-29-190650",
+      "date": "2026-07-29",
+      "ticker": "190650",
+      "name": "코리아에셋투자증권",
+      "scope": "domestic",
+      "direction": "mixed",
+      "theme": "코스닥 메자닌 자금조달 사이클",
+      "rationale": "중소기업 대상 메자닌 인수·주선과 IB 딜 비중이 높아, 코스닥 자금조달 건수가 늘어날 때 수익 민감도가 가장 큰 증권사 중 하나예요. 자기자본 규모가 작아 딜 몇 건만 늘어도 이익 레버리지가 크게 나타나요.",
+      "priceAtRec": 6600.0,
+      "currency": "KRW",
+      "currentPrice": 6600.0,
+      "currentPriceAt": "2026-07-28T22:52:16.947542+00:00",
+      "changePct": 0.0
+    },
+    {
+      "id": "2026-07-29-001200",
+      "date": "2026-07-29",
+      "ticker": "001200",
+      "name": "유진투자증권",
+      "scope": "domestic",
+      "direction": "mixed",
+      "theme": "코스닥 메자닌 자금조달 사이클",
+      "rationale": "중소형 딜 중심의 IB 조직을 유지하고 있어 코스닥 발행시장이 살아날 때 수수료 수익이 회복되는 구조예요. 밸류에이션이 순자산 대비 크게 낮은 구간이라 회복 탄력이 상대적으로 커요.",
+      "priceAtRec": 3890.0,
+      "currency": "KRW",
+      "currentPrice": 3890.0,
+      "currentPriceAt": "2026-07-28T22:52:18.091857+00:00",
+      "changePct": 0.0
+    },
+    {
+      "id": "2026-07-29-KVUE",
+      "date": "2026-07-29",
+      "ticker": "KVUE",
+      "name": "Kenvue",
+      "scope": "foreign",
+      "direction": "positive",
+      "theme": "JNJ",
+      "rationale": "J&J에서 분사한 소비자헬스 법인으로, 미국 외 지역 탈크 관련 책임을 승계한 구조라 본사 합의가 확정되면 잔여 우발채무 범위가 함께 정리돼요. 소송 꼬리표가 걷히면 Tylenol·Neutrogena 등 브랜드 가치 대비 저평가 해소 여지가 있습니다.",
+      "priceAtRec": 19.75,
+      "currency": "USD",
+      "currentPrice": 19.75,
+      "currentPriceAt": "2026-07-28T22:52:19.143771+00:00",
+      "changePct": 0.0
+    },
+    {
+      "id": "2026-07-29-MMM",
+      "date": "2026-07-29",
+      "ticker": "MMM",
+      "name": "3M",
+      "scope": "foreign",
+      "direction": "positive",
+      "theme": "JNJ",
+      "rationale": "귀마개·PFAS 등 대규모 집단소송을 안고 있는 대표 기업으로, J&J의 55억 달러 합의가 mass tort 가격 책정의 벤치마크가 되면 3M 잔여 소송의 할인율도 함께 재산정될 수 있어요. 합의 배수가 시장 예상보다 낮게 잡힌 점이 특히 우호적입니다.",
+      "priceAtRec": 182.47999572753906,
+      "currency": "USD",
+      "currentPrice": 182.47999572753906,
+      "currentPriceAt": "2026-07-28T22:52:20.401898+00:00",
+      "changePct": 0.0
+    },
+    {
+      "id": "2026-07-29-CRDO",
+      "date": "2026-07-29",
+      "ticker": "CRDO",
+      "name": "Credo Technology",
+      "scope": "foreign",
+      "direction": "mixed",
+      "theme": "AI 추론·커스텀 실리콘",
+      "rationale": "AI 서버 랙 내부를 잇는 액티브 전기 케이블(AEC)과 SerDes를 공급하는 회사로, 학습이든 추론이든 클러스터 밀도가 높아질수록 채택량이 늘어나요. 모델 개발 주체가 바뀌어도 데이터센터 배선 수요는 유지되는 구조라 전략 재편의 영향을 덜 받습니다.",
+      "priceAtRec": 192.27999877929688,
+      "currency": "USD",
+      "currentPrice": 192.27999877929688,
+      "currentPriceAt": "2026-07-28T22:52:21.521607+00:00",
+      "changePct": 0.0
+    },
+    {
+      "id": "2026-07-29-ALAB",
+      "date": "2026-07-29",
+      "ticker": "ALAB",
+      "name": "Astera Labs",
+      "scope": "foreign",
+      "direction": "mixed",
+      "theme": "AI 추론·커스텀 실리콘",
+      "rationale": "PCIe·CXL 커넥티비티 반도체 업체로, 커스텀 가속기 기반 서버는 범용 GPU 서버보다 내부 연결 IC 의존도가 더 높아요. 하이퍼스케일러가 자체 칩 비중을 키울수록 채택 슬롯이 늘어나는 구조입니다.",
+      "priceAtRec": 260.2300109863281,
+      "currency": "USD",
+      "currentPrice": 260.2300109863281,
+      "currentPriceAt": "2026-07-28T22:52:22.621313+00:00",
+      "changePct": 0.0
+    },
+    {
+      "id": "2026-07-29-MRVL",
+      "date": "2026-07-29",
+      "ticker": "MRVL",
+      "name": "Marvell Technology",
+      "scope": "foreign",
+      "direction": "mixed",
+      "theme": "AI 추론·커스텀 실리콘",
+      "rationale": "하이퍼스케일러 커스텀 ASIC 설계 파트너로, 자체 모델 개발을 줄이는 대신 자체 칩 투자를 늘리는 전환에서 직접적인 수주 수혜가 발생해요. 최근 AI 회의론 조정으로 밸류에이션 부담이 낮아진 점도 유리합니다.",
+      "priceAtRec": 174.47000122070312,
+      "currency": "USD",
+      "currentPrice": 174.47000122070312,
+      "currentPriceAt": "2026-07-28T22:52:23.636969+00:00",
+      "changePct": 0.0
+    },
+    {
+      "id": "2026-07-29-AIZ",
+      "date": "2026-07-29",
+      "ticker": "AIZ",
+      "name": "Assurant",
+      "scope": "foreign",
+      "direction": "positive",
+      "theme": "기기 구독·소비자 할부금융",
+      "rationale": "휴대폰 보험과 기기 반납·리퍼비시 처리에서 글로벌 1위권 사업자로, 리스 모델이 확산되면 파손 보상과 반납 기기 재상품화 물량이 구조적으로 늘어나요. 소유가 아닌 리스는 사업자가 기기 잔존가치를 책임져야 해서 보험 부착률이 판매보다 높습니다.",
+      "priceAtRec": 283.0799865722656,
+      "currency": "USD",
+      "currentPrice": 283.0799865722656,
+      "currentPriceAt": "2026-07-28T22:52:24.711993+00:00",
+      "changePct": 0.0
+    },
+    {
+      "id": "2026-07-29-MQ",
+      "date": "2026-07-29",
+      "ticker": "MQ",
+      "name": "Marqeta",
+      "scope": "foreign",
+      "direction": "positive",
+      "theme": "기기 구독·소비자 할부금융",
+      "rationale": "Klarna를 비롯한 BNPL 사업자의 카드 발급·결제 처리 인프라를 제공하는 회사로, 리스 프로그램 결제 건수가 늘수록 처리 수수료가 그대로 증가해요. 신용 위험은 파트너가 지고 물량만 늘어나는 구조라 사이클 방어력도 상대적으로 낫습니다.",
+      "priceAtRec": 18.06999969482422,
+      "currency": "USD",
+      "currentPrice": 18.06999969482422,
+      "currentPriceAt": "2026-07-28T22:52:25.801732+00:00",
+      "changePct": 0.0
+    },
+    {
+      "id": "2026-07-29-FICO",
+      "date": "2026-07-29",
+      "ticker": "FICO",
+      "name": "Fair Isaac",
+      "scope": "foreign",
+      "direction": "positive",
+      "theme": "기기 구독·소비자 할부금융",
+      "rationale": "BNPL·기기 리스 잔액이 신용평가 체계에 편입되는 흐름에서 신용점수 모델과 데이터 스코어링 수요가 늘어나요. 대형 브랜드가 리스를 정식 채널로 채택하면 여신심사 표준화 필요성이 커집니다.",
+      "priceAtRec": 1336.219970703125,
+      "currency": "USD",
+      "currentPrice": 1336.219970703125,
+      "currentPriceAt": "2026-07-28T22:52:26.917399+00:00",
+      "changePct": 0.0
+    },
     {
       "id": "2026-07-28-251370",
       "date": "2026-07-28",
@@ -12,9 +252,9 @@
       "rationale": "PCB·FCCL 표면처리 화학소재를 공급하는 회사라, 기판 소재업체들의 가동률이 올라가면 소모성 약품 매출이 곧바로 따라 올라가는 구조예요. 설비 증설보다 먼저 반응하는 후행 아닌 동행 지표 성격의 종목이에요.",
       "priceAtRec": 8300.0,
       "currency": "KRW",
-      "currentPrice": 8300.0,
-      "currentPriceAt": "2026-07-27T22:04:24.019370+00:00",
-      "changePct": 0.0
+      "currentPrice": 7720.0,
+      "currentPriceAt": "2026-07-28T22:52:27.882517+00:00",
+      "changePct": -6.99
     },
     {
       "id": "2026-07-28-272290",
@@ -27,9 +267,9 @@
       "rationale": "FPCB용 절연·접착 필름과 방열 소재를 공급해 FCCL 수요 증가의 직접적인 파생 수혜를 받는 종목이에요. AI 기기용 고주파 저손실 소재 비중이 커질수록 판가 믹스가 개선되는 구조예요.",
       "priceAtRec": 20500.0,
       "currency": "KRW",
-      "currentPrice": 20500.0,
-      "currentPriceAt": "2026-07-27T22:04:25.055588+00:00",
-      "changePct": 0.0
+      "currentPrice": 18850.0,
+      "currentPriceAt": "2026-07-28T22:52:28.781214+00:00",
+      "changePct": -8.05
     },
     {
       "id": "2026-07-28-051370",
@@ -42,9 +282,9 @@
       "rationale": "국내 대표 FPCB 업체로 FCCL을 원재료로 받아 쓰는 전방 수요처예요. 소재단 조달·증설 움직임은 통상 FPCB 물량 확대를 선반영하는 신호로 읽을 수 있어요.",
       "priceAtRec": 6660.0,
       "currency": "KRW",
-      "currentPrice": 6660.0,
-      "currentPriceAt": "2026-07-27T22:04:26.132195+00:00",
-      "changePct": 0.0
+      "currentPrice": 6220.0,
+      "currentPriceAt": "2026-07-28T22:52:29.666700+00:00",
+      "changePct": -6.61
     },
     {
       "id": "2026-07-28-030210",
@@ -57,9 +297,9 @@
       "rationale": "중소형 IB·구조화 딜 비중이 높아 코스닥 메자닌 시장이 살아나면 수수료와 자기자본 투자 손익이 함께 개선되는 구조예요. 부동산 익스포저 축소 이후 IB 회복이 실적 레버리지로 작동해요.",
       "priceAtRec": 3430.0,
       "currency": "KRW",
-      "currentPrice": 3430.0,
-      "currentPriceAt": "2026-07-27T22:04:27.108882+00:00",
-      "changePct": 0.0
+      "currentPrice": 3290.0,
+      "currentPriceAt": "2026-07-28T22:52:30.521417+00:00",
+      "changePct": -4.08
     },
     {
       "id": "2026-07-28-190650",
@@ -72,9 +312,9 @@
       "rationale": "코스닥 중소형사 CB·BW 인수와 주선에 특화된 소형 증권사라, 메자닌 발행 건수 증가에 가장 민감하게 반응하는 종목이에요. 시가총액이 작아 딜 회복 시 이익 개선 폭이 상대적으로 커요.",
       "priceAtRec": 6790.0,
       "currency": "KRW",
-      "currentPrice": 6790.0,
-      "currentPriceAt": "2026-07-27T22:04:28.091709+00:00",
-      "changePct": 0.0
+      "currentPrice": 6600.0,
+      "currentPriceAt": "2026-07-28T22:52:31.342497+00:00",
+      "changePct": -2.8
     },
     {
       "id": "2026-07-28-021080",
@@ -87,9 +327,9 @@
       "rationale": "신기술금융·벤처투자 본업 특성상 코스닥 기업의 CB를 인수하는 자금 공급 주체예요. 메자닌 발행이 늘면 투자 집행과 회수 사이클이 동시에 정상화돼요.",
       "priceAtRec": 2170.0,
       "currency": "KRW",
-      "currentPrice": 2170.0,
-      "currentPriceAt": "2026-07-27T22:04:29.219113+00:00",
-      "changePct": 0.0
+      "currentPrice": 2020.0,
+      "currentPriceAt": "2026-07-28T22:52:32.245226+00:00",
+      "changePct": -6.91
     },
     {
       "id": "2026-07-28-064290",
@@ -102,9 +342,9 @@
       "rationale": "반도체·기판 외관 검사 장비를 만드는 회사로, 기판 층수와 미세화가 진행될수록 검사 공정 수가 늘어나 장비 채택률이 올라가요. 기판 고객사 비중이 커지면 실적 변동성도 완화돼요.",
       "priceAtRec": 31200.0,
       "currency": "KRW",
-      "currentPrice": 31200.0,
-      "currentPriceAt": "2026-07-27T22:04:30.492981+00:00",
-      "changePct": 0.0
+      "currentPrice": 27100.0,
+      "currentPriceAt": "2026-07-28T22:52:33.152542+00:00",
+      "changePct": -13.14
     },
     {
       "id": "2026-07-28-420770",
@@ -117,9 +357,9 @@
       "rationale": "고다층 패키지기판 광학검사·리페어 장비를 공급해 AI용 기판 증설의 직접 수혜를 받는 종목이에요. 층수 증가가 곧 검사 장비 대수 증가로 이어지는 구조예요.",
       "priceAtRec": 115600.0,
       "currency": "KRW",
-      "currentPrice": 115600.0,
-      "currentPriceAt": "2026-07-27T22:04:31.555612+00:00",
-      "changePct": 0.0
+      "currentPrice": 100000.0,
+      "currentPriceAt": "2026-07-28T22:52:34.004435+00:00",
+      "changePct": -13.49
     },
     {
       "id": "2026-07-28-LYB",
@@ -132,9 +372,9 @@
       "rationale": "나프타·에탄 등 원유 연동 원료가 원가의 대부분을 차지하는 석유화학 기업이에요. 제품 가격은 계약 기준으로 천천히 내려가는 반면 투입 원가는 즉시 반영돼, 유가 하락 초반 1~2분기에 스프레드가 가장 크게 벌어지는 구조예요.",
       "priceAtRec": 58.619998931884766,
       "currency": "USD",
-      "currentPrice": 58.619998931884766,
-      "currentPriceAt": "2026-07-27T22:04:32.648855+00:00",
-      "changePct": 0.0
+      "currentPrice": 58.220001220703125,
+      "currentPriceAt": "2026-07-28T22:52:34.887703+00:00",
+      "changePct": -0.68
     },
     {
       "id": "2026-07-28-SHW",
@@ -147,9 +387,9 @@
       "rationale": "페인트의 핵심 원료인 수지·용제·티타늄디옥사이드가 모두 원유 파생 제품이에요. 유가 하락 국면에서 판가는 유지하고 원가만 떨어지는 전형적인 마진 확장 종목이에요.",
       "priceAtRec": 327.2699890136719,
       "currency": "USD",
-      "currentPrice": 327.2699890136719,
-      "currentPriceAt": "2026-07-27T22:04:33.739071+00:00",
-      "changePct": 0.0
+      "currentPrice": 354.2699890136719,
+      "currentPriceAt": "2026-07-28T22:52:35.856451+00:00",
+      "changePct": 8.25
     },
     {
       "id": "2026-07-28-CCL",
@@ -162,9 +402,9 @@
       "rationale": "연료비가 영업비용의 10% 내외를 차지하는데다, 항공사와 달리 헤지 비율이 낮아 유가 하락이 손익에 더 빨리 반영돼요. 여기에 유럽 여름 성수기 예약 흐름이 겹치면 레버리지가 커요.",
       "priceAtRec": 27.1200008392334,
       "currency": "USD",
-      "currentPrice": 27.1200008392334,
-      "currentPriceAt": "2026-07-27T22:04:34.886152+00:00",
-      "changePct": 0.0
+      "currentPrice": 28.229999542236328,
+      "currentPriceAt": "2026-07-28T22:52:36.814782+00:00",
+      "changePct": 4.09
     },
     {
       "id": "2026-07-28-DSGX",
@@ -177,9 +417,9 @@
       "rationale": "HS 코드 분류, 원산지 판정, 관세 계산을 자동화하는 글로벌 무역 컴플라이언스 SaaS 기업이에요. 관세 체계가 복잡해질수록 화주 1곳당 트랜잭션 과금이 늘어나는, 관세 자체에 롱 포지션인 구조예요.",
       "priceAtRec": 71.08000183105469,
       "currency": "USD",
-      "currentPrice": 71.08000183105469,
-      "currentPriceAt": "2026-07-27T22:04:36.008727+00:00",
-      "changePct": 0.0
+      "currentPrice": 75.58999633789062,
+      "currentPriceAt": "2026-07-28T22:52:37.668231+00:00",
+      "changePct": 6.34
     },
     {
       "id": "2026-07-28-EXPD",
@@ -192,9 +432,9 @@
       "rationale": "자산을 보유하지 않는 포워더 겸 통관 브로커라, 관세 규정이 복잡해질수록 건당 통관 대행 수수료와 컨설팅 매출이 늘어요. 운임 하락기에도 브로커리지 마진이 방어되는 점이 강점이에요.",
       "priceAtRec": 171.33999633789062,
       "currency": "USD",
-      "currentPrice": 171.33999633789062,
-      "currentPriceAt": "2026-07-27T22:04:37.015133+00:00",
-      "changePct": 0.0
+      "currentPrice": 171.4199981689453,
+      "currentPriceAt": "2026-07-28T22:52:38.538647+00:00",
+      "changePct": 0.05
     },
     {
       "id": "2026-07-28-ROST",
@@ -207,9 +447,9 @@
       "rationale": "Shein·Temu 같은 초저가 직구 채널이 관세로 가격 경쟁력을 잃으면, 미국 내 재고를 싸게 매입해 파는 오프프라이스 매장이 그 수요를 흡수해요. 국내 재고 기반 매입 구조라 관세 원가 노출도 상대적으로 낮아요.",
       "priceAtRec": 243.35000610351562,
       "currency": "USD",
-      "currentPrice": 243.35000610351562,
-      "currentPriceAt": "2026-07-27T22:04:38.203250+00:00",
-      "changePct": 0.0
+      "currentPrice": 251.02999877929688,
+      "currentPriceAt": "2026-07-28T22:52:39.522335+00:00",
+      "changePct": 3.16
     },
     {
       "id": "2026-07-28-ACMR",
@@ -222,9 +462,9 @@
       "rationale": "미국 상장사이면서 매출 대부분이 중국 팹에서 나오는 세정·도금 장비 기업이에요. 중국의 국산 장비 채택 확대가 곧바로 수주로 연결되는 구조라, 중국 팹 증설 재개의 가장 직접적인 미국 상장 프록시예요.",
       "priceAtRec": 79.97000122070312,
       "currency": "USD",
-      "currentPrice": 79.97000122070312,
-      "currentPriceAt": "2026-07-27T22:04:39.242147+00:00",
-      "changePct": 0.0
+      "currentPrice": 72.0199966430664,
+      "currentPriceAt": "2026-07-28T22:52:40.464735+00:00",
+      "changePct": -9.94
     },
     {
       "id": "2026-07-28-KLIC",
@@ -237,9 +477,9 @@
       "rationale": "선단 공정이 막힌 중국 팹은 첨단 패키징으로 성능을 보완할 수밖에 없는데, 그 핵심이 와이어·플립칩 본더예요. 수출 통제 대상에서 상대적으로 자유로운 후공정 장비라는 점이 구조적 이점이에요.",
       "priceAtRec": 98.22000122070312,
       "currency": "USD",
-      "currentPrice": 98.22000122070312,
-      "currentPriceAt": "2026-07-27T22:04:40.227373+00:00",
-      "changePct": 0.0
+      "currentPrice": 90.93000030517578,
+      "currentPriceAt": "2026-07-28T22:52:41.441959+00:00",
+      "changePct": -7.42
     },
     {
       "id": "2026-07-28-COHU",
@@ -252,9 +492,9 @@
       "rationale": "신규 팹이 양산에 들어가면 반드시 따라붙는 것이 테스트·핸들링 장비예요. 증설 사이클에서 전공정 장비보다 두세 분기 늦게 수주가 들어와, 지금이 오히려 선반영이 덜 된 진입 구간이에요.",
       "priceAtRec": 47.810001373291016,
       "currency": "USD",
-      "currentPrice": 47.810001373291016,
-      "currentPriceAt": "2026-07-27T22:04:41.384485+00:00",
-      "changePct": 0.0
+      "currentPrice": 42.470001220703125,
+      "currentPriceAt": "2026-07-28T22:52:42.381871+00:00",
+      "changePct": -11.17
     },
     {
       "id": "2026-07-27-218410",
@@ -267,9 +507,9 @@
       "rationale": "공시 당사자 본인이며, GaN 트랜지스터를 국내에서 양산 가능한 사실상 유일한 업체예요. 방산 AESA 레이더 국산화 물량이 늘수록 통신 사이클과 무관한 매출 축이 커지는 구조예요.",
       "priceAtRec": 45050.0,
       "currency": "KRW",
-      "currentPrice": 45450.0,
-      "currentPriceAt": "2026-07-27T22:04:42.288413+00:00",
-      "changePct": 0.89
+      "currentPrice": 40000.0,
+      "currentPriceAt": "2026-07-28T22:52:43.307383+00:00",
+      "changePct": -11.21
     },
     {
       "id": "2026-07-27-095340",
@@ -282,9 +522,9 @@
       "rationale": "공시 당사자이며, 메모리·로직 테스트 소켓에서 국내 점유율 상위권 업체예요. HBM 및 AI 가속기용 고주파 소켓은 단가가 범용 대비 수 배 높아 믹스 개선이 곧 마진 레버리지로 이어져요.",
       "priceAtRec": 134600.0,
       "currency": "KRW",
-      "currentPrice": 137000.0,
-      "currentPriceAt": "2026-07-27T22:04:43.367817+00:00",
-      "changePct": 1.78
+      "currentPrice": 121000.0,
+      "currentPriceAt": "2026-07-28T22:52:44.236066+00:00",
+      "changePct": -10.1
     },
     {
       "id": "2026-07-27-099190",
@@ -297,9 +537,9 @@
       "rationale": "공시 당사자이며, 국내에서 CGM 센서를 자체 개발·양산하는 몇 안 되는 업체예요. BGM 스트립의 안정적 캐시플로우가 CGM 증설 투자를 자체 조달할 수 있게 해주는 점이 순수 바이오텍과 다른 방어력이에요.",
       "priceAtRec": 16030.0,
       "currency": "KRW",
-      "currentPrice": 17500.0,
-      "currentPriceAt": "2026-07-27T22:04:44.389591+00:00",
-      "changePct": 9.17
+      "currentPrice": 16630.0,
+      "currentPriceAt": "2026-07-28T22:52:45.165028+00:00",
+      "changePct": 3.74
     },
     {
       "id": "2026-07-27-146320",
@@ -312,9 +552,9 @@
       "rationale": "공시 당사자이며, 식각 챔버 내 쿼츠 부품을 합성 소재로 국산 대체하는 핵심 업체예요. 소모품 특성상 신규 장비 투자 없이 팹 가동률만 유지돼도 반복 매출이 발생하는 점이 장비주 대비 방어적이에요.",
       "priceAtRec": 9500.0,
       "currency": "KRW",
-      "currentPrice": 9460.0,
-      "currentPriceAt": "2026-07-27T22:04:45.427746+00:00",
-      "changePct": -0.42
+      "currentPrice": 8480.0,
+      "currentPriceAt": "2026-07-28T22:52:46.051462+00:00",
+      "changePct": -10.74
     },
     {
       "id": "2026-07-27-ONTO",
@@ -327,9 +567,9 @@
       "rationale": "HBM 적층 본딩 공정의 결함 검사와 오버레이 계측에서 사실상 독점적 지위를 가진 회사예요. HBM 단수가 8단에서 12단·16단으로 올라갈수록 검사 스텝 수가 비례해 늘어나 장비 수요가 웨이퍼 증설분보다 더 빠르게 증가해요.",
       "priceAtRec": 272.6199951171875,
       "currency": "USD",
-      "currentPrice": 262.3299865722656,
-      "currentPriceAt": "2026-07-27T22:04:46.448456+00:00",
-      "changePct": -3.77
+      "currentPrice": 241.88999938964844,
+      "currentPriceAt": "2026-07-28T22:52:46.882998+00:00",
+      "changePct": -11.27
     },
     {
       "id": "2026-07-27-AMKR",
@@ -342,9 +582,9 @@
       "rationale": "HBM을 로직 다이와 결합하는 어드밴스드 패키징 외주 물량을 받는 대형 OSAT예요. AI factory용 메모리 물량이 늘면 TSMC CoWoS 캐파를 넘어서는 초과 수요가 외주 패키징으로 흘러가는 구조예요.",
       "priceAtRec": 64.95999908447266,
       "currency": "USD",
-      "currentPrice": 60.709999084472656,
-      "currentPriceAt": "2026-07-27T22:04:47.258510+00:00",
-      "changePct": -6.54
+      "currentPrice": 45.689998626708984,
+      "currentPriceAt": "2026-07-28T22:52:47.717054+00:00",
+      "changePct": -29.66
     },
     {
       "id": "2026-07-27-SVCO",
@@ -357,9 +597,9 @@
       "rationale": "발표 당사자로, NVIDIA 가속컴퓨팅을 자사 TCAD·디지털 트윈 엔진에 결합하는 주체예요. 파운드리·메모리 업체의 공정 개발 기간 단축 수요가 그대로 라이선스 매출로 연결되는 구조예요.",
       "priceAtRec": 7.760000228881836,
       "currency": "USD",
-      "currentPrice": 7.809999942779541,
-      "currentPriceAt": "2026-07-27T22:04:48.293766+00:00",
-      "changePct": 0.64
+      "currentPrice": 7.519999980926514,
+      "currentPriceAt": "2026-07-28T22:52:48.603299+00:00",
+      "changePct": -3.09
     },
     {
       "id": "2026-07-22-INSW",
@@ -372,9 +612,9 @@
       "rationale": "원유·석유제품 탱커 선사로, 유가 자체보다 '우회 항로 확대 → 톤마일 증가 → 용선료 급등'에 직접 레버리지가 걸려 있어요. Saudi 탱커 회항과 Kazakhstan 물량 재배치는 곧바로 스팟 운임 상승으로 연결돼요.",
       "priceAtRec": 90.47000122070312,
       "currency": "USD",
-      "currentPrice": 90.69000244140625,
-      "currentPriceAt": "2026-07-27T22:04:49.108173+00:00",
-      "changePct": 0.24
+      "currentPrice": 93.5999984741211,
+      "currentPriceAt": "2026-07-28T22:52:49.487830+00:00",
+      "changePct": 3.46
     },
     {
       "id": "2026-07-22-STNG",
@@ -387,9 +627,9 @@
       "rationale": "석유제품(디젤·항공유) 전용 탱커 1위 사업자로, 중동 정제품 수출 경로가 막히면 대체 조달을 위한 장거리 운송 수요가 폭증해요. 제품 탱커 운임은 원유 탱커보다 지정학 충격에 더 탄력적으로 반응해요.",
       "priceAtRec": 79.66000366210938,
       "currency": "USD",
-      "currentPrice": 78.4000015258789,
-      "currentPriceAt": "2026-07-27T22:04:49.939276+00:00",
-      "changePct": -1.58
+      "currentPrice": 79.08999633789062,
+      "currentPriceAt": "2026-07-28T22:52:50.418318+00:00",
+      "changePct": -0.72
     },
     {
       "id": "2026-07-22-PARR",
@@ -402,9 +642,9 @@
       "rationale": "태평양·내륙 지역에 정제설비를 둔 중소형 정유사로, 중동발 정제품 공급 차질 시 디젤 크랙 스프레드 확대의 수혜가 큰 구조예요. 대형 정유사 대비 정제마진 민감도가 높아요.",
       "priceAtRec": 80.4000015258789,
       "currency": "USD",
-      "currentPrice": 78.63999938964844,
-      "currentPriceAt": "2026-07-27T22:04:50.806912+00:00",
-      "changePct": -2.19
+      "currentPrice": 79.08999633789062,
+      "currentPriceAt": "2026-07-28T22:52:51.294496+00:00",
+      "changePct": -1.63
     },
     {
       "id": "2026-07-22-CRCL",
@@ -417,9 +657,9 @@
       "rationale": "예측시장 플랫폼 다수가 USDC를 담보·정산 수단으로 사용해, 이벤트 계약 거래대금이 늘수록 USDC 유통량과 준비금 이자수익이 함께 늘어나는 구조예요. 예측시장 확장의 '결제 레일' 수혜주예요.",
       "priceAtRec": 71.08000183105469,
       "currency": "USD",
-      "currentPrice": 65.66999816894531,
-      "currentPriceAt": "2026-07-27T22:04:51.605396+00:00",
-      "changePct": -7.61
+      "currentPrice": 64.31999969482422,
+      "currentPriceAt": "2026-07-28T22:52:52.125124+00:00",
+      "changePct": -9.51
     },
     {
       "id": "2026-07-22-CBOE",
@@ -432,9 +672,9 @@
       "rationale": "이벤트 계약·초단기 옵션 영역에서 자체 상품 라인을 확장 중이라, 예측시장이 제도권 파생상품으로 편입될수록 거래량과 청산 수수료가 함께 늘어나요. 귀금속 이벤트 계약은 기존 옵션 수요와도 겹쳐요.",
       "priceAtRec": 274.3999938964844,
       "currency": "USD",
-      "currentPrice": 288.8699951171875,
-      "currentPriceAt": "2026-07-27T22:04:52.484693+00:00",
-      "changePct": 5.27
+      "currentPrice": 297.3900146484375,
+      "currentPriceAt": "2026-07-28T22:52:52.965818+00:00",
+      "changePct": 8.38
     },
     {
       "id": "2026-07-22-COIN",
@@ -447,9 +687,9 @@
       "rationale": "자체 앱 내 예측시장 유통과 USDC 생태계 파트너십을 동시에 보유해, 이벤트 계약 거래가 늘면 수수료와 스테이블코인 수익을 이중으로 확보해요. 암호자산 가격과 무관한 신규 수익원이라는 점이 포인트예요.",
       "priceAtRec": 175.85000610351562,
       "currency": "USD",
-      "currentPrice": 167.49000549316406,
-      "currentPriceAt": "2026-07-27T22:04:53.371331+00:00",
-      "changePct": -4.75
+      "currentPrice": 167.89999389648438,
+      "currentPriceAt": "2026-07-28T22:52:53.835155+00:00",
+      "changePct": -4.52
     },
     {
       "id": "2026-07-22-LPX",
@@ -462,9 +702,9 @@
       "rationale": "OSB·구조용 패널을 미국 내에서 생산해, 캐나다산 목재에 관세가 붙으면 곧바로 판가와 점유율을 동시에 확보하는 구조예요. 목재 가격 상승분이 마진에 직결되는 순수 내수 생산자예요.",
       "priceAtRec": 70.25,
       "currency": "USD",
-      "currentPrice": 74.2300033569336,
-      "currentPriceAt": "2026-07-27T22:04:54.278435+00:00",
-      "changePct": 5.67
+      "currentPrice": 76.55000305175781,
+      "currentPriceAt": "2026-07-28T22:52:54.765398+00:00",
+      "changePct": 8.97
     },
     {
       "id": "2026-07-22-CENX",
@@ -477,9 +717,9 @@
       "rationale": "미국 본토에 1차 알루미늄 제련소를 가동하는 몇 안 되는 사업자로, 캐나다산 유입이 막히면 미국 내 프리미엄(Midwest Premium) 급등의 직접 수혜를 받아요. 소형주라 프리미엄 변동에 대한 이익 레버리지가 매우 커요.",
       "priceAtRec": 44.79999923706055,
       "currency": "USD",
-      "currentPrice": 44.869998931884766,
-      "currentPriceAt": "2026-07-27T22:04:55.152535+00:00",
-      "changePct": 0.16
+      "currentPrice": 43.959999084472656,
+      "currentPriceAt": "2026-07-28T22:52:55.661349+00:00",
+      "changePct": -1.88
     },
     {
       "id": "2026-07-22-BCC",
@@ -492,9 +732,9 @@
       "rationale": "목재 제조와 건자재 유통을 동시에 하는 업체로, 캐나다산 공급이 줄면 제조 마진과 유통 재고 평가익이 함께 개선돼요. 관세 국면에서 이중 수혜가 나는 드문 구조예요.",
       "priceAtRec": 74.4000015258789,
       "currency": "USD",
-      "currentPrice": 78.22000122070312,
-      "currentPriceAt": "2026-07-27T22:04:55.973246+00:00",
-      "changePct": 5.13
+      "currentPrice": 80.37999725341797,
+      "currentPriceAt": "2026-07-28T22:52:56.520210+00:00",
+      "changePct": 8.04
     },
     {
       "id": "2026-07-10-229000",
@@ -507,9 +747,9 @@
       "rationale": "합병 결정의 직접 당사자(filer)라서 촉매를 가장 먼저·직접적으로 받는 종목이에요. 파생 수혜주가 아니라 이벤트 본체라 연결고리가 명확해요.",
       "priceAtRec": 1588.0,
       "currency": "KRW",
-      "currentPrice": 1572.0,
-      "currentPriceAt": "2026-07-27T22:04:56.880942+00:00",
-      "changePct": -1.01
+      "currentPrice": 1479.0,
+      "currentPriceAt": "2026-07-28T22:52:57.396766+00:00",
+      "changePct": -6.86
     },
     {
       "id": "2026-07-10-347770",
@@ -522,9 +762,9 @@
       "rationale": "잠정실적 공시의 직접 당사자라서 실적 서프라이즈·쇼크가 곧바로 반영되는 종목이에요. 파생 수혜가 아니라 실적 이벤트 본체예요.",
       "priceAtRec": 947.0,
       "currency": "KRW",
-      "currentPrice": 1030.0,
-      "currentPriceAt": "2026-07-27T22:04:57.721130+00:00",
-      "changePct": 8.76
+      "currentPrice": 982.0,
+      "currentPriceAt": "2026-07-28T22:52:58.254230+00:00",
+      "changePct": 3.7
     },
     {
       "id": "2026-07-10-MKTW",
@@ -537,9 +777,9 @@
       "rationale": "촉매의 직접 당사자로, 청구액 56% 성장과 가이던스 상향이 아직 주가에 온전히 반영되지 않았어요. 구독 기반 반복 매출과 높은 배당 목표가 재평가 여지를 키워요.",
       "priceAtRec": 19.670000076293945,
       "currency": "USD",
-      "currentPrice": 20.399999618530273,
-      "currentPriceAt": "2026-07-27T22:04:58.521350+00:00",
-      "changePct": 3.71
+      "currentPrice": 20.489999771118164,
+      "currentPriceAt": "2026-07-28T22:52:59.120760+00:00",
+      "changePct": 4.17
     },
     {
       "id": "2026-07-10-JBHT",
@@ -552,9 +792,9 @@
       "rationale": "인터모달·화물 운송의 대표주로 운임 사이클이 반등할 때 수혜가 가장 직접적이에요. 애널리스트 상향이 실적 저점 통과 기대를 자극해요.",
       "priceAtRec": 282.6099853515625,
       "currency": "USD",
-      "currentPrice": 280.9599914550781,
-      "currentPriceAt": "2026-07-27T22:04:59.383237+00:00",
-      "changePct": -0.58
+      "currentPrice": 277.6199951171875,
+      "currentPriceAt": "2026-07-28T22:53:00.081487+00:00",
+      "changePct": -1.77
     },
     {
       "id": "2026-07-09-002320",
@@ -567,9 +807,9 @@
       "rationale": "실적 공시의 직접 당사자(filer)라 촉매가 그대로 반영되는 종목이에요. 택배·물류 업황과 판가 흐름이 영업이익에 그대로 드러나는 구조라 잠정실적 숫자 자체가 주가 방향을 결정해요.",
       "priceAtRec": 16360.0,
       "currency": "KRW",
-      "currentPrice": 15150.0,
-      "currentPriceAt": "2026-07-27T22:05:00.442034+00:00",
-      "changePct": -7.4
+      "currentPrice": 14660.0,
+      "currentPriceAt": "2026-07-28T22:53:01.051987+00:00",
+      "changePct": -10.39
     },
     {
       "id": "2026-07-09-181710",
@@ -582,9 +822,9 @@
       "rationale": "합병 공시의 직접 당사자(filer)로 지배구조·사업부 재편 효과가 그대로 반영되는 종목이에요. 결제(Payco)·게임·클라우드 등 흩어진 사업의 통합·정리 여부가 밸류에이션 재평가로 이어질 수 있어요.",
       "priceAtRec": 38700.0,
       "currency": "KRW",
-      "currentPrice": 40100.0,
-      "currentPriceAt": "2026-07-27T22:05:01.300473+00:00",
-      "changePct": 3.62
+      "currentPrice": 36150.0,
+      "currentPriceAt": "2026-07-28T22:53:01.937717+00:00",
+      "changePct": -6.59
     },
     {
       "id": "2026-07-09-RYTM",
@@ -597,9 +837,9 @@
       "rationale": "공시 당사자로 setmelanotide(IMCIVREE) 개발사예요. Phase 3 데이터 확정과 저널 게재로 기존 희귀비만 프랜차이즈에 대형 신규 적응증이 더해지는 직접 수혜주예요.",
       "priceAtRec": 114.43000030517578,
       "currency": "USD",
-      "currentPrice": 106.12999725341797,
-      "currentPriceAt": "2026-07-27T22:05:02.090863+00:00",
-      "changePct": -7.25
+      "currentPrice": 108.04000091552734,
+      "currentPriceAt": "2026-07-28T22:53:02.728656+00:00",
+      "changePct": -5.58
     },
     {
       "id": "2026-07-08-EPAC",
@@ -612,9 +852,9 @@
       "rationale": "촉매의 직접 당사자(filer)로, 인수를 통해 공구 브랜드 라인업을 확장하고 실적 발표를 동시에 소화하는 재평가 국면이에요. 파생주가 아닌 본체를 직접 담는 게 가장 깔끔한 접근이에요.",
       "priceAtRec": 34.310001373291016,
       "currency": "USD",
-      "currentPrice": 34.880001068115234,
-      "currentPriceAt": "2026-07-27T22:05:02.977975+00:00",
-      "changePct": 1.66
+      "currentPrice": 37.09000015258789,
+      "currentPriceAt": "2026-07-28T22:53:03.616174+00:00",
+      "changePct": 8.1
     },
     {
       "id": "2026-07-01-086710",
@@ -627,9 +867,9 @@
       "rationale": "분할 당사자(filer) 본체로, 소재 사업부 가치 재평가와 자사주 취득이 동시에 걸린 종목이에요. 파생 수혜주가 아니라 공시 직접 대상이라 촉매가 가장 순수하게 반영되는 자리예요.",
       "priceAtRec": 6610.0,
       "currency": "KRW",
-      "currentPrice": 7740.0,
-      "currentPriceAt": "2026-07-27T22:05:03.866892+00:00",
-      "changePct": 17.1
+      "currentPrice": 7440.0,
+      "currentPriceAt": "2026-07-28T22:53:04.478065+00:00",
+      "changePct": 12.56
     },
     {
       "id": "2026-07-01-115160",
@@ -642,9 +882,9 @@
       "rationale": "합병 결정 당사자(filer)로, 그룹 지배구조 재편의 중심에 있는 종목이에요. 셋톱박스에서 EV충전·모빌리티로 사업을 옮기는 과정과 맞물려 합병이 가치 재평가 트리거가 될 수 있어요.",
       "priceAtRec": 5530.0,
       "currency": "KRW",
-      "currentPrice": 6000.0,
-      "currentPriceAt": "2026-07-27T22:05:05.725888+00:00",
-      "changePct": 8.5
+      "currentPrice": 5760.0,
+      "currentPriceAt": "2026-07-28T22:53:06.523405+00:00",
+      "changePct": 4.16
     },
     {
       "id": "2026-06-30-460930",
@@ -657,9 +897,9 @@
       "rationale": "공시 당사자(filer)로서 타법인 주식 양수를 직접 결정한 주체예요. 조선 기자재 본업에 인수 자산이 더해지면 생산능력과 수주 대응력이 커지는 구조라 인수 효과를 가장 직접적으로 받는 종목이에요.",
       "priceAtRec": 12600.0,
       "currency": "KRW",
-      "currentPrice": 14040.0,
-      "currentPriceAt": "2026-07-27T22:05:06.590738+00:00",
-      "changePct": 11.43
+      "currentPrice": 14080.0,
+      "currentPriceAt": "2026-07-28T22:53:07.363227+00:00",
+      "changePct": 11.75
     },
     {
       "id": "2026-06-30-ARQT",
@@ -670,11 +910,11 @@
       "direction": "positive",
       "theme": "ARQT",
       "rationale": "승인 당사자(filer)로 ZORYVE 프랜차이즈가 핵심 매출원이라 적응증 확대가 곧바로 매출 성장률로 연결되는 직접 수혜주예요.",
-      "priceAtRec": 26.760000228881836,
+      "priceAtRec": null,
       "currency": "USD",
-      "currentPrice": 27.84000015258789,
-      "currentPriceAt": "2026-07-27T22:05:07.388518+00:00",
-      "changePct": 4.04
+      "currentPrice": null,
+      "currentPriceAt": null,
+      "changePct": null
     },
     {
       "id": "2026-06-30-HMDPF",
@@ -685,11 +925,11 @@
       "direction": "positive",
       "theme": "전력기기·전력인프라",
       "rationale": "인수 당사자(filer)로, 이번 M&A로 매출 외형과 제품 포트폴리오가 동시에 커지며 전력기기 밸류체인 내 입지가 직접 확대되는 수혜주예요.",
-      "priceAtRec": 237.05999755859375,
+      "priceAtRec": null,
       "currency": "USD",
-      "currentPrice": 184.5500030517578,
-      "currentPriceAt": "2026-07-27T22:05:08.224313+00:00",
-      "changePct": -22.15
+      "currentPrice": 172.22000122070312,
+      "currentPriceAt": "2026-07-28T22:53:08.037013+00:00",
+      "changePct": null
     },
     {
       "id": "2026-06-30-TLRY",
@@ -703,7 +943,7 @@
       "priceAtRec": 4.610000133514404,
       "currency": "USD",
       "currentPrice": 4.03000020980835,
-      "currentPriceAt": "2026-07-27T22:05:09.118966+00:00",
+      "currentPriceAt": "2026-07-28T22:53:08.995179+00:00",
       "changePct": -12.58
     },
     {
@@ -717,9 +957,9 @@
       "rationale": "촉매의 직접 당사자(filer)예요. 경구 infigratinib Phase 3 성공으로 Voxzogo 독점 구도에 균열을 낼 잠재 파이프라인을 확보했고, 기존 ATTR-CM 사업에 신성장축이 더해지는 구조예요.",
       "priceAtRec": 70.23999786376953,
       "currency": "USD",
-      "currentPrice": 84.12000274658203,
-      "currentPriceAt": "2026-07-27T22:05:09.925766+00:00",
-      "changePct": 19.76
+      "currentPrice": 85.55000305175781,
+      "currentPriceAt": "2026-07-28T22:53:09.924955+00:00",
+      "changePct": 21.8
     },
     {
       "id": "2026-06-29-HPQ",
@@ -732,9 +972,9 @@
       "rationale": "제휴를 발표한 당사자(filer)예요. 저평가된 하드웨어주가 OpenAI 통합으로 AI 수혜 내러티브를 입을 수 있고, AI PC 교체 사이클과 맞물려 멀티플 리레이팅 여지가 있어요.",
       "priceAtRec": 22.8799991607666,
       "currency": "USD",
-      "currentPrice": 26.549999237060547,
-      "currentPriceAt": "2026-07-27T22:05:10.859022+00:00",
-      "changePct": 16.04
+      "currentPrice": 28.290000915527344,
+      "currentPriceAt": "2026-07-28T22:53:10.890660+00:00",
+      "changePct": 23.65
     },
     {
       "id": "2026-06-26-272450",
