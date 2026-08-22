@@ -1,4 +1,5 @@
 """Discord 웹훅으로 브리핑 알림 전송."""
+
 from __future__ import annotations
 
 import logging

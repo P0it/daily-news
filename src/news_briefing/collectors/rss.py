@@ -3,6 +3,7 @@
 Week 5a 부터 Google News RSS 를 **1차 aggregator** 로 사용 (한 쿼리 → 여러 언론사).
 개별 언론사 RSS 는 품질 보증된 소수(연합·BBC)만 병행.
 """
+
 from __future__ import annotations
 
 import html
@@ -26,9 +27,9 @@ NewsCategory = Literal["stock", "politics", "society", "international", "tech", 
 
 @dataclass(frozen=True, slots=True)
 class RssFeedSpec:
-    source: str                  # 'rss:gnews-politics-kr'
+    source: str  # 'rss:gnews-politics-kr'
     url: str
-    scope: str                   # 'domestic' | 'foreign'
+    scope: str  # 'domestic' | 'foreign'
     category: NewsCategory
 
 
@@ -91,7 +92,6 @@ RSS_FEEDS: list[RssFeedSpec] = [
         "foreign",
         "tech",
     ),
-
     # ───── 개별 언론사 RSS — 품질 보증 소수 병행 ─────
     # 경제지 (한국)
     RssFeedSpec("rss:hankyung", "https://www.hankyung.com/feed/economy", "domestic", "stock"),
@@ -113,13 +113,19 @@ RSS_FEEDS: list[RssFeedSpec] = [
     # 미국 주식 시장 특화 (TradingView news flow 수준 커버리지 보완)
     RssFeedSpec(
         "rss:gnews-us-stocks-en",
-        _gnews_search("earnings OR Fed Reserve OR interest rate OR S&P500 OR NASDAQ", hl="en", gl="US"),
+        _gnews_search(
+            "earnings OR Fed Reserve OR interest rate OR S&P500 OR NASDAQ", hl="en", gl="US"
+        ),
         "foreign",
         "stock",
     ),
     RssFeedSpec(
         "rss:gnews-us-markets-en",
-        _gnews_search("Wall Street OR IPO OR merger acquisition OR analyst upgrade downgrade", hl="en", gl="US"),
+        _gnews_search(
+            "Wall Street OR IPO OR merger acquisition OR analyst upgrade downgrade",
+            hl="en",
+            gl="US",
+        ),
         "foreign",
         "stock",
     ),
@@ -136,7 +142,6 @@ RSS_FEEDS: list[RssFeedSpec] = [
         "domestic",
         "international",
     ),
-
     # ───── AI 탭 (Week 5b) ─────
     # GeekNews (한국 개발자 커뮤니티, AI 섹션)
     RssFeedSpec(
@@ -152,13 +157,8 @@ RSS_FEEDS: list[RssFeedSpec] = [
         "domestic",
         "ai",
     ),
-    # Anthropic 공식 블로그 (Claude 모델 업데이트)
-    RssFeedSpec(
-        "rss:anthropic",
-        "https://www.anthropic.com/rss",
-        "foreign",
-        "ai",
-    ),
+    # Anthropic 은 공식 RSS 를 폐지했다(2026-07 확인: /rss, /rss.xml, /news/rss 모두 404).
+    # Claude 관련 뉴스는 gnews-ai-en·hn-ai 검색 피드가 대신 커버한다.
     # OpenAI 공식 블로그 (GPT 업데이트)
     RssFeedSpec(
         "rss:openai",
@@ -274,7 +274,9 @@ def parse_rss_feed(
         if getattr(entry, "published_parsed", None):
             try:
                 # published_parsed는 UTC struct_time — calendar.timegm으로 UTC 그대로 변환
-                published = datetime.fromtimestamp(calendar.timegm(entry.published_parsed), tz=timezone.utc)
+                published = datetime.fromtimestamp(
+                    calendar.timegm(entry.published_parsed), tz=timezone.utc
+                )
             except Exception:
                 pass
 

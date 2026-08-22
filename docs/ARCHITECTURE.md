@@ -136,7 +136,8 @@ sequenceDiagram
 | DART Open API | 국내 전자공시 | 무료 | 10,000 req/일 |
 | 카카오 OAuth + Memo | 본인 카카오톡 전송 | 무료 | 4KB/메시지, talk_message scope |
 | SEC EDGAR (Week 2+) | 미국 filings | 무료 | 10 req/초 |
-| 네이버 금융 (크롤링, Week 3+) | 수급 데이터 | 무료 | robots.txt 준수, 완만한 속도 |
+| KRX Open API | 전종목 일별 시세·거래대금·시총 | 무료 | AUTH_KEY 헤더 인증 (`KRX_API_KEY`) |
+| ~~네이버 금융 (크롤링)~~ | ~~수급 데이터~~ | — | **배제** — robots.txt 가 일반 UA 에 `Disallow: /` (DECISIONS #21) |
 | 인포스탁 (크롤링, Week 3+) | 테마주 분류 | 무료 | 마찬가지 |
 
 ## 4. 디렉토리 구조 (권장)

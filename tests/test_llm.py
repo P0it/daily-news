@@ -51,17 +51,13 @@ def test_summarize_falls_back_to_ollama_when_claude_fails(
         return _completed(stdout="올라마 응답")
 
     mocker.patch("news_briefing.analysis.llm.subprocess.run", side_effect=fake_run)
-    result = summarize(
-        memory_db, "입력B", ollama_enabled=True, ollama_model="qwen2.5:14b"
-    )
+    result = summarize(memory_db, "입력B", ollama_enabled=True, ollama_model="qwen2.5:14b")
     assert result == "올라마 응답"
     assert calls[0][0] == "claude"
     assert calls[1][0] == "ollama"
 
 
-def test_summarize_returns_empty_on_total_failure(
-    memory_db: sqlite3.Connection, mocker
-) -> None:
+def test_summarize_returns_empty_on_total_failure(memory_db: sqlite3.Connection, mocker) -> None:
     init_schema(memory_db)
     mocker.patch(
         "news_briefing.analysis.llm.subprocess.run",

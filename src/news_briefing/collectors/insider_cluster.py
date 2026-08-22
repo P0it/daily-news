@@ -5,6 +5,7 @@
 
 의존: 기존 edgar.py Form 4 아이템이 DB에 누적되어 있어야 함.
 """
+
 from __future__ import annotations
 
 import logging
@@ -25,8 +26,8 @@ _EDGAR_ATOM_URL = (
 _TIMEOUT = 15
 
 # 집단 매수 기준
-CLUSTER_MIN_INSIDERS = 3   # 동일 회사에 몇 명 이상 매수해야 클러스터로 인정
-CLUSTER_WINDOW_DAYS = 90   # 집계 기간
+CLUSTER_MIN_INSIDERS = 3  # 동일 회사에 몇 명 이상 매수해야 클러스터로 인정
+CLUSTER_WINDOW_DAYS = 90  # 집계 기간
 
 
 def _parse_form4_feed(content: str, user_agent: str) -> list[dict]:
@@ -67,18 +68,24 @@ def _parse_form4_feed(content: str, user_agent: str) -> list[dict]:
         summary_text = (summary_el.text or "").lower() if summary_el is not None else ""
         # 매수 여부 — 요약에 'purchase', 'acquired' 포함, 'sale'/'disposed' 없을 때
         is_buy = (
-            ("purchase" in summary_text or "acquired" in summary_text or "acquisition" in summary_text)
+            (
+                "purchase" in summary_text
+                or "acquired" in summary_text
+                or "acquisition" in summary_text
+            )
             and "sale" not in summary_text
             and "disposed" not in summary_text
         )
-        records.append({
-            "company": company,
-            "cik": cik,
-            "filed_at": filed_at,
-            "is_buy": is_buy,
-            "title": title,
-            "ext_id": (id_el.text or "").strip(),
-        })
+        records.append(
+            {
+                "company": company,
+                "cik": cik,
+                "filed_at": filed_at,
+                "is_buy": is_buy,
+                "title": title,
+                "ext_id": (id_el.text or "").strip(),
+            }
+        )
     return records
 
 
@@ -130,9 +137,7 @@ def fetch_insider_clusters(
         else:
             score = 78
 
-        headline = (
-            f"[내부자 집단매수] {company} — {count}명 {lookback_days}일 내 집중 매수 감지"
-        )
+        headline = f"[내부자 집단매수] {company} — {count}명 {lookback_days}일 내 집중 매수 감지"
         summary = (
             f"최근 {lookback_days}일 동안 {company} 내부자 {count}명이 자사주를 매수했습니다. "
             "집단 매수는 개별 거래보다 강한 신뢰 신호로 해석돼요."

@@ -95,3 +95,135 @@ CREATE TABLE IF NOT EXISTS briefings (
 -- briefings 공개 읽기 허용 (anon key로 프론트엔드 접근)
 ALTER TABLE briefings ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "public_read" ON briefings FOR SELECT USING (true);
+
+-- picks_history: 추천 종목 성과 전체를 단일 행(id='current') JSON 으로 보관.
+-- 여러 생성 머신이 같은 행을 upsert 하고, 배포 빌드가 여기서 읽어 복원한다.
+CREATE TABLE IF NOT EXISTS picks_history (
+    id         TEXT PRIMARY KEY,
+    data       JSONB NOT NULL,
+    updated_at TEXT NOT NULL
+);
+ALTER TABLE picks_history ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public_read" ON picks_history FOR SELECT USING (true);
+
+-- pick_outcomes: 추천 픽 영구 원장 (재학습 데이터의 원천).
+-- picks_history(실적 탭용 30일 실시간 수익률)와 달리 폐기하지 않고 픽 1건=1행으로 보관한다.
+-- 추천 시점 예측 방향·촉매·근거를 스냅샷하고, T+1/T+5/T+20 종가로 수익률·적중을 채점한다.
+-- 행 단위 컬럼이라 촉매 유형별 적중률 집계(SQL/파이썬)가 쉽다.
+CREATE TABLE IF NOT EXISTS pick_outcomes (
+    id             TEXT PRIMARY KEY,   -- {rec_date}-{scope}-{ticker}
+    rec_date       TEXT NOT NULL,      -- 추천일 YYYY-MM-DD
+    ticker         TEXT NOT NULL,
+    name           TEXT,
+    scope          TEXT NOT NULL,      -- domestic | foreign
+    direction      TEXT,               -- 예측 방향: positive | negative | mixed
+    signal         TEXT,               -- 촉매 (issue.signal)
+    theme          TEXT,               -- issue.asset
+    rationale      TEXT,               -- pick.description
+    consensus_risk TEXT,               -- low | medium | high
+    verify_status  TEXT,               -- ok | review
+    is_filer       INTEGER,            -- 공시 주체 여부 (1/0)
+    currency       TEXT,               -- KRW | USD
+    price_at_rec   REAL,               -- 진입 기준가 = 추천 직전 거래일 종가
+    price_1d       REAL,
+    price_5d       REAL,
+    price_20d      REAL,
+    ret_1d         REAL,               -- 기준가 대비 % 절대수익률
+    ret_5d         REAL,
+    ret_20d        REAL,
+    bench_ret_1d   REAL,               -- 같은 구간 벤치마크 지수 % 수익률
+    bench_ret_5d   REAL,
+    bench_ret_20d  REAL,
+    alpha_1d       REAL,               -- 초과수익 = ret - bench_ret (핵심 채점 기준)
+    alpha_5d       REAL,
+    alpha_20d      REAL,
+    benchmark      TEXT,               -- 사용한 벤치마크 심볼 (^KS11 | ^KQ11 | ^GSPC)
+    hit_1d         INTEGER,            -- 알파 기준 1 적중 / 0 실패 / null 보류·mixed·데드밴드
+    hit_5d         INTEGER,
+    hit_20d        INTEGER,
+    created_at     TEXT NOT NULL,
+    updated_at     TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_pick_outcomes_date ON pick_outcomes(rec_date);
+CREATE INDEX IF NOT EXISTS idx_pick_outcomes_pending ON pick_outcomes(price_20d);
+ALTER TABLE pick_outcomes ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public_read" ON pick_outcomes FOR SELECT USING (true);
+
+-- ── 발굴 트랙 (Discovery Screen) ─────────────────────────────────────────────
+-- 이벤트 구동 picks 와 별개로, 고정 유니버스를 펀더멘털로 정기 스캔하는 트랙.
+
+-- fundamentals: yfinance 펀더멘털 스냅샷 캐시(ticker 1건=1행).
+-- 수백 종목을 매번 긁으면 느리므로 며칠간 재사용한다(재무는 분기 단위 변화).
+CREATE TABLE IF NOT EXISTS fundamentals (
+    ticker           TEXT PRIMARY KEY,
+    scope            TEXT NOT NULL,      -- us | kospi
+    name             TEXT,
+    sector           TEXT,
+    currency         TEXT,
+    market_cap       REAL,
+    trailing_pe      REAL,
+    forward_pe       REAL,
+    price_to_book    REAL,
+    peg              REAL,
+    ev_to_ebitda     REAL,
+    roe              REAL,               -- 소수(0.18 = 18%)
+    profit_margin    REAL,
+    operating_margin REAL,
+    debt_to_equity   REAL,              -- 퍼센트(79.5 = 79.5%)
+    revenue_growth   REAL,
+    earnings_growth  REAL,
+    free_cashflow    REAL,
+    fetched_at       TEXT NOT NULL       -- ISO8601, 신선도 판정용
+);
+CREATE INDEX IF NOT EXISTS idx_fundamentals_fetched ON fundamentals(fetched_at);
+
+-- discovery_screens: 발굴 스크린 결과 스냅샷.
+-- id='current' 1행이 최신(앱 노출용), 나머지는 회차별 이력(week_id 등). JSON 블롭.
+CREATE TABLE IF NOT EXISTS discovery_screens (
+    id         TEXT PRIMARY KEY,   -- 'current' | 회차 id(YYYY-MM-DD)
+    data       JSONB NOT NULL,     -- { generatedAt, us[], kospi[] }
+    updated_at TEXT NOT NULL
+);
+ALTER TABLE discovery_screens ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public_read" ON discovery_screens FOR SELECT USING (true);
+
+-- discovery_outcomes: 발굴 픽 영구 원장 (알파 기준 채점, pick_outcomes 자매).
+-- 발굴은 중장기라 T+5/20/60 거래일로 채점한다. direction 은 항상 positive(롱 아이디어).
+-- "진짜 발굴이면 시장과 무관하게 알파를 낸다" — 지수 대비 초과수익으로 판정.
+CREATE TABLE IF NOT EXISTS discovery_outcomes (
+    id             TEXT PRIMARY KEY,   -- {rec_date}-{scope}-{ticker}
+    rec_date       TEXT NOT NULL,      -- 스크린 실행일 YYYY-MM-DD
+    ticker         TEXT NOT NULL,
+    name           TEXT,
+    scope          TEXT NOT NULL,      -- us | kospi
+    sector         TEXT,
+    composite      INTEGER,            -- 종합 점수 스냅샷
+    value_score    INTEGER,
+    quality_score  INTEGER,
+    growth_score   INTEGER,
+    highlights     TEXT,               -- 강점 라벨(콤마 결합)
+    currency       TEXT,               -- USD | KRW
+    price_at_rec   REAL,               -- 진입 기준가 = 스크린 직전 거래일 종가
+    price_5d       REAL,
+    price_20d      REAL,
+    price_60d      REAL,
+    ret_5d         REAL,
+    ret_20d        REAL,
+    ret_60d        REAL,
+    bench_ret_5d   REAL,
+    bench_ret_20d  REAL,
+    bench_ret_60d  REAL,
+    alpha_5d       REAL,
+    alpha_20d      REAL,
+    alpha_60d      REAL,
+    benchmark      TEXT,               -- ^GSPC | ^KS11
+    hit_5d         INTEGER,
+    hit_20d        INTEGER,
+    hit_60d        INTEGER,
+    created_at     TEXT NOT NULL,
+    updated_at     TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_discovery_outcomes_date ON discovery_outcomes(rec_date);
+CREATE INDEX IF NOT EXISTS idx_discovery_outcomes_pending ON discovery_outcomes(price_60d);
+ALTER TABLE discovery_outcomes ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "public_read" ON discovery_outcomes FOR SELECT USING (true);

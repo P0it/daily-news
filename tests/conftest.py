@@ -1,4 +1,5 @@
 """공통 pytest fixtures."""
+
 from __future__ import annotations
 
 import sqlite3

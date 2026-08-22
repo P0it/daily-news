@@ -3,6 +3,7 @@
 공시 제목 → term_id 매핑 + seed 카탈로그 + LLM lazy 생성.
 SIGNALS.md 3.2 예시를 seed 로 사용.
 """
+
 from __future__ import annotations
 
 import logging

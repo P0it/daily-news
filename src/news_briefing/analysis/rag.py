@@ -1,7 +1,9 @@
 """RAG 질의 엔진 — 브리핑 JSON 인덱싱 + 검색 + LLM 답변 (Week 4).
 
-P1 준수: 매수 권유·목표가 등 투자 유인 표현 금지 (프롬프트에 명시).
+개인 용도 시스템이라 방향성 있는 판단(매수·매도·목표가)을 허용한다 (DECISIONS #14).
+정확성을 위해 컨텍스트에 없는 내용은 추측하지 않는다는 규칙만 프롬프트에 유지.
 """
+
 from __future__ import annotations
 
 import json
@@ -30,7 +32,7 @@ ANSWER_PROMPT = (
     "질문: {query}\n\n"
     "규칙:\n"
     "- 컨텍스트에 없는 내용은 추측하지 말고 '자료에 없어요' 라고 써\n"
-    "- '매수 유망', '추천', '목표가' 같은 투자 유인 표현 금지\n"
+    "- 개인 용도이므로 매수·매도 방향, 강도 등급, 목표가 등 방향성 있는 판단을 제시해도 됨\n"
     "- 답 끝에 참조한 doc_id 를 [출처: doc_id1, doc_id2] 형식으로 나열\n"
     "- 2~4 문장 이내 간결하게. 존댓말 '~요'"
 )
@@ -62,21 +64,25 @@ def _format_signal_for_index(signal: dict, date: str) -> tuple[str, str, dict]:
     return doc_id, text, metadata
 
 
-def _format_news_for_index(news: dict, date: str) -> tuple[str, str, dict]:
-    doc_id = _doc_id_for(news.get("source", "rss"), news["id"])
-    text = f"[{date}] {news.get('title', '')}. {news.get('summary', '')}"
+def _format_pick_for_index(pick: dict, issue: dict, scope: str, date: str) -> tuple[str, str, dict]:
+    """추천 종목 → 임베딩 문서. ask 가 picks 를 검색할 수 있게 한다."""
+    ticker = pick.get("ticker", "")
+    doc_id = _doc_id_for("pick", f"{date}:{ticker}")
+    text = (
+        f"[{date}] {pick.get('name', '')}({ticker}) — 테마 {issue.get('asset', '')}. "
+        f"{pick.get('description', '')} {issue.get('reason', '')}"
+    )
     metadata = {
         "date": date,
-        "source": news.get("source", ""),
-        "category": news.get("category", ""),
-        "url": news.get("url", ""),
+        "ticker": ticker,
+        "scope": scope,
+        "theme": issue.get("asset", ""),
+        "url": issue.get("url") or "",
     }
     return doc_id, text, metadata
 
 
-def index_briefing(
-    conn: sqlite3.Connection, briefing_path: Path, *, embed_model: str
-) -> int:
+def index_briefing(conn: sqlite3.Connection, briefing_path: Path, *, embed_model: str) -> int:
     """Briefing JSON 의 시그널·뉴스를 임베딩 DB 에 일괄 추가.
 
     이미 인덱싱된 doc_id 는 스킵. 반환: 신규 인덱싱된 문서 수.
@@ -87,23 +93,14 @@ def index_briefing(
     to_index: list[tuple[str, str, str, dict]] = []
 
     economy = data.get("tabs", {}).get("economy", {})
-    for s in economy.get("signals", []):
-        doc_id, text, meta = _format_signal_for_index(s, date)
-        to_index.append((doc_id, s.get("source", "dart"), text, meta))
-    hero = data.get("hero")
-    if hero:
-        doc_id, text, meta = _format_signal_for_index(hero, date)
-        to_index.append((doc_id, hero.get("source", "dart"), text, meta))
-
-    for n in economy.get("news", []):
-        doc_id, text, meta = _format_news_for_index(n, date)
-        to_index.append((doc_id, n.get("source", "rss"), text, meta))
-
-    current = data.get("tabs", {}).get("current", {})
-    for cat in ("politics", "society", "international", "tech"):
-        for n in current.get(cat, []):
-            doc_id, text, meta = _format_news_for_index(n, date)
-            to_index.append((doc_id, n.get("source", "rss"), text, meta))
+    hot_issues = economy.get("hotIssues", {})
+    for scope in ("domestic", "foreign"):
+        for issue in hot_issues.get(scope, []):
+            for pick in issue.get("picks") or []:
+                if not pick.get("ticker"):
+                    continue
+                doc_id, text, meta = _format_pick_for_index(pick, issue, scope, date)
+                to_index.append((doc_id, "pick", text, meta))
 
     count = 0
     for doc_id, source, text, meta in to_index:
@@ -150,10 +147,7 @@ def answer_query(
         ).strip()
     except Exception as e:
         log.error("RAG answer LLM 실패: %s", e)
-        answer = (
-            "자료 검색은 됐지만 요약 생성에 실패했어요. "
-            "잠시 후 다시 시도해주세요."
-        )
+        answer = "자료 검색은 됐지만 요약 생성에 실패했어요. 잠시 후 다시 시도해주세요."
 
     sources = [
         {

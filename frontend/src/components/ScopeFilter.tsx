@@ -5,7 +5,6 @@ import { useSearchParams } from 'next/navigation'
 import {
   parseScopeFromSearch,
   parseDateFromSearch,
-  parseTabFromSearch,
   scopeHref,
   type Scope,
 } from '@/lib/tabs'
@@ -15,13 +14,13 @@ export function ScopeFilter({ lang }: { lang: Lang }) {
   const sp = useSearchParams()
   const scope = parseScopeFromSearch(sp)
   const date = parseDateFromSearch(sp)
-  const tab = parseTabFromSearch(sp)
   const dict = t(lang)
 
   const options: { key: Scope; label: string }[] = [
-    { key: 'foreign', label: dict['scope.foreign'] },
     { key: 'domestic', label: dict['scope.domestic'] },
-    { key: 'picks', label: '성적' },
+    { key: 'foreign', label: dict['scope.foreign'] },
+    { key: 'discovery', label: dict['scope.discovery'] },
+    { key: 'picks', label: '실적' },
   ]
 
   return (
@@ -37,11 +36,18 @@ export function ScopeFilter({ lang }: { lang: Lang }) {
       >
         {options.map(({ key, label }) => {
           const active = scope === key
-          const emoji = key === 'domestic' ? '🇰🇷' : key === 'foreign' ? '🌐' : '📈'
+          const emoji =
+            key === 'domestic'
+              ? '🇰🇷'
+              : key === 'foreign'
+                ? '🌐'
+                : key === 'discovery'
+                  ? '🔍'
+                  : '📈'
           return (
             <Link
               key={key}
-              href={scopeHref(key, date, tab)}
+              href={scopeHref(key, date)}
               className="flex-1 text-center"
               style={{
                 fontSize: 14,

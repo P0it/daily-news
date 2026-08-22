@@ -39,12 +39,8 @@ def test_list_themes(memory_db: sqlite3.Connection) -> None:
 def test_layer_upsert_is_idempotent(memory_db: sqlite3.Connection) -> None:
     init_schema(memory_db)
     upsert_theme(memory_db, Theme("robotics", "로봇"))
-    lid1 = upsert_layer(
-        memory_db, ValueLayer(None, "robotics", "액추에이터", "구 설명")
-    )
-    lid2 = upsert_layer(
-        memory_db, ValueLayer(None, "robotics", "액추에이터", "신 설명")
-    )
+    lid1 = upsert_layer(memory_db, ValueLayer(None, "robotics", "액추에이터", "구 설명"))
+    lid2 = upsert_layer(memory_db, ValueLayer(None, "robotics", "액추에이터", "신 설명"))
     assert lid1 == lid2
     layers = list_layers(memory_db, "robotics")
     assert len(layers) == 1
@@ -57,9 +53,7 @@ def test_company_crud(memory_db: sqlite3.Connection) -> None:
     lid = upsert_layer(memory_db, ValueLayer(None, "robotics", "액추에이터"))
     upsert_company(
         memory_db,
-        CompanyInLayer(
-            lid, "058610", "에스피지", "하모닉 감속기 국내 3위", verified=True
-        ),
+        CompanyInLayer(lid, "058610", "에스피지", "하모닉 감속기 국내 3위", verified=True),
     )
     companies = list_companies(memory_db, lid)
     assert len(companies) == 1

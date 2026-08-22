@@ -42,9 +42,7 @@ def test_fetch_dart_list_makes_http_request(mocker) -> None:
     mock_resp = MagicMock()
     mock_resp.json.return_value = {"status": "000", "list": []}
     mock_resp.raise_for_status = MagicMock()
-    mock_get = mocker.patch(
-        "news_briefing.collectors.dart.requests.get", return_value=mock_resp
-    )
+    mock_get = mocker.patch("news_briefing.collectors.dart.requests.get", return_value=mock_resp)
     result = fetch_dart_list(api_key="k", date="20260422")
     assert result == []
     args, kwargs = mock_get.call_args
@@ -60,3 +58,48 @@ def test_fetch_dart_list_empty_key_returns_empty_without_request(mocker) -> None
     result = fetch_dart_list(api_key="", date="20260422")
     assert result == []
     assert mock_get.call_count == 0
+
+
+def test_fetch_dart_list_uses_window_when_end_date_given(mocker) -> None:
+    """아침 브리핑 룩백: bgn_de≠end_de 구간 조회를 그대로 전달한다."""
+    mock_resp = MagicMock()
+    mock_resp.json.return_value = {"status": "000", "list": [], "total_page": 1}
+    mock_resp.raise_for_status = MagicMock()
+    mock_get = mocker.patch("news_briefing.collectors.dart.requests.get", return_value=mock_resp)
+    fetch_dart_list(api_key="k", date="20260613", end_date="20260616")
+    params = mock_get.call_args.kwargs["params"]
+    assert params["bgn_de"] == "20260613"
+    assert params["end_de"] == "20260616"
+
+
+def test_fetch_dart_list_paginates_until_total_page(mocker) -> None:
+    """total_page 까지 페이지네이션해 100건 cap 잘림을 막는다."""
+
+    def _page(rcept_no: str) -> dict:
+        return {
+            "rcept_no": rcept_no,
+            "report_nm": "단일판매ㆍ공급계약체결",
+            "corp_name": "테스트",
+            "stock_code": "000000",
+            "corp_cls": "Y",
+            "corp_code": "00000000",
+            "rcept_dt": "20260615",
+        }
+
+    responses = [
+        {"status": "000", "total_page": 3, "list": [_page("a")]},
+        {"status": "000", "total_page": 3, "list": [_page("b")]},
+        {"status": "000", "total_page": 3, "list": [_page("c")]},
+    ]
+    mocks = []
+    for r in responses:
+        m = MagicMock()
+        m.json.return_value = r
+        m.raise_for_status = MagicMock()
+        mocks.append(m)
+    mock_get = mocker.patch("news_briefing.collectors.dart.requests.get", side_effect=mocks)
+    items = fetch_dart_list(api_key="k", date="20260613", end_date="20260616")
+    assert len(items) == 3
+    assert mock_get.call_count == 3
+    assert mock_get.call_args_list[0].kwargs["params"]["page_no"] == 1
+    assert mock_get.call_args_list[2].kwargs["params"]["page_no"] == 3

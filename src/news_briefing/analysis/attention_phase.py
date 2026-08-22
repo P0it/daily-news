@@ -7,6 +7,7 @@ Phase 4 (포화): 고점권 횡보, 주목도 식어감                    → �
 
 개미보다 빠른 것이 목표 — 기관 대비 선행이 아니라, 대중 주목도 곡선의 초입 포착.
 """
+
 from __future__ import annotations
 
 import logging
@@ -28,10 +29,10 @@ PHASE_EXCLUDE_THRESHOLD = 4
 
 @dataclass(frozen=True, slots=True)
 class AttentionPhase:
-    phase: int           # 1~4
-    label: str           # 한국어 라벨
-    trend_accel: float   # Google Trends 가속도 (이번 주 / 4주 평균 - 1)
-    price_lead: float    # 시그널 발생 전 5거래일 수익률 (0=티커 없음)
+    phase: int  # 1~4
+    label: str  # 한국어 라벨
+    trend_accel: float  # Google Trends 가속도 (이번 주 / 4주 평균 - 1)
+    price_lead: float  # 시그널 발생 전 5거래일 수익률 (0=티커 없음)
     signal_diversity: float  # 활성 소스 비율 0~1
 
 
@@ -63,9 +64,7 @@ def _fetch_trend_accel(keyword: str) -> float:
         return 0.0
 
 
-def _fetch_prices_batch(
-    code_to_ticker: dict[str, str], lookback_days: int = 5
-) -> dict[str, float]:
+def _fetch_prices_batch(code_to_ticker: dict[str, str], lookback_days: int = 5) -> dict[str, float]:
     """여러 티커 한 번에 yfinance 조회 → {company_code: 5일 수익률}.
 
     KS/KQ 병렬 시도: 한 번 실패하면 다른 suffix 사용.
@@ -164,9 +163,7 @@ def build_phase_map(
     }
     price_map: dict[str, float] = {}
     if enable_price and domestic_codes:
-        price_map = _fetch_prices_batch(
-            {c: f"{c}.KS" for c in domestic_codes}
-        )
+        price_map = _fetch_prices_batch({c: f"{c}.KS" for c in domestic_codes})
 
     # 3. 위상 분류
     result: dict[str, AttentionPhase] = {}

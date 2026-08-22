@@ -3,6 +3,7 @@
 Week 1: `score_report` — 제목 키워드 매칭만.
 Week 2a: `score_with_context` — 금액·지분율·매수/매도 구분 등 정량 보정 추가.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -50,10 +51,10 @@ def score_report(report_name: str) -> tuple[int, Direction]:
 class ScoringContext:
     """정량 보정 입력. 모두 optional — 값이 있을 때만 해당 규칙 적용."""
 
-    amount: int | None = None              # 원 단위 (공시 금액)
-    market_cap: int | None = None          # 원 단위 (시가총액)
+    amount: int | None = None  # 원 단위 (공시 금액)
+    market_cap: int | None = None  # 원 단위 (시가총액)
     acquisition_method: str | None = None  # '장내매수' | '신탁' | 기타
-    trade_type: str | None = None          # '매수' | '매도' (임원공시)
+    trade_type: str | None = None  # '매수' | '매도' (임원공시)
     stake_change_pct: float | None = None  # 지분율 변동 %
     is_ceo: bool = False
     is_largest_shareholder: bool = False
@@ -102,19 +103,19 @@ def score_with_context(report_name: str, ctx: ScoringContext) -> ScoringResult:
 
 # SIGNALS.md 2.1 해외 대응 — 8-K Item 번호별
 EDGAR_ITEM_WEIGHTS: dict[str, tuple[int, Direction]] = {
-    "1.01": (75, "positive"),   # Material Definitive Agreement (신규 계약)
-    "1.02": (75, "negative"),   # Termination of Material Agreement
-    "2.01": (85, "mixed"),      # Completion of Acquisition/Disposition
-    "2.02": (80, "mixed"),      # Results of Operations (실적 발표)
-    "2.06": (95, "negative"),   # Material Impairments
-    "3.01": (85, "negative"),   # Delisting / Failure to Satisfy Listing Rule
-    "3.02": (75, "mixed"),      # Unregistered Sales of Equity
-    "4.01": (90, "negative"),   # Changes in Registrant's Certifying Accountant
-    "4.02": (90, "negative"),   # Non-reliance on Previously Issued Financials
-    "5.02": (70, "mixed"),      # Departure / Appointment of Directors or Officers
-    "5.07": (50, "neutral"),    # Submission of Matters to a Vote
-    "7.01": (60, "neutral"),    # Regulation FD Disclosure
-    "8.01": (60, "neutral"),    # Other Events
+    "1.01": (75, "positive"),  # Material Definitive Agreement (신규 계약)
+    "1.02": (75, "negative"),  # Termination of Material Agreement
+    "2.01": (85, "mixed"),  # Completion of Acquisition/Disposition
+    "2.02": (80, "mixed"),  # Results of Operations (실적 발표)
+    "2.06": (95, "negative"),  # Material Impairments
+    "3.01": (85, "negative"),  # Delisting / Failure to Satisfy Listing Rule
+    "3.02": (75, "mixed"),  # Unregistered Sales of Equity
+    "4.01": (90, "negative"),  # Changes in Registrant's Certifying Accountant
+    "4.02": (90, "negative"),  # Non-reliance on Previously Issued Financials
+    "5.02": (70, "mixed"),  # Departure / Appointment of Directors or Officers
+    "5.07": (50, "neutral"),  # Submission of Matters to a Vote
+    "7.01": (60, "neutral"),  # Regulation FD Disclosure
+    "8.01": (60, "neutral"),  # Other Events
 }
 
 
@@ -147,6 +148,9 @@ def score_edgar(*, form_type: str, items: str) -> tuple[int, Direction]:
 
     - Form 4: 기본 70, mixed (실제 매수/매도 구분은 별도 파싱 필요)
     - 8-K: Item 번호 우선 매칭, 매칭 실패 시 기본 70
+    - SC 13D: 행동주의 지분 취득 — 85, positive
+    - SC 13G: 패시브 5%+ 보유 신고 — 70, mixed
+    - 13F-HR: 기관 분기 보유 변동 — 65, neutral
     - 기타 (10-K, 10-Q 등): 45, neutral
     """
     if form_type == "4":
@@ -158,4 +162,67 @@ def score_edgar(*, form_type: str, items: str) -> tuple[int, Direction]:
                 return score, direction
         return 70, "neutral"
 
+    # 기관·구루 보유 변동 (form_type 은 'SC 13D' 등 공백 포함 그대로 들어옴)
+    if form_type.startswith("SC 13D"):
+        return 85, "positive"
+    if form_type.startswith("SC 13G"):
+        return 70, "mixed"
+    if form_type.startswith("13F"):
+        return 65, "neutral"
+
     return 45, "neutral"
+
+
+# 보도자료 와이어 제목 키워드 → 점수 (1차 소스라 뉴스 매체보다 높게)
+_WIRE_KEYWORDS: list[tuple[tuple[str, ...], int, Direction]] = [
+    (("acqui", "merger", "to acquire", "buyout", "takeover"), 85, "mixed"),
+    (
+        (
+            "earnings",
+            "quarterly results",
+            "reports q",
+            "fourth quarter",
+            "first quarter",
+            "second quarter",
+            "third quarter",
+            "full year results",
+        ),
+        80,
+        "mixed",
+    ),
+    (
+        ("contract", "awarded", "wins", "selected", "partnership", "agreement", "collaboration"),
+        78,
+        "positive",
+    ),
+    (("fda", "approval", "clearance", "phase 3", "phase iii", "clinical"), 80, "positive"),
+    (("guidance", "raises", "lifts outlook", "upgrades"), 76, "positive"),
+    (("dividend", "buyback", "repurchase", "share repurchase"), 72, "positive"),
+    (
+        (
+            "bankrupt",
+            "chapter 11",
+            "delist",
+            "lawsuit",
+            "investigation",
+            "recall",
+            "cuts guidance",
+            "warns",
+        ),
+        78,
+        "negative",
+    ),
+]
+
+
+def score_wire(title: str) -> tuple[int, Direction]:
+    """보도자료 와이어(Business Wire·GlobeNewswire·PR Newswire) 제목 기반 점수.
+
+    기업이 기자보다 먼저 올리는 1차 공시성 자료라 일반 뉴스 매체(42~65)보다 높게 잡는다.
+    실적·계약·M&A·FDA 키워드 매칭, 매칭 실패 시 기본 55.
+    """
+    low = title.lower()
+    for keywords, score, direction in _WIRE_KEYWORDS:
+        if any(k in low for k in keywords):
+            return score, direction
+    return 55, "neutral"

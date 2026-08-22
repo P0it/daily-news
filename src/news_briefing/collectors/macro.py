@@ -2,6 +2,7 @@
 
 LLM 호출 없음. 실패해도 빈 리스트를 반환해 파이프라인을 중단하지 않는다.
 """
+
 from __future__ import annotations
 
 import logging
@@ -12,21 +13,21 @@ log = logging.getLogger(__name__)
 # (ticker, display_name, currency, group)
 _TARGETS: list[tuple[str, str, str, str]] = [
     # 미국 증시
-    ("^GSPC", "S&P 500",      "USD", "us_equity"),
-    ("^IXIC", "NASDAQ",       "USD", "us_equity"),
-    ("^DJI",  "DOW",          "USD", "us_equity"),
+    ("^GSPC", "S&P 500", "USD", "us_equity"),
+    ("^IXIC", "NASDAQ", "USD", "us_equity"),
+    ("^DJI", "DOW", "USD", "us_equity"),
     # 국내 증시
-    ("^KS11", "KOSPI",        "KRW", "kr_equity"),
-    ("^KQ11", "KOSDAQ",       "KRW", "kr_equity"),
+    ("^KS11", "KOSPI", "KRW", "kr_equity"),
+    ("^KQ11", "KOSDAQ", "KRW", "kr_equity"),
     # 환율
-    ("KRW=X", "USD/KRW",      "KRW", "fx"),
+    ("KRW=X", "USD/KRW", "KRW", "fx"),
     # 원자재
-    ("CL=F",  "WTI 원유",      "USD", "commodity"),
-    ("GC=F",  "금",            "USD", "commodity"),
+    ("CL=F", "WTI 원유", "USD", "commodity"),
+    ("GC=F", "금", "USD", "commodity"),
     # 채권 (수익률, %)
-    ("^TNX",  "미 10Y 국채",   "%",   "bond"),
+    ("^TNX", "미 10Y 국채", "%", "bond"),
     # 공포 지수
-    ("^VIX",  "VIX",          "",    "volatility"),
+    ("^VIX", "VIX", "", "volatility"),
 ]
 
 
@@ -35,10 +36,10 @@ class MacroIndex:
     symbol: str
     ticker: str
     close: float
-    change: float      # close - prev_close
+    change: float  # close - prev_close
     change_pct: float  # % 변화율 (소수점 2자리)
     currency: str
-    group: str         # us_equity / kr_equity / fx / commodity / bond / volatility
+    group: str  # us_equity / kr_equity / fx / commodity / bond / volatility
 
 
 def fetch_macro() -> list[MacroIndex]:

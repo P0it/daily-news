@@ -2,32 +2,81 @@ export interface Briefing {
   date: string
   generatedAt: string
   version: number
-  hero: SignalItem | null
   tabs: {
-    ai?: AiTab // Week 5b — default tab (DECISIONS #13)
-    current: CurrentTab
     economy: EconomyTab
   }
   glossary?: Record<string, GlossaryEntry>
 }
 
-export interface AiTab {
-  domestic: NewsItem[]
-  foreign: NewsItem[]
-}
-
-export interface CurrentTab {
-  politics: NewsItem[]
-  society: NewsItem[]
-  international: NewsItem[]
-  tech: NewsItem[]
-}
-
+// 종목추천 전용 스키마(v2): 지수·리서치·ETF 보조 맥락 + picks(hotIssues)
 export interface EconomyTab {
   indices: MarketIndex[]
-  signals: SignalItem[]
-  news: NewsItem[]
+  research?: ResearchReport[]
+  etf?: EtfSnapshot[]
   hotIssues?: { domestic: HotIssue[]; foreign: HotIssue[] }
+  // 관찰 리스트 — 해당 scope 픽이 0인 날만 채워진다(보조 참고).
+  watchlist?: { domestic: WatchItem[]; foreign: WatchItem[] }
+  // 급상승 종목 — 거래대금 급증(웹 전용). 국내 전용이라 foreign 은 항상 빈 배열.
+  surge?: { domestic: SurgeItem[]; foreign: SurgeItem[] }
+}
+
+// 급상승 종목 — 거래대금 급증은 촉매가 아니라 시장 반응. picks 와 분리해 표시.
+export interface SurgeItem {
+  code: string
+  name: string
+  market: string          // KOSPI | KOSDAQ
+  ticker: string          // 192250.KQ 형태
+  close: number
+  changePct: number
+  value: number           // 당일 거래대금 (원)
+  valueMultiple: number   // 직전 평균 거래대금 대비 배수
+  marketCap: number
+  disclosures: string[]   // 같은 기간 DART 공시 제목 (없으면 빈 배열)
+}
+
+// 관찰 항목 — 강한 촉매 픽엔 못 들었지만 지켜볼 만한 그날의 공시.
+export interface WatchItem {
+  company: string
+  code: string | null
+  title: string
+  score: number
+  direction: Direction
+  source: string
+  url: string | null
+  // 낙수효과 수혜주(추론) — 이 사건으로 반사이익을 보는 별도 기업. 저컨빅션.
+  beneficiaries?: Beneficiary[]
+}
+
+export interface Beneficiary {
+  name: string
+  code: string | null
+  reason: string
+  confidence: 'low' | 'medium'
+}
+
+export interface ResearchReport {
+  id: string
+  company: string
+  companyCode: string | null
+  firm: string
+  reportTitle: string
+  targetPrice: number
+  targetPriceChange: number
+  targetPricePct: number
+  tpDirection: string
+  direction: Direction
+  score: number
+  url: string
+  time: string
+}
+
+export interface EtfSnapshot {
+  code: string
+  name: string
+  theme: string
+  close: number
+  change: number
+  changePct: number
 }
 
 // Scope 타입 재export — 컴포넌트들이 공통 사용
@@ -64,32 +113,6 @@ export interface SignalItem {
   priceLead?: number         // 시그널 전 5거래일 수익률
 }
 
-export type NewsCategory =
-  | 'stock'
-  | 'politics'
-  | 'society'
-  | 'international'
-  | 'tech'
-  | 'ai'
-
-export interface NewsItem {
-  id: string
-  source: string
-  /** Google News aggregator 의 실제 원문 언론사명 (Week 5a) */
-  publisher?: string
-  title: string
-  /** 해외 AI 뉴스 제목이 번역된 경우 원문 (Week 5b) */
-  titleOriginal?: string | null
-  summary: string
-  url: string
-  thumbnail: string | null
-  time: string
-  scope: 'domestic' | 'foreign'
-  category?: NewsCategory
-  glossaryTermId: string | null
-  curationScore: number
-}
-
 export interface MarketIndex {
   name: string
   value: string
@@ -116,6 +139,12 @@ export interface TickerPick {
   consensus_risk?: 'low' | 'medium' | 'high'
   related_etf?: RelatedEtf | null   // 종목을 많이 담은 동일 시장 ETF 1개 (해외 종목→해외 ETF, 국내 종목→국내 ETF)
   domestic: DomesticEtf | DomesticEtf[] | null
+  /** 사실 검증 결과 — 'review'면 티커 형식·연결고리 추가 확인 필요 */
+  verifyStatus?: 'ok' | 'review'
+  /** review 사유 — 왜 추가 확인이 필요한지 한 문장 */
+  verifyNote?: string
+  /** 실존 양성 확인 여부 (FMP·yfinance·DB 중 하나라도 확인) — 보강용 */
+  tickerConfirmed?: boolean
 }
 
 export interface HotIssue {
@@ -154,4 +183,45 @@ export interface PickRecord {
   currentPrice: number | null
   currentPriceAt: string | null
   changePct: number | null
+}
+
+// ── 발굴(Discovery) — 펀더멘털 정량 스크린 + LLM 리서치 ────────────────────────
+
+export interface DiscoveryMetrics {
+  trailingPe: number | null
+  forwardPe: number | null
+  priceToBook: number | null
+  peg: number | null
+  evToEbitda: number | null
+  roe: number | null
+  profitMargin: number | null
+  operatingMargin: number | null
+  debtToEquity: number | null
+  revenueGrowth: number | null
+  earningsGrowth: number | null
+}
+
+export interface DiscoveryItem {
+  ticker: string
+  name: string | null
+  scope: 'us' | 'kospi'
+  sector: string | null
+  composite: number // 종합 점수 0~100
+  valueScore: number | null
+  qualityScore: number | null
+  growthScore: number | null
+  highlights: string[] // 예: ["저평가", "성장"]
+  metrics: DiscoveryMetrics
+  thesis: string | null
+  whyUndiscovered: string | null
+  keyRisks: string | null
+  confirmCatalysts: string | null
+  valuationNote: string | null
+  relatedEtf: RelatedEtf | null // 미국 종목의 ISA·연금용 국내 추종 ETF
+}
+
+export interface Discovery {
+  generatedAt: string
+  us: DiscoveryItem[]
+  kospi: DiscoveryItem[]
 }

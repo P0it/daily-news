@@ -89,13 +89,9 @@ def test_ensure_glossary_falls_back_to_llm_for_unseeded_term(
         del TERM_CATALOG["_test_term"]
 
 
-def test_ensure_glossary_returns_cached_without_llm(
-    memory_db: sqlite3.Connection, mocker
-) -> None:
+def test_ensure_glossary_returns_cached_without_llm(memory_db: sqlite3.Connection, mocker) -> None:
     init_schema(memory_db)
-    mock_llm = mocker.patch(
-        "news_briefing.analysis.glossary._generate_explanation_via_llm"
-    )
+    mock_llm = mocker.patch("news_briefing.analysis.glossary._generate_explanation_via_llm")
     ensure_glossary_entry(memory_db, "self_stock_buy", lang="ko")
     ensure_glossary_entry(memory_db, "self_stock_buy", lang="ko")
     assert mock_llm.call_count == 0

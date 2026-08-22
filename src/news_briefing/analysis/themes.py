@@ -2,6 +2,7 @@
 
 호출 비용 큼 — 자동 배치 아님. 수동 CLI (`themes refresh <theme_id>`) 전용.
 """
+
 from __future__ import annotations
 
 import json
@@ -26,21 +27,21 @@ DECOMPOSE_PROMPT = (
     "출력은 JSON 한 덩어리로. 형식:\n"
     "{{\n"
     '  "layers": [\n'
-    '    {{\n'
+    "    {{\n"
     '      "name": "레이어명",\n'
     '      "description": "이 레이어가 무엇이고 왜 이 테마의 핵심 부품/서비스인지",\n'
     '      "order": 1,\n'
     '      "discovery_difficulty": "1차(명백)/2차(추론필요)/3차(비연속적 연결)"\n'
-    '    }},\n'
+    "    }},\n"
     "    ...\n"
     "  ],\n"
     '  "hidden_beneficiaries": [\n'
-    '    {{\n'
+    "    {{\n"
     '      "company": "기업명",\n'
     '      "reason": "왜 아직 주목받지 못했는지 — 애널리스트 커버리지 부족·소형주·간접 수혜 등",\n'
     '      "connection": "이 테마와 어떻게 연결되는지 2문장",\n'
     '      "risk": "연결 논리가 틀릴 수 있는 이유"\n'
-    '    }}\n'
+    "    }}\n"
     "  ],\n"
     '  "caveats": "밸류체인 분해 시 유의사항 1~2줄"\n'
     "}}\n\n"
@@ -92,14 +93,10 @@ def decompose_theme(theme_name: str) -> dict | None:
         return None
 
 
-def generate_positioning(
-    *, company_name: str, ticker: str, layer: str
-) -> str | None:
+def generate_positioning(*, company_name: str, ticker: str, layer: str) -> str | None:
     try:
         return _call_claude(
-            POSITIONING_PROMPT.format(
-                company_name=company_name, ticker=ticker, layer=layer
-            ),
+            POSITIONING_PROMPT.format(company_name=company_name, ticker=ticker, layer=layer),
             timeout=45,
         ).strip()
     except Exception as e:

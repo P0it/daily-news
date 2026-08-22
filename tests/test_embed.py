@@ -11,9 +11,7 @@ def test_embed_ollama_success(mocker) -> None:
     mock_resp = MagicMock()
     mock_resp.status_code = 200
     mock_resp.json.return_value = {"embedding": [0.1, 0.2, 0.3]}
-    mocker.patch(
-        "news_briefing.analysis.embed.requests.post", return_value=mock_resp
-    )
+    mocker.patch("news_briefing.analysis.embed.requests.post", return_value=mock_resp)
     v = embed_ollama("hello", model="nomic-embed-text")
     assert v is not None
     np.testing.assert_allclose(v, [0.1, 0.2, 0.3])
@@ -30,9 +28,7 @@ def test_embed_ollama_failure_returns_none(mocker) -> None:
 def test_embed_ollama_non_200_returns_none(mocker) -> None:
     mock_resp = MagicMock()
     mock_resp.status_code = 500
-    mocker.patch(
-        "news_briefing.analysis.embed.requests.post", return_value=mock_resp
-    )
+    mocker.patch("news_briefing.analysis.embed.requests.post", return_value=mock_resp)
     assert embed_ollama("x", model="any") is None
 
 

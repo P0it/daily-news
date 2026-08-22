@@ -3,6 +3,7 @@
 KRX 공식 API는 세션 인증이 필요해 불안정하므로 yfinance 를 사용한다.
 주요 테마별 대표 ETF를 수집해 자금 흐름 파악에 활용한다. LLM 호출 없음.
 """
+
 from __future__ import annotations
 
 import logging
@@ -14,36 +15,36 @@ log = logging.getLogger(__name__)
 # 테마별 대표 ETF — 섹터 편중 없이 전체 시장 커버
 _ETF_TARGETS: list[tuple[str, str, str]] = [
     # 시장 대표
-    ("069500.KS", "KODEX 200",          "대형주"),
-    ("102110.KS", "TIGER 200",          "대형주"),
-    ("229200.KS", "KODEX KOSDAQ150",    "코스닥"),
+    ("069500.KS", "KODEX 200", "대형주"),
+    ("102110.KS", "TIGER 200", "대형주"),
+    ("229200.KS", "KODEX KOSDAQ150", "코스닥"),
     # 미국 증시
-    ("261220.KS", "KODEX 미국S&P500",   "미국주식"),
+    ("261220.KS", "KODEX 미국S&P500", "미국주식"),
     ("133690.KS", "TIGER 미국나스닥100", "미국주식"),
     # 채권·안전자산
-    ("148070.KS", "KOSEF 국고채10년",   "채권"),
-    ("132030.KS", "KODEX 골드선물",     "원자재"),
+    ("148070.KS", "KOSEF 국고채10년", "채권"),
+    ("132030.KS", "KODEX 골드선물", "원자재"),
     # 성장 테마
-    ("091160.KS", "KODEX 반도체",       "반도체"),
-    ("305720.KS", "KODEX 2차전지산업",  "2차전지"),
-    ("364980.KS", "TIGER Fn반도체TOP10","반도체"),
-    ("139220.KS", "TIGER 200 IT",       "IT"),
-    ("448290.KS", "TIGER 미국AI빅테크10","AI/빅테크"),
+    ("091160.KS", "KODEX 반도체", "반도체"),
+    ("305720.KS", "KODEX 2차전지산업", "2차전지"),
+    ("364980.KS", "TIGER Fn반도체TOP10", "반도체"),
+    ("139220.KS", "TIGER 200 IT", "IT"),
+    ("448290.KS", "TIGER 미국AI빅테크10", "AI/빅테크"),
     # 배당·인컴
-    ("280930.KS", "TIGER 코스피고배당",  "배당"),
+    ("280930.KS", "TIGER 코스피고배당", "배당"),
     # 금융·에너지
-    ("091170.KS", "KODEX 은행",         "금융"),
-    ("139270.KS", "TIGER 200 에너지화학","에너지"),
+    ("091170.KS", "KODEX 은행", "금융"),
+    ("139270.KS", "TIGER 200 에너지화학", "에너지"),
 ]
 
 
 @dataclass(frozen=True, slots=True)
 class ETFSnapshot:
-    code: str        # 종목코드 (069500 등)
-    name: str        # ETF명
-    theme: str       # 테마 분류
-    close: float     # 종가 (원)
-    change: float    # 전일대비 (원)
+    code: str  # 종목코드 (069500 등)
+    name: str  # ETF명
+    theme: str  # 테마 분류
+    close: float  # 종가 (원)
+    change: float  # 전일대비 (원)
     change_pct: float  # 등락률 (%)
 
 

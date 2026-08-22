@@ -47,9 +47,7 @@ def test_format_digest_filters_below_threshold() -> None:
         _item("사업보고서", score=55, direction="neutral"),
         _item("분기보고서", score=45, direction="neutral"),
     ]
-    text = format_digest(
-        date=datetime(2026, 4, 22), scored_signals=scored, news=[], min_score=60
-    )
+    text = format_digest(date=datetime(2026, 4, 22), scored_signals=scored, news=[], min_score=60)
     assert "사업보고서" not in text
     assert "분기보고서" not in text
     assert "조용한" in text or "없" in text  # 빈 상태 카피

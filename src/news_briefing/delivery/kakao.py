@@ -1,4 +1,5 @@
 """카카오톡 '나에게 보내기' 전송 + 토큰 관리 (DECISIONS #4, #10)."""
+
 from __future__ import annotations
 
 import json
@@ -33,9 +34,7 @@ def load_tokens(path: Path) -> KakaoTokens | None:
 
 
 def save_tokens(path: Path, tokens: KakaoTokens) -> None:
-    path.write_text(
-        json.dumps(asdict(tokens), ensure_ascii=False, indent=2), encoding="utf-8"
-    )
+    path.write_text(json.dumps(asdict(tokens), ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def refresh_access_token(rest_api_key: str, refresh_token: str) -> KakaoTokens | None:
@@ -74,9 +73,7 @@ def compose_text_template(title: str, url: str, button_title: str = "열기") ->
     }
 
 
-def send_text(
-    *, tokens: KakaoTokens, rest_api_key: str, payload: dict, timeout: int = 15
-) -> bool:
+def send_text(*, tokens: KakaoTokens, rest_api_key: str, payload: dict, timeout: int = 15) -> bool:
     try:
         resp = requests.post(
             KAKAO_SEND_URL,

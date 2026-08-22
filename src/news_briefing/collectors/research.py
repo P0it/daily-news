@@ -3,6 +3,7 @@
 리포트 제목의 키워드(상향/하향/신규)에서 목표주가 방향을 추출한다.
 목표주가 수치는 제공되지 않으므로 방향 시그널만 반환. LLM 호출 없음.
 """
+
 from __future__ import annotations
 
 import logging
@@ -128,7 +129,7 @@ def _parse_row(tds: list[Tag]) -> CollectedItem | None:
             extra={
                 "category": "research",
                 "firm": firm,
-                "targetPrice": 0,       # 목록에서 제공 안 됨
+                "targetPrice": 0,  # 목록에서 제공 안 됨
                 "targetPriceChange": 0,
                 "targetPricePct": 0.0,
                 "tpDirection": tp_direction,

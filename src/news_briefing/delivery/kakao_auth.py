@@ -10,6 +10,7 @@
   2. 카카오 로그인 ON, Redirect URI 등록: http://localhost:8080/callback
   3. 동의 항목 > 카카오톡 메시지 전송 (talk_message) '사용'
 """
+
 from __future__ import annotations
 
 import logging
@@ -40,9 +41,7 @@ class _CallbackHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header("Content-Type", "text/html; charset=utf-8")
             self.end_headers()
-            self.wfile.write(
-                "<h1>인증 완료</h1><p>이 창을 닫고 터미널로 돌아가세요.</p>".encode()
-            )
+            self.wfile.write("<h1>인증 완료</h1><p>이 창을 닫고 터미널로 돌아가세요.</p>".encode())
         else:
             self.send_response(404)
             self.end_headers()

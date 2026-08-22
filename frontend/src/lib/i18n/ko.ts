@@ -6,6 +6,7 @@ export interface Dict {
   'scope.all': string
   'scope.domestic': string
   'scope.foreign': string
+  'scope.discovery': string
   'scope.international': string
   'hero.today': string
   'signal.positive': string
@@ -41,6 +42,7 @@ export const ko: Dict = {
   'scope.all': '전체',
   'scope.domestic': '국내',
   'scope.foreign': '해외',
+  'scope.discovery': '발굴',
   'scope.international': '국제',
   'hero.today': '지금 가장 중요해요',
   'signal.positive': '긍정 시그널',

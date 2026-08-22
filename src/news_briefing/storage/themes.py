@@ -1,4 +1,5 @@
 """테마·밸류체인 DB CRUD + seed loader (ARCHITECTURE.md 5.4)."""
+
 from __future__ import annotations
 
 import json
@@ -35,12 +36,14 @@ class CompanyInLayer:
 
 def upsert_theme(conn: Connection, theme: Theme) -> None:
     now = datetime.now(UTC).isoformat()
-    conn.table("themes").upsert({
-        "theme_id": theme.theme_id,
-        "name_ko": theme.name_ko,
-        "description": theme.description,
-        "updated_at": now,
-    }).execute()
+    conn.table("themes").upsert(
+        {
+            "theme_id": theme.theme_id,
+            "name_ko": theme.name_ko,
+            "description": theme.description,
+            "updated_at": now,
+        }
+    ).execute()
 
 
 def get_theme(conn: Connection, theme_id: str) -> Theme | None:
@@ -89,22 +92,21 @@ def list_layers(conn: Connection, theme_id: str) -> list[ValueLayer]:
         .order("layer_id")
         .execute()
     )
-    return [
-        ValueLayer(d["layer_id"], d["theme_id"], d["name"], d["description"])
-        for d in r.data
-    ]
+    return [ValueLayer(d["layer_id"], d["theme_id"], d["name"], d["description"]) for d in r.data]
 
 
 def upsert_company(conn: Connection, company: CompanyInLayer) -> None:
     now = datetime.now(UTC).isoformat()
-    conn.table("companies_in_layer").upsert({
-        "layer_id": company.layer_id,
-        "ticker": company.ticker,
-        "company_name": company.company_name,
-        "positioning": company.positioning,
-        "verified": 1 if company.verified else 0,
-        "updated_at": now,
-    }).execute()
+    conn.table("companies_in_layer").upsert(
+        {
+            "layer_id": company.layer_id,
+            "ticker": company.ticker,
+            "company_name": company.company_name,
+            "positioning": company.positioning,
+            "verified": 1 if company.verified else 0,
+            "updated_at": now,
+        }
+    ).execute()
 
 
 def list_companies(conn: Connection, layer_id: int) -> list[CompanyInLayer]:

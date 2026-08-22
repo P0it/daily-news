@@ -49,9 +49,7 @@ def test_generate_positioning_calls_llm(mocker) -> None:
         "news_briefing.analysis.themes._call_claude",
         return_value="하모닉 감속기 국내 3위 포지션이에요.",
     )
-    result = generate_positioning(
-        company_name="에스피지", ticker="058610", layer="액추에이터"
-    )
+    result = generate_positioning(company_name="에스피지", ticker="058610", layer="액추에이터")
     assert "하모닉" in result
 
 
@@ -60,9 +58,7 @@ def test_generate_positioning_returns_none_on_failure(mocker) -> None:
         "news_briefing.analysis.themes._call_claude",
         side_effect=RuntimeError("boom"),
     )
-    assert generate_positioning(
-        company_name="x", ticker="000000", layer="y"
-    ) is None
+    assert generate_positioning(company_name="x", ticker="000000", layer="y") is None
 
 
 def test_refresh_theme_layers_writes_to_db(memory_db, mocker) -> None:
@@ -85,9 +81,7 @@ def test_refresh_theme_layers_writes_to_db(memory_db, mocker) -> None:
     assert names == {"액추에이터", "제어 AI"}
 
 
-def test_refresh_theme_layers_returns_zero_on_llm_failure(
-    memory_db, mocker
-) -> None:
+def test_refresh_theme_layers_returns_zero_on_llm_failure(memory_db, mocker) -> None:
     init_schema(memory_db)
     upsert_theme(memory_db, Theme("x", "X"))
     mocker.patch(

@@ -39,7 +39,9 @@ def test_generate_essay_llm_failure_returns_none(mocker) -> None:
         side_effect=RuntimeError("LLM down"),
     )
     r = WeeklyReport(
-        "x", "a", "b",
+        "x",
+        "a",
+        "b",
         top_signals=[{"company": "A", "headline": "h", "score": 70}],
         trending_themes=[],
     )
@@ -48,10 +50,10 @@ def test_generate_essay_llm_failure_returns_none(mocker) -> None:
 
 def test_render_includes_essay_when_provided() -> None:
     r = WeeklyReport(
-        "2026-W17", "a", "b",
-        top_signals=[
-            {"company": "X", "headline": "Y", "score": 70, "url": "u"}
-        ],
+        "2026-W17",
+        "a",
+        "b",
+        top_signals=[{"company": "X", "headline": "Y", "score": 70, "url": "u"}],
         trending_themes=["robotics"],
     )
     out = render_weekly_html(r, essay="첫 문단\n\n두 번째 문단")
@@ -63,7 +65,9 @@ def test_render_includes_essay_when_provided() -> None:
 
 def test_render_without_essay_has_no_essay_section() -> None:
     r = WeeklyReport(
-        "2026-W17", "a", "b",
+        "2026-W17",
+        "a",
+        "b",
         top_signals=[{"company": "X", "headline": "Y", "score": 70, "url": "u"}],
         trending_themes=[],
     )
@@ -141,10 +145,10 @@ def test_collect_weekly_extracts_trending_themes(tmp_path: Path) -> None:
 
 def test_write_weekly_still_works_with_essay(tmp_path: Path) -> None:
     r = WeeklyReport(
-        "2026-W17", "2026-04-19", "2026-04-25",
-        top_signals=[
-            {"company": "삼성", "headline": "자사주", "score": 85, "url": "u"}
-        ],
+        "2026-W17",
+        "2026-04-19",
+        "2026-04-25",
+        top_signals=[{"company": "삼성", "headline": "자사주", "score": 85, "url": "u"}],
         trending_themes=[],
     )
     path = write_weekly(reports_dir=tmp_path, report=r, essay="에세이 내용")

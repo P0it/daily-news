@@ -3,6 +3,7 @@
 User-Agent 필수 (SEC policy).
 https://www.sec.gov/os/accessing-edgar-data
 """
+
 from __future__ import annotations
 
 import logging
@@ -125,6 +126,4 @@ def fetch_edgar_8k(*, user_agent: str, count: int = 40) -> list[CollectedItem]:
 
 def fetch_all_edgar(user_agent: str) -> list[CollectedItem]:
     """EDGAR Form 4 + 8-K 동시 수집 (한 쪽 실패해도 다른 쪽 진행)."""
-    return fetch_edgar_form4(user_agent=user_agent) + fetch_edgar_8k(
-        user_agent=user_agent
-    )
+    return fetch_edgar_form4(user_agent=user_agent) + fetch_edgar_8k(user_agent=user_agent)

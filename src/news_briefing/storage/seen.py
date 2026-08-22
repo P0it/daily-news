@@ -1,4 +1,5 @@
 """중복 알림 방지 (seen 테이블 인터페이스)."""
+
 from __future__ import annotations
 
 from datetime import UTC, datetime
@@ -23,19 +24,16 @@ def mark_seen(conn: Connection, source: str, ext_id: str) -> None:
     conn.table("seen").upsert({"source": source, "ext_id": ext_id, "seen_at": now}).execute()
 
 
-def filter_unseen(
-    conn: Connection, items: list[tuple[str, str]]
-) -> list[tuple[str, str]]:
+def filter_unseen(conn: Connection, items: list[tuple[str, str]]) -> list[tuple[str, str]]:
     return [(s, i) for s, i in items if not is_seen(conn, s, i)]
 
 
-def batch_filter_unseen(
-    conn: Connection, items: list[tuple[str, str]]
-) -> list[tuple[str, str]]:
+def batch_filter_unseen(conn: Connection, items: list[tuple[str, str]]) -> list[tuple[str, str]]:
     """source별로 묶어서 한 번에 조회 — N*2 요청을 source_count*1 요청으로 줄임."""
     if not items:
         return []
     from collections import defaultdict
+
     by_source: dict[str, list[str]] = defaultdict(list)
     for source, ext_id in items:
         by_source[source].append(ext_id)

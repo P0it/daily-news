@@ -9,13 +9,12 @@ import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from contextlib import contextmanager
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 
 from news_briefing.analysis.attention_phase import build_phase_map
-from news_briefing.analysis.curation import curation_score
-from news_briefing.analysis.glossary import detect_term, ensure_glossary_entry
 from news_briefing.analysis.hot_issues import (
+    domestic_news_weight,
     analyze_hot_issues,
     analyze_hot_issues_domestic,
     foreign_news_weight,
@@ -28,14 +27,21 @@ from news_briefing.analysis.llm import (
     summarize_batch,
     translate_batch,
 )
-from news_briefing.analysis.scoring import score_consensus, score_edgar, score_report
+from news_briefing.analysis.scoring import score_consensus, score_edgar, score_report, score_wire
+from news_briefing.analysis.surge import attach_disclosures, find_surges, surge_prompt_lines
+from news_briefing.collectors.analyst_ratings import fetch_analyst_ratings
 from news_briefing.collectors.base import CollectedItem
+from news_briefing.collectors.congress_trades import fetch_congress_trades
 from news_briefing.collectors.dart import fetch_dart_list
 from news_briefing.collectors.edgar import fetch_all_edgar
+from news_briefing.collectors.fda_approvals import fetch_fda_approvals
 from news_briefing.collectors.gov_contracts import fetch_gov_contracts
 from news_briefing.collectors.insider_cluster import fetch_insider_clusters
-from news_briefing.collectors.krx_etf import ETFSnapshot, fetch_krx_etf
+from news_briefing.collectors.institutional_13f import fetch_institutional_13f
+from news_briefing.collectors.krx_etf import fetch_krx_etf
+from news_briefing.collectors.krx_market import fetch_recent_trading_days
 from news_briefing.collectors.macro import fetch_macro
+from news_briefing.collectors.press_wire import fetch_press_wires
 from news_briefing.collectors.research import fetch_research_reports
 from news_briefing.collectors.rss import fetch_all_rss
 from news_briefing.config import PROJECT_ROOT, Config
@@ -43,7 +49,6 @@ from news_briefing.delivery.digest import format_digest, write_digest
 from news_briefing.delivery.discord import send_message as discord_send
 from news_briefing.delivery.json_builder import (
     build_briefing_json,
-    select_displayed_current,
     write_briefing,
 )
 from news_briefing.storage.db import get_client
@@ -53,6 +58,21 @@ from news_briefing.storage.tickers import TickerRow, upsert_ticker
 log = logging.getLogger(__name__)
 
 MIN_SIGNAL_SCORE = 60  # SIGNALS.md 2.2
+
+# 영어로 발행되는 해외 RSS 소스 — 해외 picks 보조 입력 판별용
+_ENGLISH_SOURCES = frozenset(
+    {
+        "rss:bbc-world",
+        "rss:bbc-business",
+        "rss:ft-markets",
+        "rss:marketwatch",
+        "rss:gnews-world-en",
+        "rss:gnews-business-en",
+        "rss:gnews-tech-en",
+        "rss:gnews-us-stocks-en",
+        "rss:gnews-us-markets-en",
+    }
+)
 
 
 @contextmanager
@@ -69,9 +89,6 @@ def _timed(label: str):
 class MorningResult:
     new_items: int
     signal_count: int
-    news_count: int
-    current_count: int  # 시사 뉴스 수집 건수 (Week 3)
-    ai_count: int  # AI 뉴스 수집 건수 (Week 5b)
     picks_domestic: int
     picks_foreign: int
     digest_path: Path
@@ -87,12 +104,38 @@ def _send_discord(cfg: Config, text: str) -> bool:
     return discord_send(cfg.discord_webhook_url, text)
 
 
+def _trigger_deploy(cfg: Config) -> bool:
+    """Vercel Deploy Hook 을 호출해 배포 서버가 DB에서 다시 빌드하게 한다.
+
+    DB(원본)는 이미 갱신됐으므로, 어느 생성 머신이든 이 신호만 보내면 배포본이
+    최신화된다. 훅 URL 미설정 시 스킵(로컬 전용 머신 등)."""
+    import requests  # noqa: PLC0415
+
+    if not cfg.vercel_deploy_hook_url:
+        log.info("VERCEL_DEPLOY_HOOK_URL 미설정, 배포 트리거 스킵.")
+        return False
+    try:
+        resp = requests.post(cfg.vercel_deploy_hook_url, timeout=15)
+        if resp.status_code in (200, 201):
+            return True
+        log.warning("deploy hook 응답 status=%s body=%s", resp.status_code, resp.text[:200])
+        return False
+    except Exception as e:
+        log.error("deploy hook 예외: %s", e)
+        return False
+
+
 def run_morning(
-    cfg: Config, *, dry_run: bool = False, now: datetime | None = None
+    cfg: Config,
+    *,
+    dry_run: bool = False,
+    notify: bool = True,
+    now: datetime | None = None,
 ) -> MorningResult:
+    # notify=False 는 배포는 트리거하되 Discord 알림만 건너뛴다(조용한 재배포용).
     now = now or datetime.now()
     t_total = time.perf_counter()
-    log.info("morning start date=%s dry_run=%s", now.date(), dry_run)
+    log.info("morning start date=%s dry_run=%s notify=%s", now.date(), dry_run, notify)
 
     # launchd 는 로그인 셸 PATH 를 물려받지 않아 `claude` 를 못 찾는 사고가 있었다.
     # 2분 넘게 수집·분석을 돌린 뒤에야 알게 되는 대신 시작 시점에 크게 남긴다.
@@ -119,9 +162,14 @@ def run_morning(
             )
 
         # 1. 수집 (DART + RSS + EDGAR + 거시지표 + 리서치 + KRX ETF)
+        # 아침 6시 브리핑은 '직전 거래일' 공시를 분석해야 한다. DART에 당일 공시는
+        # 새벽엔 거의 안 올라오므로(행정성 몇 건뿐), 4일 룩백 윈도우로 직전 거래일을
+        # 포함시킨다. 주말·공휴일은 윈도우가 자동 커버하고, 과거 실행분 중복은
+        # seen 테이블 dedup이 거른다. (해외 EDGAR 등은 '최신 N건' 롤링이라 무관)
         date_key = now.strftime("%Y%m%d")
+        dart_bgn = (now - timedelta(days=3)).strftime("%Y%m%d")
         with _timed("1. collect DART"):
-            disclosures = fetch_dart_list(cfg.dart_api_key, date_key)
+            disclosures = fetch_dart_list(cfg.dart_api_key, dart_bgn, end_date=date_key)
         with _timed("1. collect RSS"):
             news = fetch_all_rss()
         with _timed("1. collect EDGAR"):
@@ -132,6 +180,20 @@ def run_morning(
             research_raw = fetch_research_reports()
         with _timed("1. collect KRX ETF"):
             etf_snapshots = fetch_krx_etf()
+
+        # 1b. KRX 급상승 — 거래대금 급증 + 같은 기간 DART 공시 대조.
+        #   급등은 촉매가 아니라 시장 반응이라 picks 점수·선별엔 넣지 않는다(DECISIONS #17/#21).
+        #   웹 전용 표시 + 국내 픽 '왜 움직였나' 설명 색으로만 쓴다. 캐시 덕에 매일 신규
+        #   거래일 하나만 새로 받으므로 배치 비용이 크지 않다.
+        surges: list = []
+        with _timed("1b. KRX surge"):
+            try:
+                if cfg.krx_api_key:
+                    series = fetch_recent_trading_days(cfg.krx_api_key, days=6)
+                    surges = attach_disclosures(find_surges(series, top_n=15), disclosures)
+                    log.info("KRX 급상승 %d종목", len(surges))
+            except Exception as e:
+                log.warning("KRX 급상승 수집 실패 (건너뜀): %s", e)
 
         # 선행 지표 수집기 (실패해도 파이프라인 계속)
         gov_items: list = []
@@ -149,7 +211,56 @@ def run_morning(
             except Exception as e:
                 log.warning("insider_cluster 수집 실패 (건너뜀): %s", e)
 
-        all_items = disclosures + news + edgar_items + research_raw + gov_items + cluster_items
+        # 1차 소스 신규 채널 — 종목추천 신뢰도용 (실패해도 파이프라인 계속)
+        inst_items: list = []
+        with _timed("1. collect institutional_13f"):
+            try:
+                if cfg.edgar_user_agent:
+                    inst_items = fetch_institutional_13f(cfg.edgar_user_agent)
+            except Exception as e:
+                log.warning("institutional_13f 수집 실패 (건너뜀): %s", e)
+
+        congress_items: list = []
+        with _timed("1. collect congress_trades"):
+            try:
+                congress_items = fetch_congress_trades()
+            except Exception as e:
+                log.warning("congress_trades 수집 실패 (건너뜀): %s", e)
+
+        fda_items: list = []
+        with _timed("1. collect fda_approvals"):
+            try:
+                fda_items = fetch_fda_approvals()
+            except Exception as e:
+                log.warning("fda_approvals 수집 실패 (건너뜀): %s", e)
+
+        wire_items: list = []
+        with _timed("1. collect press_wire"):
+            try:
+                wire_items = fetch_press_wires()
+            except Exception as e:
+                log.warning("press_wire 수집 실패 (건너뜀): %s", e)
+
+        analyst_items: list = []
+        with _timed("1. collect analyst_ratings"):
+            try:
+                analyst_items = fetch_analyst_ratings(cfg.fmp_api_key)
+            except Exception as e:
+                log.warning("analyst_ratings 수집 실패 (건너뜀): %s", e)
+
+        all_items = (
+            disclosures
+            + news
+            + edgar_items
+            + research_raw
+            + gov_items
+            + cluster_items
+            + inst_items
+            + congress_items
+            + fda_items
+            + wire_items
+            + analyst_items
+        )
 
         # 2. 중복 제거 (배치 조회) + DART tickers 매핑 자동 수집
         with _timed("2. dedup + seen"):
@@ -157,7 +268,12 @@ def run_morning(
             new_items: list[CollectedItem] = [
                 i for i in all_items if (i.source, i.ext_id) in unseen_pairs
             ]
-            batch_mark_seen(conn, list(unseen_pairs))
+            # dry-run 은 seen 을 기록하지 않는다. 기록하면 재실행 때 방금 본 항목이
+            # 전부 '이미 봄'으로 걸러져 풀이 굶고(228→7건) 테스트가 자기오염된다.
+            if not dry_run:
+                batch_mark_seen(conn, list(unseen_pairs))
+            else:
+                log.info("2. dry-run: seen 미기록 (%d건)", len(unseen_pairs))
 
         log.info("2. new_items=%d (total=%d)", len(new_items), len(all_items))
 
@@ -177,79 +293,47 @@ def run_morning(
                             ),
                         )
 
-        # 3. 점수 + glossary term 감지 (DART + EDGAR 분기)
+        # 3. 점수 산정 (DART·EDGAR·와이어·pre_scored 분기)
         scored: list[tuple[CollectedItem, int, str]] = []
-        term_ids_by_id: dict[str, str] = {}
-        glossary_map: dict[str, dict] = {}
         for it in new_items:
             if it.kind != "disclosure":
                 continue
 
-            if it.source in ("gov_contracts", "edgar_cluster"):
-                # 선행 지표 수집기 — 수집 시점에 이미 점수 산정
-                s = int((it.extra or {}).get("pre_scored", 70))
-                d = "positive"
+            extra = it.extra or {}
+            if extra.get("pre_scored") is not None:
+                # 선행 지표·1차 소스 수집기 — 수집 시점에 이미 점수 산정
+                # (gov_contracts·edgar_cluster·edgar_13f·congress_trades·fda·analyst)
+                s = int(extra["pre_scored"])
+                d = extra.get("direction", "positive")
             elif it.source == "edgar":
-                form_type = (it.extra or {}).get("form_type", "")
-                items_str = (it.extra or {}).get("items", "")
+                form_type = extra.get("form_type", "")
+                items_str = extra.get("items", "")
                 s, d = score_edgar(form_type=form_type, items=items_str)
+            elif it.source.startswith("wire:"):
+                s, d = score_wire(it.title)
             else:
                 s, d = score_report(it.title)
             scored.append((it, s, d))
 
-            # glossary 는 국내 공시만 (EDGAR 해설은 Week 3+ 로 이관)
-            if it.source == "dart":
-                term_id = detect_term(it.title)
-                if term_id:
-                    term_ids_by_id[it.ext_id] = term_id
-                    if term_id not in glossary_map:
-                        entry = ensure_glossary_entry(conn, term_id, lang="ko")
-                        if entry:
-                            glossary_map[term_id] = {
-                                "shortLabel": entry.short_label,
-                                "explanation": entry.explanation,
-                                "direction": entry.signal_direction,
-                            }
-
-        # 4. 뉴스 카테고리별 분리 + 시사 큐레이션 + 시사 용어 감지
+        # 4. 뉴스 분리 — 표시하지 않고 picks 추론 보조 입력으로만 사용
         from news_briefing.collectors.rss import SOURCE_META
 
         stock_news_domestic: list[CollectedItem] = []
         stock_news_foreign: list[CollectedItem] = []
-        current_candidates: list[tuple[CollectedItem, int]] = []
-        ai_news: list[CollectedItem] = []
+        intl_news_foreign: list[CollectedItem] = []  # 영어권 국제 시사 — 해외 picks 입력
         for it in new_items:
             if it.kind != "news":
                 continue
             category = (it.extra or {}).get("category", "")
-            if category == "ai":
-                ai_news.append(it)
-            elif category == "stock" or category == "":
+            if category in ("stock", ""):
                 scope, _ = SOURCE_META.get(it.source, ("domestic", "stock"))
                 if scope == "foreign":
                     stock_news_foreign.append(it)
                 else:
                     stock_news_domestic.append(it)
-            elif category in ("politics", "society", "international", "tech"):
-                cs = curation_score(
-                    source=it.source,
-                    published_at=it.published_at,
-                    now=now,
-                    importance=1.0,
-                )
-                # 시사 용어 감지 (Week 3 F32)
-                cur_term = detect_term(it.title)
-                if cur_term:
-                    term_ids_by_id[it.ext_id] = cur_term
-                    if cur_term not in glossary_map:
-                        entry = ensure_glossary_entry(conn, cur_term, lang="ko")
-                        if entry:
-                            glossary_map[cur_term] = {
-                                "shortLabel": entry.short_label,
-                                "explanation": entry.explanation,
-                                "direction": entry.signal_direction,
-                            }
-                current_candidates.append((it, cs))
+            elif category == "international" and it.source in _ENGLISH_SOURCES:
+                intl_news_foreign.append(it)
+            # politics·society·tech·ai 는 종목추천과 무관 — 무시(표시 제거)
 
         # research 아이템 점수 산정 (신규 아이템만, category=="research" 분기)
         MIN_RESEARCH_SCORE = 60  # 유지(42)는 제외, 상향/하향/신규만 노출
@@ -265,122 +349,10 @@ def run_morning(
         research_scored.sort(key=lambda t: t[1], reverse=True)
         research_scored = research_scored[:15]  # 상위 15건만
 
-        # 경제 뉴스 15건: 국내 최대 10 + 해외 최대 5, 인터리브. 한쪽 부족하면 반대쪽이 메움
-        from itertools import zip_longest
-
-        dom_slice = stock_news_domestic[:10]
-        for_slice = stock_news_foreign[:5]
-        fresh_news: list[CollectedItem] = []
-        for d, f in zip_longest(dom_slice, for_slice):
-            if d is not None:
-                fresh_news.append(d)
-            if f is not None:
-                fresh_news.append(f)
-        # 15 미만이면 각 카테고리의 초과분으로 메움 (국내 우선)
-        overflow = stock_news_domestic[10:] + stock_news_foreign[5:]
-        fresh_news.extend(overflow[: max(0, 15 - len(fresh_news))])
-        fresh_news = fresh_news[:15]
-        # 경제 뉴스 + AI 국내 뉴스 요약 (배치)
-        news_summaries: dict[str, str] = {}
-        ai_title_translations: dict[str, str] = {}
-        from news_briefing.collectors.rss import SOURCE_META as _AI_META
-
-        # 영어로 발행되는 해외 RSS 소스 (번역 필요)
-        _ENGLISH_SOURCES = {
-            "rss:bbc-world",
-            "rss:bbc-business",
-            "rss:ft-markets",
-            "rss:marketwatch",
-            "rss:gnews-world-en",
-            "rss:gnews-business-en",
-            "rss:gnews-tech-en",
-            "rss:gnews-us-stocks-en",
-            "rss:gnews-us-markets-en",
-        }
-
-        ai_items_limited = ai_news[:40]
-        foreign_ai = [
-            (it.ext_id, it.title, it.body or "")
-            for it in ai_items_limited
-            if _AI_META.get(it.source, ("foreign",))[0] == "foreign"
-        ]
-        domestic_ai = [
-            (it.ext_id, it.title)
-            for it in ai_items_limited
-            if _AI_META.get(it.source, ("foreign",))[0] != "foreign"
-        ]
-
-        # fresh_news 중 영어 소스 → translate, 나머지 → summarize
-        fresh_news_en = [it for it in fresh_news if it.source in _ENGLISH_SOURCES]
-        fresh_news_ko = [it for it in fresh_news if it.source not in _ENGLISH_SOURCES]
-
-        def _apply_translations(translations: dict[str, tuple[str, str]]) -> None:
-            for ext_id, (title_ko, summary_ko) in translations.items():
-                if title_ko:
-                    ai_title_translations[ext_id] = title_ko
-                if summary_ko:
-                    news_summaries[ext_id] = summary_ko
-
-        # 경제 뉴스(국문) + AI 국내 뉴스 요약 → 한 배치
-        summarize_items = [(it.ext_id, it.title) for it in fresh_news_ko] + domestic_ai
-        if summarize_items:
-            with _timed(f"4. summarize_batch ({len(summarize_items)}건)"):
-                summaries = summarize_batch(
-                    conn,
-                    summarize_items,
-                    ollama_enabled=cfg.ollama_enabled,
-                    ollama_model=cfg.ollama_model,
-                )
-            news_summaries.update(summaries)
-
-        # 해외 영문 경제 뉴스 번역+요약
-        if fresh_news_en:
-            with _timed(f"4. translate_batch economy ({len(fresh_news_en)}건)"):
-                _apply_translations(
-                    translate_batch(
-                        conn,
-                        [(it.ext_id, it.title, it.body or "") for it in fresh_news_en],
-                        ollama_enabled=cfg.ollama_enabled,
-                        ollama_model=cfg.ollama_model,
-                    )
-                )
-
-        # 해외 AI 뉴스 번역+요약
-        if foreign_ai:
-            with _timed(f"4. translate_batch AI ({len(foreign_ai)}건)"):
-                _apply_translations(
-                    translate_batch(
-                        conn,
-                        foreign_ai,
-                        ollama_enabled=cfg.ollama_enabled,
-                        ollama_model=cfg.ollama_model,
-                    )
-                )
-
-        # 해외 영문 시사 뉴스 번역+요약 — 노출될 항목만 사전 선별해 번역
-        # (json_builder 와 동일 기준으로 노출분만 추림. 전량 번역 → 노출분 번역 최적화:
-        #  영문 시사 후보 수백 건 중 실제 노출은 섹션 cap 합 십여 건뿐이라 대부분이 낭비였다.)
-        displayed_current_ids = {it.ext_id for it in select_displayed_current(current_candidates)}
-        foreign_current_en = [
-            (it.ext_id, it.title, it.body or "")
-            for it, _ in current_candidates
-            if it.source in _ENGLISH_SOURCES and it.ext_id in displayed_current_ids
-        ]
-        if foreign_current_en:
-            with _timed(f"4. translate_batch current ({len(foreign_current_en)}건)"):
-                _apply_translations(
-                    translate_batch(
-                        conn,
-                        foreign_current_en,
-                        ollama_enabled=cfg.ollama_enabled,
-                        ollama_model=cfg.ollama_model,
-                    )
-                )
-
-        # 5. 디지스트 텍스트 백업 (Week 1 그대로)
+        # 5. 디지스트 텍스트 백업 (시그널 위주, 뉴스 제거)
         with _timed("5. digest write"):
             text = format_digest(
-                date=now, scored_signals=scored, news=fresh_news, min_score=MIN_SIGNAL_SCORE
+                date=now, scored_signals=scored, news=[], min_score=MIN_SIGNAL_SCORE
             )
             digest_path = write_digest(digests_dir=cfg.digests_dir, date=now, text=text)
 
@@ -400,27 +372,35 @@ def run_morning(
         # 해외 종목 후보 — 점수 척도를 하나로 통일:
         #   공시(EDGAR·gov)는 내용 기반 실제 점수, 뉴스는 소스 신뢰도 기반 점수.
         #   curation_score(시간 감쇠)를 버려 '방금 올라온 기사'가 상위를 잠식하지 않는다.
+        _FOREIGN_DISCLOSURE_SOURCES = {
+            "edgar",
+            "edgar_13f",
+            "edgar_cluster",
+            "gov_contracts",
+            "congress_trades",
+            "fda",
+            "analyst",
+        }
         foreign_candidates: list[tuple[CollectedItem, int]] = []
         for it, s, _d in scored:
-            if it.source in ("edgar", "gov_contracts", "edgar_cluster"):
+            if it.source in _FOREIGN_DISCLOSURE_SOURCES or it.source.startswith("wire:"):
                 foreign_candidates.append((it, s))
         for it in stock_news_foreign:
             foreign_candidates.append((it, foreign_news_weight(it.source)))
-        # 영어권 국제 시사 뉴스(BBC World 등)만 — 한국어 소스(연합뉴스 국제·gnews-intl-kr) 제외
-        for it, _cs in current_candidates:
-            if (it.extra or {}).get(
-                "category"
-            ) == "international" and it.source in _ENGLISH_SOURCES:
-                foreign_candidates.append((it, foreign_news_weight(it.source)))
+        # 영어권 국제 시사 뉴스(BBC World 등)만 — 해외 picks 보조 입력
+        for it in intl_news_foreign:
+            foreign_candidates.append((it, foreign_news_weight(it.source)))
 
+        # 국내 picks 촉매는 DART 공시만 쓴다. 증권사 리포트(research_scored)는
+        # 이미 애널리스트가 공개 분석한 '늦은' 직접 신호라 picks 트리거로 쓰면
+        # 알파가 없다 — picks 입력에서 디커플링(DECISIONS #17). 수집·표시는 유지하고,
+        # 향후 테마 밀도/수혜주 단서 용도로만 재배치 예정.
         domestic_candidates: list[tuple[CollectedItem, int]] = []
         for it, s, _d in scored:
             if it.source == "dart":
                 domestic_candidates.append((it, s))
-        for it, s, _d in research_scored:
-            domestic_candidates.append((it, s))
         for it in stock_news_domestic:
-            domestic_candidates.append((it, 40))
+            domestic_candidates.append((it, domestic_news_weight(it.source)))
 
         hot_issues_foreign: list[dict] = []
         hot_issues_domestic: list[dict] = []
@@ -434,7 +414,11 @@ def run_morning(
             return analyze_hot_issues(foreign_candidates, phase_map=phase_int_map)
 
         def _run_domestic() -> list[dict]:
-            return analyze_hot_issues_domestic(domestic_candidates, phase_map=phase_int_map)
+            return analyze_hot_issues_domestic(
+                domestic_candidates,
+                phase_map=phase_int_map,
+                surge_context=surge_prompt_lines(surges) if surges else None,
+            )
 
         with _timed("7. hot_issues (foreign+domestic 병렬)"):
             with ThreadPoolExecutor(max_workers=2) as pool:
@@ -451,52 +435,148 @@ def run_morning(
                     except Exception as e:
                         log.warning("hot_issues(%s) 분석 실패: %s", label, e)
 
-        # 7b. Briefing JSON
+        # 7a. picks 사실 검증 — 환각 종목 제거 + 티커 실존 확인 (실패해도 원본 유지)
+        with _timed("7a. pick verify"):
+            try:
+                from news_briefing.analysis.pick_verify import apply_verification
+
+                # 검증기에 점수순으로 넘긴다. 수집 순서대로 넘기면 고득점 촉매
+                # 공시가 [:120] 밖으로 밀려 'grounded=false' 오탐이 났다(예: 합병
+                # 공시를 못 봐 환각으로 오판). 점수 desc 정렬로 핵심 공시를 보장.
+                foreign_evidence = [
+                    f"[{it.source}] {it.company or ''} {it.title}".strip()
+                    for it, _ in sorted(foreign_candidates, key=lambda x: x[1], reverse=True)
+                ]
+                domestic_evidence = [
+                    f"[{it.source}] {it.company or ''} {it.title}".strip()
+                    for it, _ in sorted(domestic_candidates, key=lambda x: x[1], reverse=True)
+                ]
+                if hot_issues_foreign:
+                    hot_issues_foreign = apply_verification(
+                        hot_issues_foreign,
+                        scope="foreign",
+                        conn=conn,
+                        evidence_lines=foreign_evidence,
+                        fmp_api_key=cfg.fmp_api_key,
+                    )
+                if hot_issues_domestic:
+                    hot_issues_domestic = apply_verification(
+                        hot_issues_domestic,
+                        scope="domestic",
+                        conn=conn,
+                        evidence_lines=domestic_evidence,
+                        fmp_api_key=cfg.fmp_api_key,
+                    )
+            except Exception as e:
+                log.warning("pick 검증 실패 (원본 유지): %s", e)
+
+        # 7a-2. 관찰 리스트 — 픽이 0인 scope 만, 그날 점수 상위 공시를 보조 표시.
+        #   강한 촉매 없는 날 완전 빈 화면 대신 '지켜볼 만한 것'을 보여준다(픽과 분리).
+        watchlist_foreign: list[dict] = []
+        watchlist_domestic: list[dict] = []
+        with _timed("7a-2. watchlist"):
+            try:
+                from news_briefing.analysis.watchlist import select_watchlist
+
+                if not hot_issues_foreign:
+                    watchlist_foreign = select_watchlist(scored, foreign=True)
+                if not hot_issues_domestic:
+                    watchlist_domestic = select_watchlist(scored, foreign=False)
+                log.info(
+                    "watchlist: foreign %d, domestic %d",
+                    len(watchlist_foreign),
+                    len(watchlist_domestic),
+                )
+            except Exception as e:
+                log.warning("watchlist 생성 실패 (건너뜀): %s", e)
+
+        # 7a-3. 낙수효과 수혜주 — 관찰 이벤트가 경쟁사·대체재에 주는 반사이익(추론).
+        #   정식 픽과 분리된 저컨빅션 보조 레이어. 실패해도 관찰은 그대로 표시.
+        with _timed("7a-3. spillover"):
+            try:
+                from news_briefing.analysis.spillover import analyze_spillover
+
+                if watchlist_foreign:
+                    watchlist_foreign = analyze_spillover(watchlist_foreign, scope="foreign")
+                if watchlist_domestic:
+                    watchlist_domestic = analyze_spillover(watchlist_domestic, scope="domestic")
+            except Exception as e:
+                log.warning("spillover 분석 실패 (관찰 원본 유지): %s", e)
+
+        # 7b. Briefing JSON (picks 중심 — 뉴스·시그널 표시 제거)
         with _timed("7b. build+write briefing JSON"):
             briefing = build_briefing_json(
                 date=now,
-                scored_signals=scored,
-                economy_news=fresh_news,
-                current_news=current_candidates,
-                ai_news=ai_news,
-                glossary=glossary_map,
-                term_ids_by_id=term_ids_by_id,
                 hot_issues_foreign=hot_issues_foreign,
                 hot_issues_domestic=hot_issues_domestic,
-                news_summaries=news_summaries,
-                ai_title_translations=ai_title_translations,
+                watchlist_foreign=watchlist_foreign,
+                watchlist_domestic=watchlist_domestic,
                 macro_indices=macro_indices,
                 research_scored=research_scored,
                 etf_snapshots=etf_snapshots,
-                phase_map=phase_map,
+                surge=surges,
             )
             briefing_json_path = write_briefing(
                 public_briefings_dir=cfg.public_briefings_dir, briefing=briefing
             )
 
-        # 7c. Supabase briefings 테이블에 저장 (프론트엔드 직접 읽기)
-        with _timed("7c. upsert Supabase briefing"):
+        # 7c. Supabase briefings 테이블에 저장 (원본 보관소) + 최근치 로컬 복원.
+        #     프론트엔드는 로컬 정적 파일만 읽고, cleanup(step 0)은 최근 N일만
+        #     남기므로, DB에서 같은 기간을 로컬로 복원해 달력에 과거 날짜를 채운다.
+        with _timed("7c. upsert + export briefing"):
             try:
-                from news_briefing.storage.briefings import upsert_briefing
+                from news_briefing.storage.briefings import (
+                    export_briefings_to_local,
+                    upsert_briefing,
+                )
+                from news_briefing.storage.cleanup import BRIEFINGS_KEEP_DAYS
 
                 upsert_briefing(conn, briefing["date"], briefing)
                 log.info("briefing upserted to Supabase: %s", briefing["date"])
+                exported = export_briefings_to_local(
+                    conn, cfg.public_briefings_dir, keep_days=BRIEFINGS_KEEP_DAYS
+                )
+                log.info("briefing 로컬 복원: %d일치", len(exported))
             except Exception as e:
-                log.warning("briefing Supabase 저장 실패: %s", e)
+                log.warning("briefing Supabase 저장/복원 실패: %s", e)
 
-        # 7d. picks 성과 히스토리 갱신
+        # 7d. picks 성과 히스토리 갱신 + DB 저장 (배포 빌드가 여기서 복원)
         with _timed("7d. picks history update"):
             try:
+                import json as _json  # noqa: PLC0415
+
                 from news_briefing.analysis.picks_tracker import (  # noqa: PLC0415
+                    PICKS_HISTORY_PATH,
                     load_briefings_from_supabase,
                     update_history,
+                )
+                from news_briefing.storage.picks_history import (  # noqa: PLC0415
+                    upsert_picks_history,
                 )
 
                 recent_briefings = load_briefings_from_supabase(limit=30)
                 update_history(recent_briefings)
-                log.info("picks_history.json 갱신 완료")
+                # 로컬 파일을 원본(DB)으로 승격 — 여러 머신이 같은 행을 갱신한다.
+                ph_data = _json.loads(PICKS_HISTORY_PATH.read_text(encoding="utf-8"))
+                upsert_picks_history(conn, ph_data)
+                log.info("picks_history 갱신 + DB 저장 완료")
             except Exception as e:
                 log.warning("picks 히스토리 갱신 실패: %s", e)
+
+        # 7e. pick_outcomes 영구 원장 — 신규 픽 스냅샷 + 채점 시점 도래분 백필.
+        #     실적 탭(30일 실시간)과 별개로, 촉매별 적중률(재학습 데이터)을 영구 축적한다.
+        with _timed("7e. pick outcomes ledger"):
+            try:
+                from news_briefing.analysis.picks_outcomes import (  # noqa: PLC0415
+                    backfill_outcomes,
+                    record_outcomes,
+                )
+
+                snapped = record_outcomes(conn, briefing)
+                graded = backfill_outcomes(conn)
+                log.info("pick_outcomes: 스냅샷 %d건, 채점 갱신 %d건", snapped, graded)
+            except Exception as e:
+                log.warning("pick_outcomes 원장 갱신 실패: %s", e)
 
         # 8. RAG 자동 인덱싱 (Week 4) — 실패해도 morning 전체 중단 X
         with _timed("8. RAG indexing"):
@@ -522,43 +602,51 @@ def run_morning(
             stats.failures,
             stats.failure_rate * 100,
         )
+
+        # picks는 hot_issues 각 이슈의 picks 배열에 들어있으므로 종목 수를 합산한다.
+        picks_domestic = sum(len(iss.get("picks") or []) for iss in hot_issues_domestic)
+        picks_foreign = sum(len(iss.get("picks") or []) for iss in hot_issues_foreign)
+
         if not dry_run:
-            # LLM 이 대부분 실패했다면 요약·번역이 빈 껍데기 브리핑이다.
-            # 아무도 안 보는 새벽에 도는 배치라 잘못 발송되면 알아채기 어렵다.
-            # 발송하는 대신 크게 로그를 남겨 실패를 드러낸다.
+            # LLM 이 대부분 실패했다면 요약·해설이 빈 껍데기 브리핑이다. 아무도 안 보는
+            # 새벽 배치라 잘못 배포되면 알아채기 어렵다. 배포·알림을 건너뛰고 크게 로그를
+            # 남긴다 — 배포를 막으면 사이트는 직전 브리핑을 유지하므로 방문자에게는
+            # 빈 페이지 대신 내용이 채워진 어제 브리핑이 보인다.
+            #
+            # hot_issues 가 0건인 것 자체는 실패로 보지 않는다. 빈 상태 UI("오늘은 강한
+            # 촉매가 있는 종목이 없어요")가 의도된 정상 화면이라, 억지로 채우지 않기로 한
+            # 결정을 배포 가드가 뒤집지 않도록 한다.
             if not llm_output_is_trustworthy():
                 log.error(
-                    "LLM 실패율이 높아(%d/%d) 브리핑 발송을 중단한다. "
-                    "요약·번역이 비어 있을 가능성이 크다. data/briefing.log 확인 필요.",
+                    "LLM 실패율이 높아(%d/%d) 브리핑 배포를 중단한다. "
+                    "요약·해설이 비어 있을 가능성이 크다. data/briefing.log 확인 필요.",
                     stats.failures,
                     stats.calls,
                 )
             else:
-                # 발송 전에 배포부터 — 링크를 받은 시점에 사이트가 옛날 데이터면
-                # 브리핑을 열어도 어제 내용이 보인다.
-                with _timed("9a. git publish"):
-                    from news_briefing.delivery.publish import publish_briefing
+                # DB가 갱신됐으니 배포 서버가 빌드시 다시 끌어가도록 재배포 트리거.
+                with _timed("9. trigger deploy"):
+                    if _trigger_deploy(cfg):
+                        log.info("Vercel 재배포 트리거 완료")
 
-                    publish_briefing(PROJECT_ROOT, now.strftime("%Y-%m-%d"))
-
-                link_url = f"{cfg.vercel_base_url}/?date={now.strftime('%Y-%m-%d')}&tab=ai"
-                message = (
-                    f"**데일리 브리핑 · {now.strftime('%m월 %d일')}**\n"
-                    f"AI {len(ai_news)}건 · 공시 {sig_above}건 · 뉴스 {len(fresh_news)}건\n"
-                    f"{link_url}"
-                )
-                sent = _send_discord(cfg, message)
+                if notify:
+                    link_url = f"{cfg.vercel_base_url}/?scope=foreign"
+                    message = (
+                        f"**오늘의 종목추천 · {now.strftime('%m월 %d일')}**\n"
+                        f"해외 {picks_foreign}종목 · 국내 {picks_domestic}종목 (공시 {sig_above}건)\n"
+                        f"{link_url}"
+                    )
+                    sent = _send_discord(cfg, message)
+                else:
+                    log.info("notify=False, Discord 알림 스킵 (배포만 수행).")
         else:
             sys.stdout.buffer.write((text + "\n").encode("utf-8", errors="replace"))
 
         return MorningResult(
             new_items=len(new_items),
             signal_count=sig_above,
-            news_count=len(fresh_news),
-            current_count=len(current_candidates),
-            ai_count=len(ai_news),
-            picks_domestic=0,
-            picks_foreign=0,
+            picks_domestic=picks_domestic,
+            picks_foreign=picks_foreign,
             digest_path=digest_path,
             briefing_json_path=briefing_json_path,
             sent_discord=sent,

@@ -7,6 +7,7 @@
 
 캐시 지원. 실패 시 None 반환 — 파이프라인 중단 없음.
 """
+
 from __future__ import annotations
 
 import json
@@ -80,8 +81,7 @@ def _parse_thesis(raw: str) -> ThesisCheck | None:
     raw = raw.strip()
     if raw.startswith("```"):
         raw = "\n".join(
-            line for line in raw.splitlines()
-            if not line.strip().startswith("```")
+            line for line in raw.splitlines() if not line.strip().startswith("```")
         ).strip()
     try:
         data = json.loads(raw)
@@ -103,10 +103,12 @@ def _parse_thesis(raw: str) -> ThesisCheck | None:
     macro_links: list[dict] = []
     for m in macro_raw[:3]:
         if isinstance(m, dict) and m.get("factor"):
-            macro_links.append({
-                "factor": str(m.get("factor", "")).strip(),
-                "impact": str(m.get("impact", "")).strip(),
-            })
+            macro_links.append(
+                {
+                    "factor": str(m.get("factor", "")).strip(),
+                    "impact": str(m.get("impact", "")).strip(),
+                }
+            )
 
     return ThesisCheck(
         prepricing=prepricing,  # type: ignore[arg-type]
@@ -149,7 +151,13 @@ def analyze_thesis_batch(
             check = _parse_thesis(raw)
             if check:
                 d = check.to_dict()
-                cache_put(conn, THESIS_CHECK_TASK, cache_key, json.dumps(d, ensure_ascii=False), "claude-cli")
+                cache_put(
+                    conn,
+                    THESIS_CHECK_TASK,
+                    cache_key,
+                    json.dumps(d, ensure_ascii=False),
+                    "claude-cli",
+                )
                 result[ext_id] = d
                 log.info("thesis_check 완료: %s (%s)", company, headline[:30])
             else:

@@ -5,6 +5,7 @@
 - recency: 최근 6h=1.0, 12h=0.5, 24h=0.2, 48h+=0 (선형 근사)
 - importance: LLM 판정 (0~1) 또는 기본 1.0. Week 3 고정, Week 4+ 에서 LLM 연결.
 """
+
 from __future__ import annotations
 
 from datetime import datetime
@@ -43,9 +44,11 @@ def recency_factor(published_at: datetime, now: datetime) -> float:
     # timezone-naive 일 경우 UTC로 취급
     if published_at.tzinfo is None:
         from datetime import timezone
+
         published_at = published_at.replace(tzinfo=timezone.utc)
     if now.tzinfo is None:
         from datetime import timezone
+
         now = now.replace(tzinfo=timezone.utc)
     delta = now - published_at
     if delta.total_seconds() < 0:

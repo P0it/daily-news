@@ -119,9 +119,7 @@ def test_answer_query_uses_top_hits_and_records(
     assert len(recent) == 1
 
 
-def test_answer_query_empty_index(
-    memory_db: sqlite3.Connection, mocker
-) -> None:
+def test_answer_query_empty_index(memory_db: sqlite3.Connection, mocker) -> None:
     init_schema(memory_db)
     mocker.patch(
         "news_briefing.analysis.rag.embed",

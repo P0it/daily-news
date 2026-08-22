@@ -1,4 +1,5 @@
 """주간 리포트 생성 (Week 3 기본 + Week 4 LLM 에세이·트렌드)."""
+
 from __future__ import annotations
 
 import html
@@ -16,7 +17,7 @@ log = logging.getLogger(__name__)
 
 @dataclass(frozen=True, slots=True)
 class WeeklyReport:
-    week_id: str         # 'YYYY-Www' (ISO week)
+    week_id: str  # 'YYYY-Www' (ISO week)
     start_date: str
     end_date: str
     top_signals: list[dict]
@@ -104,13 +105,10 @@ def generate_essay(report: WeeklyReport) -> str | None:
     if not report.top_signals:
         return None
     signals_text = "\n".join(
-        f"- {s.get('company', '—')}: {s.get('headline', '')} "
-        f"(점수 {s.get('score', 0)})"
+        f"- {s.get('company', '—')}: {s.get('headline', '')} (점수 {s.get('score', 0)})"
         for s in report.top_signals[:10]
     )
-    themes_text = (
-        ", ".join(report.trending_themes) if report.trending_themes else "(없음)"
-    )
+    themes_text = ", ".join(report.trending_themes) if report.trending_themes else "(없음)"
     try:
         return _call_claude(
             ESSAY_PROMPT.format(signals=signals_text, themes=themes_text),
@@ -129,28 +127,20 @@ def render_weekly_html(report: WeeklyReport, essay: str | None = None) -> str:
         score = s.get("score", 0)
         url = html.escape(s.get("url") or "#")
         rows.append(
-            f'  <li><strong>{company}</strong>: {headline} '
+            f"  <li><strong>{company}</strong>: {headline} "
             f'(점수 {score}) <a href="{url}">원문</a></li>'
         )
     body = "\n".join(rows) if rows else "  <li>이번 주 기록된 시그널이 없어요.</li>"
 
     essay_section = ""
     if essay:
-        paragraphs = "".join(
-            f"<p>{html.escape(p)}</p>" for p in essay.split("\n\n") if p.strip()
-        )
-        essay_section = (
-            '<section><h2>이번 주 핵심 흐름</h2>' f"{paragraphs}" "</section>"
-        )
+        paragraphs = "".join(f"<p>{html.escape(p)}</p>" for p in essay.split("\n\n") if p.strip())
+        essay_section = f"<section><h2>이번 주 핵심 흐름</h2>{paragraphs}</section>"
 
     themes_section = ""
     if report.trending_themes:
-        themes_html = "".join(
-            f"<li>{html.escape(t)}</li>" for t in report.trending_themes
-        )
-        themes_section = (
-            '<section><h2>주목 테마</h2>' f"<ul>{themes_html}</ul>" "</section>"
-        )
+        themes_html = "".join(f"<li>{html.escape(t)}</li>" for t in report.trending_themes)
+        themes_section = f"<section><h2>주목 테마</h2><ul>{themes_html}</ul></section>"
 
     return (
         "<!doctype html>\n"
@@ -169,9 +159,7 @@ def render_weekly_html(report: WeeklyReport, essay: str | None = None) -> str:
     )
 
 
-def write_weekly(
-    *, reports_dir: Path, report: WeeklyReport, essay: str | None = None
-) -> Path:
+def write_weekly(*, reports_dir: Path, report: WeeklyReport, essay: str | None = None) -> Path:
     reports_dir.mkdir(parents=True, exist_ok=True)
     path = reports_dir / f"{report.week_id}.html"
     path.write_text(render_weekly_html(report, essay=essay), encoding="utf-8")

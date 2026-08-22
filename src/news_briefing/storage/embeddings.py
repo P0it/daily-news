@@ -2,6 +2,7 @@
 
 REST API 경유로 BYTEA 를 base64 인코딩해서 저장/복원한다.
 """
+
 from __future__ import annotations
 
 import base64
@@ -38,15 +39,17 @@ def _from_b64(s: str, dim: int) -> np.ndarray:
 
 def upsert_embedding(conn: Connection, row: EmbeddingRow) -> None:
     now = datetime.now(UTC).isoformat()
-    conn.table("embeddings").upsert({
-        "doc_id": row.doc_id,
-        "source": row.source,
-        "content": row.content,
-        "vector": _to_b64(row.vector),
-        "dim": row.vector.shape[0],
-        "metadata_json": json.dumps(row.metadata, ensure_ascii=False),
-        "indexed_at": now,
-    }).execute()
+    conn.table("embeddings").upsert(
+        {
+            "doc_id": row.doc_id,
+            "source": row.source,
+            "content": row.content,
+            "vector": _to_b64(row.vector),
+            "dim": row.vector.shape[0],
+            "metadata_json": json.dumps(row.metadata, ensure_ascii=False),
+            "indexed_at": now,
+        }
+    ).execute()
 
 
 def has_embedding(conn: Connection, doc_id: str) -> bool:
@@ -94,16 +97,18 @@ def similarity_search(
         if n == 0:
             continue
         sim = float(np.dot(q, v / n))
-        scored.append((
-            EmbeddingRow(
-                doc_id=d["doc_id"],
-                source=d["source"],
-                content=d["content"],
-                vector=v,
-                metadata=json.loads(d["metadata_json"] or "{}"),
-            ),
-            sim,
-        ))
+        scored.append(
+            (
+                EmbeddingRow(
+                    doc_id=d["doc_id"],
+                    source=d["source"],
+                    content=d["content"],
+                    vector=v,
+                    metadata=json.loads(d["metadata_json"] or "{}"),
+                ),
+                sim,
+            )
+        )
     scored.sort(key=lambda x: x[1], reverse=True)
     return scored[:top_k]
 

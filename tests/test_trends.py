@@ -8,9 +8,7 @@ from news_briefing.analysis.trends import detect_trending_themes
 def test_no_spike_no_trending() -> None:
     now = datetime(2026, 4, 23)
     events = [(f"로봇 기사 {i}", now - timedelta(days=i)) for i in range(7)]
-    trending = detect_trending_themes(
-        events, theme_keywords={"robotics": ["로봇"]}, now=now
-    )
+    trending = detect_trending_themes(events, theme_keywords={"robotics": ["로봇"]}, now=now)
     assert trending == []
 
 
@@ -44,16 +42,12 @@ def test_new_theme_no_past_data_trending() -> None:
     """과거 데이터 없는데 오늘 최소 임계값 이상이면 신규 주목 테마."""
     now = datetime(2026, 4, 23, 12, 0)
     today = [(f"신규테마 {i}", now.replace(hour=i)) for i in range(4)]
-    trending = detect_trending_themes(
-        today, theme_keywords={"new_theme": ["신규테마"]}, now=now
-    )
+    trending = detect_trending_themes(today, theme_keywords={"new_theme": ["신규테마"]}, now=now)
     assert "new_theme" in trending
 
 
 def test_below_min_today_count_not_trending() -> None:
     now = datetime(2026, 4, 23, 12, 0)
     today = [("로봇", now)]  # 1건만
-    trending = detect_trending_themes(
-        today, theme_keywords={"robotics": ["로봇"]}, now=now
-    )
+    trending = detect_trending_themes(today, theme_keywords={"robotics": ["로봇"]}, now=now)
     assert trending == []

@@ -1,4 +1,5 @@
 """용어 해설 (glossary) 테이블 read/write."""
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -39,11 +40,13 @@ def get_glossary_entry(conn: Connection, term_id: str, lang: str) -> GlossaryEnt
 
 def upsert_glossary_entry(conn: Connection, entry: GlossaryEntry) -> None:
     now = datetime.now(UTC).isoformat()
-    conn.table("glossary").upsert({
-        "term_id": entry.term_id,
-        "lang": entry.lang,
-        "short_label": entry.short_label,
-        "explanation": entry.explanation,
-        "signal_direction": entry.signal_direction,
-        "updated_at": now,
-    }).execute()
+    conn.table("glossary").upsert(
+        {
+            "term_id": entry.term_id,
+            "lang": entry.lang,
+            "short_label": entry.short_label,
+            "explanation": entry.explanation,
+            "signal_direction": entry.signal_direction,
+            "updated_at": now,
+        }
+    ).execute()

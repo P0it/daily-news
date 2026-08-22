@@ -39,13 +39,9 @@ def test_parse_malformed_returns_empty() -> None:
 
 def test_fetch_form4_sends_user_agent(mocker) -> None:
     mock_resp = MagicMock()
-    mock_resp.text = (
-        '<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom"></feed>'
-    )
+    mock_resp.text = '<?xml version="1.0"?><feed xmlns="http://www.w3.org/2005/Atom"></feed>'
     mock_resp.raise_for_status = MagicMock()
-    mock_get = mocker.patch(
-        "news_briefing.collectors.edgar.requests.get", return_value=mock_resp
-    )
+    mock_get = mocker.patch("news_briefing.collectors.edgar.requests.get", return_value=mock_resp)
     fetch_edgar_form4(user_agent="Test Agent test@example.com")
     args, kwargs = mock_get.call_args
     assert "cgi-bin/browse-edgar" in args[0]

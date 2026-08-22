@@ -1,4 +1,5 @@
 """RAG 쿼리 히스토리 (Week 4)."""
+
 from __future__ import annotations
 
 import json
@@ -27,13 +28,19 @@ def record_query(
     model: str,
 ) -> int:
     now = datetime.now(UTC).isoformat()
-    r = conn.table("rag_queries").insert({
-        "query": query,
-        "answer": answer,
-        "sources_json": json.dumps(sources, ensure_ascii=False),
-        "model": model,
-        "created_at": now,
-    }).execute()
+    r = (
+        conn.table("rag_queries")
+        .insert(
+            {
+                "query": query,
+                "answer": answer,
+                "sources_json": json.dumps(sources, ensure_ascii=False),
+                "model": model,
+                "created_at": now,
+            }
+        )
+        .execute()
+    )
     return int(r.data[0]["id"])
 
 

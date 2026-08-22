@@ -3,6 +3,7 @@
 시그널 점수 상위 N건, 같은 company_code 는 최고 점수만 남김,
 국내(DART)/해외(EDGAR) 분리.
 """
+
 from __future__ import annotations
 
 from dataclasses import dataclass

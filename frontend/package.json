@@ -3,7 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "export:data": "node scripts/export-from-supabase.mjs",
+    "predev": "node scripts/export-from-supabase.mjs",
     "dev": "next dev",
+    "prebuild": "node scripts/export-from-supabase.mjs",
     "build": "next build",
     "start": "next start"
   },

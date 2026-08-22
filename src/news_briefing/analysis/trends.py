@@ -1,10 +1,11 @@
 """테마 키워드 등장 빈도 기반 트렌드 감지 (ROADMAP Week 3 작업 항목 8)."""
+
 from __future__ import annotations
 
 from datetime import datetime, timedelta
 
-SPIKE_THRESHOLD = 2.0   # 오늘 빈도 / 주간 일평균이 이 값 이상이면 spike
-MIN_TODAY_COUNT = 3     # 오늘 최소 등장 횟수 (노이즈 방지)
+SPIKE_THRESHOLD = 2.0  # 오늘 빈도 / 주간 일평균이 이 값 이상이면 spike
+MIN_TODAY_COUNT = 3  # 오늘 최소 등장 횟수 (노이즈 방지)
 
 
 def _matches(title: str, keywords: list[str]) -> bool:
@@ -29,13 +30,9 @@ def detect_trending_themes(
 
     trending: list[str] = []
     for theme_id, kws in theme_keywords.items():
-        today_count = sum(
-            1 for title, ts in events
-            if ts >= today_start and _matches(title, kws)
-        )
+        today_count = sum(1 for title, ts in events if ts >= today_start and _matches(title, kws))
         past_count = sum(
-            1 for title, ts in events
-            if lookback_start <= ts < today_start and _matches(title, kws)
+            1 for title, ts in events if lookback_start <= ts < today_start and _matches(title, kws)
         )
         if today_count < MIN_TODAY_COUNT:
             continue

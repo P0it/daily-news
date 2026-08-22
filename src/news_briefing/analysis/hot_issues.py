@@ -17,11 +17,22 @@ from news_briefing.collectors.base import CollectedItem
 log = logging.getLogger(__name__)
 
 # ── 해외용 소스 티어 ─────────────────────────────────────────────
+# Tier 1 = 1차 소스(공시·규제기관·보도자료 와이어·애널 등급). 뉴스 매체보다 우대.
+# FT·BBC 등 매체는 Tier 2 로 강등 — 무제한 Tier1 쿼터를 공시와 공유하지 않게 한다.
 _TIER_MAP_FOREIGN: dict[str, int] = {
     "edgar": 1,
-    "rss:ft-markets": 1,
-    "rss:bbc-business": 1,
-    "rss:bbc-world": 1,
+    "edgar_13f": 1,  # 13D/G·13F 기관·구루 보유변동
+    "edgar_cluster": 1,  # 내부자 집단매수
+    "gov_contracts": 1,  # 미 정부 계약
+    "congress_trades": 1,  # 의회 거래
+    "fda": 1,  # FDA 승인
+    "analyst": 1,  # 애널 등급변경
+    "wire:globenewswire": 1,  # 보도자료 와이어 (기사 이전 1차 소스)
+    "wire:prnewswire": 1,
+    "wire:businesswire": 1,
+    "rss:ft-markets": 2,  # 매체 — Tier 1 → Tier 2 강등
+    "rss:bbc-business": 2,
+    "rss:bbc-world": 2,
     "rss:gnews-world-en": 2,
     "rss:gnews-business-en": 2,
     "rss:gnews-tech-en": 2,
@@ -47,6 +58,15 @@ _DEFAULT_TIER = 3
 # ── 표시용 언론사명 ──────────────────────────────────────────────
 _DISPLAY_MAP: dict[str, str] = {
     "edgar": "SEC EDGAR",
+    "edgar_13f": "SEC 13F·13D/G",
+    "edgar_cluster": "내부자 집단매수",
+    "gov_contracts": "美 정부계약",
+    "congress_trades": "美 의회 거래",
+    "fda": "FDA 승인",
+    "analyst": "애널 등급변경",
+    "wire:globenewswire": "GlobeNewswire",
+    "wire:prnewswire": "PR Newswire",
+    "wire:businesswire": "Business Wire",
     "dart": "DART",
     "research": "증권사 리포트",
     "rss:ft-markets": "Financial Times",
@@ -87,16 +107,28 @@ def foreign_news_weight(source: str) -> int:
     curation_score(시간 감쇠) 대신 사용 — 방금 올라온 기사가 신뢰도 높은 소스를
     제치고 picks 상위를 차지하던 문제를 막는다.
 
-    - Tier 1 (FT·BBC): 65 — EDGAR 평균(70)보다 살짝 아래
-    - Tier 2 (MarketWatch·Google News 영문): 50
-    - 그 외: 42 (score_floor 40 바로 위 — EDGAR 없는 날 fallback으로만 생존)
+    - Tier 1: 55 (현재 뉴스 매체는 전부 Tier 2 이하 — 1차 소스만 Tier 1)
+    - Tier 2 (FT·BBC·MarketWatch·Google News 영문): 50
+    - 그 외: 42 (score_floor 40 바로 위 — 1차 소스 없는 날 fallback으로만 생존)
     """
-    return {1: 65, 2: 50}.get(source_tier_foreign(source), 42)
+    return {1: 55, 2: 50}.get(source_tier_foreign(source), 42)
+
+
+def domestic_news_weight(source: str) -> int:
+    """국내 뉴스(비공시) 소스의 신뢰도 기반 기본 점수. foreign_news_weight 와 대칭.
+
+    DART·리서치는 내용 기반 점수(45~95)를 따로 받으므로 이 함수 대상이 아니다.
+    뉴스에는 '내용 점수'가 없어 소스 신뢰도를 점수로 환산한다.
+
+    - Tier 2 (한경·매경·연합): 50
+    - Tier 3 (Google News 국내): 42 — tier23_floor 40 바로 위
+    """
+    return {1: 65, 2: 50}.get(source_tier_domestic(source), 42)
 
 
 _PROMPT_SYSTEM = """\
 너는 해외 주식 투자자를 위한 투자 리서치 에디터다.
-아래 오늘 수집된 기사·공시 목록을 분석해, 오늘 당장 주목해야 할 종목·테마·자산 3개를 선정하라.
+아래 오늘 수집된 기사·공시 목록을 분석해, 오늘 당장 주목해야 할 종목·테마·자산 5개를 선정하라.
 
 핵심 원칙:
 - 뉴스 자체가 아니라 **투자 대상(종목·테마·자산)**을 먼저 제시한다
@@ -105,10 +137,14 @@ _PROMPT_SYSTEM = """\
 - 미국·글로벌 투자자 관점 (한국 내수 테마 제외)
 - 기업명·제품명·브랜드명 등 고유명사는 원문(영문) 그대로 표기한다. 음역 절대 금지 (예: Anthropic → Anthropic, 앤스로픽 X)
 
-선정 기준 (우선순위):
-1. SEC EDGAR 8-K 공시: 기업 실적·가이던스·M&A·구조조정 직접 공시
-2. 중앙은행·정부 정책 발표: 금리·규제·무역 정책이 특정 섹터/자산에 미치는 영향
-3. FT·BBC 단독 보도: 시장 가격에 아직 반영 안 된 새로운 정보
+선정 기준 (★ 촉매 강도가 핵심 — 약한 촉매로는 픽하지 마라):
+1. 강한 촉매만 픽 자격: 어닝 서프라이즈, 가이던스 상향, 대형 신규 수주·다년 공급계약,
+   M&A 본계약·인수 완료, FDA 승인·임상 성공, 대형 정부·국방 계약 — 시장과 무관하게
+   주가를 독립적으로 움직일 사건.
+2. 약한·투기 촉매는 픽 트리거 불가(배경 정보일 뿐): IPO 추진설·상장 루머, 유상증자·희석,
+   내부자 거래 신고, 지정학적 지정·제재설, 단순 가격 인상 시사 — 루머·노이즈로 끝나기 쉽다.
+   이것만 근거인 종목은 제외.
+3. 중앙은행·정부 정책, FT·BBC 단독 보도는 구조적 영향이 분명할 때만.
 
 주목도 사이클 우선순위 (★ 핵심 — 개미보다 빠른 진입이 목표):
 - [P1] 초기 진입 구간: 첫 시그널, 가격 미반영 → 최우선 선정
@@ -119,15 +155,16 @@ _PROMPT_SYSTEM = """\
 4. 매크로 변화: 달러·금리·원자재 흐름이 특정 ETF·섹터로 직결
 
 picks 작성 원칙 (★ 핵심 — 가장 중요):
-목표: 개미 투자자 대다수가 아직 연결고리를 파악하지 못한 종목을 찾는 것.
-"가장 유명한 수혜주"가 아니라 "아직 덜 알려진 파생 수혜주"를 골라라.
+목표: 강한 촉매가 있는 종목 중 시장이 아직 다 반영하지 못한 것을 찾는 것.
+공시 당사자(filer)를 우선하되, 이미 모두가 아는 뻔한 대장주(주가 선반영)는 피한다.
 
 필수 사고 순서:
 1. 이 이슈와 picks 후보 사이의 연결고리가 이미 시장에서 "당연한 것"으로 인식되는지 판단한다.
    - 연결고리가 뻔하면 → consensus_risk="high", 제외
    - 연결고리가 아직 잘 알려지지 않았다면 → 유명 대기업이라도 포함 가능
-2. 가능하면 2nd·3rd order 파생 수혜 종목을 우선 탐색한다.
-   예: 방산 수주 급증 → 방산 부품·소재사 / AI 수요 급증 → 냉각 시스템·전력 인프라주
+2. 촉매의 직접 당사자(filer)를 우선 픽한다. 2nd·3rd order 파생 수혜주는 촉매가 강하고
+   연결고리가 분명할 때만 보조로 넣는다 — 약한 촉매에서의 파생 추론은 금지(손실이 가장
+   많이 나는 패턴이다). 예: 대형 신규 수주(강한 촉매) → 그 수주의 핵심 부품 단독 공급사.
 3. 선정한 picks 각각에 대해 "consensus_risk"를 스스로 평가한다.
    - "high": 해당 이슈-종목 연결고리가 이미 언론 도배·애널 다수 커버·주가 선반영 → 제외
    - "medium": 일부 언급 있으나 아직 주류 아님 → 허용
@@ -139,7 +176,7 @@ picks 작성 원칙 (★ 핵심 — 가장 중요):
 
 출력 규칙:
 - JSON 배열만 반환. 마크다운 코드블록·설명 텍스트 없이 배열 그대로.
-- 배열 길이 정확히 3.
+- 배열 길이 최대 5. 강한 촉매 수만큼만 — 부족하면 2~3개라도 좋다. 약한·투기 촉매로 5개를 채우지 마라.
 - 각 원소:
   {
     "rank": 숫자,
@@ -163,7 +200,7 @@ picks 작성 원칙 (★ 핵심 — 가장 중요):
     "source": "출처 언론사명",
     "url": "원문 URL 또는 null"
   }
-  picks 배열은 2~3개. consensus_risk="high"는 포함 금지.
+  picks 배열은 1~2개, 공시 당사자(filer) 우선. 약한 연결의 파생주로 머릿수 채우지 마라. consensus_risk="high"는 포함 금지.
 
 related_etf 필드 작성 규칙 (★ 필수, domestic과 별개):
 - 의미: 이 종목을 비중 있게 보유한 **해외(미국 상장) ETF** 1개. (domestic은 국내 추종 ETF로 별개 필드)
@@ -189,20 +226,22 @@ domestic 필드 작성 규칙 (★ 필수):
 _PROMPT_SYSTEM_DOMESTIC = """\
 너는 코스피·코스닥 투자자를 위한 국내 주식 리서치 에디터다.
 아래 오늘 수집된 DART 공시·증권사 리포트·국내 경제 뉴스를 분석해,
-오늘 당장 주목해야 할 국내 종목·테마 3개를 선정하라.
+오늘 당장 주목해야 할 국내 종목·테마 5개를 선정하라.
 
 핵심 원칙:
 - 코스피·코스닥 투자자 관점 (해외 종목 제외)
-- DART 공시 최우선 (실적·가이던스·M&A·자사주·유무상증자 직접 공시)
-- 증권사 목표주가 상향/신규 커버리지도 중요한 시그널
+- DART 공시 최우선, 단 촉매 강도로 거른다 (강한 촉매: 실적·가이던스·대형 수주·M&A / 약한 촉매: 자사주·CB 상환·유무상증자는 픽 트리거로 불충분)
+- 증권사 목표주가 상향/신규 커버리지는 이미 공개된 늦은 신호 — 단독 픽 근거로 쓰지 말 것
 - 한국 내수·수출·산업 테마 포함 가능
 - 기업명·제품명·브랜드명 등 고유명사는 원문(영문) 그대로 표기한다. 음역 절대 금지 (예: Anthropic → Anthropic, 앤스로픽 X)
 
-선정 기준 (우선순위):
-1. DART 공시: 어닝 서프라이즈·가이던스 상향·M&A·자사주 매입 등 직접 촉매
-2. 증권사 리포트: 목표주가 상향(10% 이상) 또는 신규 커버리지 개시
-3. 국내 경제 뉴스: 정부 정책·규제 변화가 특정 섹터에 미치는 영향
-4. 테마 시그널: 동일 섹터 내 복수 기업에 영향을 주는 구조적 변화
+선정 기준 (★ 촉매 강도가 핵심 — 약한 촉매로는 픽하지 마라):
+1. 강한 촉매만 픽 자격: 어닝 서프라이즈, 가이던스 상향, 대형 신규 수주·공급계약,
+   M&A 본계약, 규제 승인·신약 허가 — 시장과 무관하게 주가를 독립적으로 움직일 사건.
+2. 약한 촉매는 픽 트리거 불가(배경 정보일 뿐): 자사주 취득 결정, 자기 CB 만기전취득,
+   무·유상증자 등 통상적 수급 공시. 시장이 빠지면 같이 빠진다 — 이것만 근거인 종목은 제외.
+3. 국내 경제 뉴스: 정부 정책·규제 변화가 특정 섹터에 미치는 구조적 영향.
+4. 강한 촉매가 오늘 부족하면 5개를 억지로 채우지 마라(출력 규칙 참고).
 
 주목도 사이클 우선순위 (★ 핵심 — 개미보다 빠른 진입이 목표):
 - [P1] 초기 진입 구간: 첫 시그널, 가격 미반영 → 최우선 선정
@@ -218,8 +257,9 @@ picks 작성 원칙 (★ 핵심 — 가장 중요):
 1. 이 이슈와 picks 후보 사이의 연결고리가 이미 시장에서 "당연한 것"으로 인식되는지 판단한다.
    - 연결고리가 뻔하면 → consensus_risk="high", 제외
    - 연결고리가 아직 잘 알려지지 않았다면 → 대형주라도 포함 가능
-2. 가능하면 2nd·3rd order 파생 수혜 종목을 우선 탐색한다.
-   예: 방산 수주 급증 → 방산 부품·소재 중소기업 / AI 인프라 → 서버 부품·PCB·냉각재 기업
+2. 촉매의 직접 당사자(filer)를 우선 픽한다. 2nd·3rd order 파생 수혜주는 촉매가 강하고
+   연결고리가 분명할 때만 보조로 넣는다 — 약한 촉매에서의 파생 추론은 금지(손실이 가장
+   많이 나는 패턴이다). 예: 대형 신규 수주(강한 촉매) → 그 수주의 핵심 부품 단독 공급사.
 3. picks 각각에 대해 consensus_risk를 평가한다.
    - "high": 해당 이슈-종목 연결고리가 이미 언론 도배·증권사 다수 커버·주가 선반영 → 제외
    - "medium": 일부 언급 있으나 아직 주류 아님 → 허용
@@ -231,9 +271,17 @@ picks 작성 원칙 (★ 핵심 — 가장 중요):
 - domestic 필드는 반드시 null (picks 자체가 국내 종목)
 - direction=negative이면 수혜받는 국내 종목을 picks로 제시
 
+시장 반응 참고 (★ 프롬프트 끝에 '── 시장 반응 ──' 블록이 있을 때만 적용):
+- 그 블록은 어제 거래대금이 급증한 종목이다. 급등은 촉매가 아니라 이미 벌어진 시장
+  반응이므로, 이것만으로는 절대 pick 하지 마라. 목록에 있어도 강한 DART 공시 촉매가
+  없으면 픽하지 않는다.
+- 유일한 용도: 위 공시 촉매로 이미 선정한 pick 이 그 목록에도 있으면, description 에
+  "거래대금이 평균의 N배로 늘며 시장이 이미 반응 중"이라는 색을 한 문장 덧붙일 수 있다.
+  이미 큰 폭으로 오른 종목이면 "다소 늦은 진입일 수 있다"는 뉘앙스도 함께 담아라.
+
 출력 규칙:
 - JSON 배열만 반환. 마크다운 코드블록·설명 텍스트 없이 배열 그대로.
-- 배열 길이 정확히 3.
+- 배열 길이 최대 5. 강한 촉매 수만큼만 — 부족하면 2~3개라도 좋다. 약한 촉매로 5개를 채우지 마라.
 - 각 원소:
   {
     "rank": 숫자,
@@ -257,7 +305,7 @@ picks 작성 원칙 (★ 핵심 — 가장 중요):
     "source": "출처 언론사·기관명",
     "url": "원문 URL 또는 null"
   }
-  picks 배열은 2~3개. domestic은 항상 null.
+  picks 배열은 1~2개, 공시 당사자(filer) 우선. 약한 연결의 파생주로 머릿수 채우지 마라. domestic은 항상 null.
 
 related_etf 필드 작성 규칙 (★ 필수):
 - 의미: 이 국내 종목을 비중 있게 담은 **국내 상장 ETF** 1개 (TIGER·KODEX·KBSTAR·ACE·HANARO 계열).
@@ -286,7 +334,7 @@ def _parse_issues(raw: str) -> list[dict]:
             raise
         issues = json.loads(m.group(0))
     validated: list[dict] = []
-    for iss in issues[:3]:
+    for iss in issues[:5]:
         asset = str(iss.get("asset") or iss.get("title") or "").strip()
         if not asset:
             continue
@@ -353,19 +401,24 @@ def _build_pool(
     tier1_cap: int | None = None,  # None = 무제한
     tier2_cap: int = 8,
     tier3_cap: int = 3,
-    score_floor: int = 40,
+    tier1_floor: int = 40,
+    tier23_floor: int = 40,
 ) -> list[tuple[CollectedItem, int, int]]:
     """Tier별 쿼터 + 동일 기업 중복 제거 + 점수 하한 필터링.
 
     - Tier 1 (공시·핵심 소스): cap 없음 — 어떤 날이든 전부 포함
     - Tier 2 (주요 언론): 최대 tier2_cap개, 기업 중복 제거
     - Tier 3 (Google News 등): 최대 tier3_cap개, Tier 1+2 풀이 부족할 때만
-    - score_floor 미만은 노이즈로 간주해 제외
+    - 하한은 티어별로 나눈다. Tier 1(공시·리서치)은 촉매성 여부를 점수로 거를 수
+      있지만, Tier 2·3(뉴스)은 소스 신뢰도를 점수로 환산한 값이라 척도가 다르다.
+      하나의 하한을 공통 적용하면 뉴스가 통째로 탈락한다(국내 후보 굶주림의 원인).
     """
     # 1. 점수 하한 + Tier 계산
-    tagged = [
-        (item, score, tier_fn(item.source)) for item, score in candidates if score >= score_floor
-    ]
+    tagged: list[tuple[CollectedItem, int, int]] = []
+    for item, score in candidates:
+        tier = tier_fn(item.source)
+        if score >= (tier1_floor if tier == 1 else tier23_floor):
+            tagged.append((item, score, tier))
     tagged.sort(key=lambda x: (x[2], -x[1]))
 
     seen_companies: set[str] = set()
@@ -409,17 +462,17 @@ def analyze_hot_issues(
     *,
     phase_map: dict[str, int] | None = None,
 ) -> list[dict]:
-    """해외 소스 기반 오늘 주목할 종목·테마 Top 3 선정.
+    """해외 소스 기반 오늘 주목할 종목·테마 Top 5 선정.
 
-    Tier 1 (EDGAR·FT·BBC): 전량 포함.
-    Tier 2 (Google News·연합 국제): 기업 중복 제거 후 최대 8개.
+    Tier 1 (EDGAR·13F·와이어·정부·애널 등 1차 소스): 최대 16개.
+    Tier 2 (FT·BBC·Google News): 기업 중복 제거 후 최대 12개.
     Tier 3: 최대 3개.
     phase_map: {ext_id: phase} — 있으면 각 항목에 [P숫자] 태그 추가해 LLM이 P1·P2 우선 선정.
     실패 시 빈 리스트 반환.
     """
     from news_briefing.analysis.llm import _call_claude  # noqa: PLC0415
 
-    pool = _build_pool(candidates, source_tier_foreign, tier1_cap=10, tier2_cap=8, tier3_cap=3)
+    pool = _build_pool(candidates, source_tier_foreign, tier1_cap=16, tier2_cap=12, tier3_cap=3)
 
     if not pool:
         log.warning("hot_issues(foreign): 후보 아이템 없음, 분석 건너뜀")
@@ -435,34 +488,55 @@ def analyze_hot_issues(
         sum(1 for *_, t in pool if t == 3),
     )
 
-    try:
-        # 수혜주 추론 작업 → Opus + thinking 유지로 품질 사수 (단독 ~136s · 동시 2개 ~110s, timeout 420s)
-        raw = _call_claude(prompt, timeout=420, model="opus").strip()
-        result = _parse_issues(raw)
-        log.info("hot_issues(foreign): %d개 이슈 선정", len(result))
-        return result
-    except Exception as e:
-        log.error("hot_issues(foreign) LLM 분석 실패: %s", e)
-        return []
+    # domestic 과 동일하게 1회 재시도. 일시적 서버 지연·thinking 변동으로 빈
+    # 결과가 나오면 '강한 촉매 없음'과 구분되지 않아, 재시도로 오탐을 막는다.
+    for attempt in range(2):
+        try:
+            # 수혜주 추론(5이슈) → Opus + thinking 유지로 품질 사수. 출력이 길어 timeout 600s.
+            raw = _call_claude(prompt, timeout=600, model="opus").strip()
+            result = _parse_issues(raw)
+            log.info("hot_issues(foreign): %d개 이슈 선정", len(result))
+            return result
+        except Exception as e:
+            if attempt == 0:
+                log.warning("hot_issues(foreign) 1차 실패, 30초 후 재시도: %s", e)
+                time.sleep(30)
+            else:
+                log.error("hot_issues(foreign) LLM 분석 최종 실패: %s", e)
+    return []
 
 
 def analyze_hot_issues_domestic(
     candidates: list[tuple[CollectedItem, int]],
     *,
     phase_map: dict[str, int] | None = None,
+    surge_context: list[str] | None = None,
 ) -> list[dict]:
-    """국내 소스(DART·리서치·한경·매경) 기반 오늘 주목할 종목·테마 Top 3 선정.
+    """국내 소스(DART·리서치·한경·매경) 기반 오늘 주목할 종목·테마 Top 5 선정.
 
-    Tier 1 (DART·리서치): 실질 촉매 공시만 (score≥75: 실적·M&A·자사주·공급계약 등).
-    Tier 2 (한경·매경·연합): 기업 중복 제거 후 최대 8개.
+    Tier 1 (DART·리서치): 실질 촉매 공시만 (score≥75: 실적·M&A·자사주·공급계약 등). 최대 20개.
+    Tier 2 (한경·매경·연합): 기업 중복 제거 후 최대 12개.
     Tier 3 (Google News): 최대 3개.
     phase_map: {ext_id: phase} — 있으면 각 항목에 [P숫자] 태그 추가해 LLM이 P1·P2 우선 선정.
+    surge_context: KRX 거래대금 급증 종목 라인(선택). 점수·선별엔 전혀 관여하지 않고,
+        이미 공시 촉매로 뽑힌 pick 의 '시장이 이미 반응 중' 설명 색으로만 프롬프트 말미에
+        덧붙인다 (급등=반응, 촉매 아님 — DECISIONS #17/#21).
     실패 시 빈 리스트 반환.
     """
     from news_briefing.analysis.llm import _call_claude  # noqa: PLC0415
 
     pool = _build_pool(
-        candidates, source_tier_domestic, tier1_cap=15, tier2_cap=8, tier3_cap=3, score_floor=75
+        candidates,
+        source_tier_domestic,
+        tier1_cap=20,
+        tier2_cap=12,
+        tier3_cap=3,
+        # Tier1(DART·리서치)은 실질 촉매만 — 분기보고서(45)·반기보고서(50) 같은
+        # 정기 공시가 제출 시즌에 실제 촉매를 밀어내는 것을 막는다.
+        tier1_floor=75,
+        # Tier2·3(한경·매경·연합·구글뉴스)은 domestic_news_weight 척도(42~65)를
+        # 따르므로 75를 적용하면 전멸한다.
+        tier23_floor=40,
     )
 
     if not pool:
@@ -471,6 +545,9 @@ def analyze_hot_issues_domestic(
 
     lines = _pool_to_prompt_lines(pool, phase_map)
     prompt = _PROMPT_SYSTEM_DOMESTIC + "\n\n---\n\n" + "\n".join(lines)
+    # 급등 목록은 후보 풀(_build_pool) 밖에서 프롬프트 색으로만 붙인다 — 선별에 영향 없음.
+    if surge_context:
+        prompt += "\n\n── 시장 반응 (거래대금 급증, 촉매 아님) ──\n" + "\n".join(surge_context)
     log.info(
         "hot_issues(domestic): 프롬프트 %d개 항목 (Tier1=%d Tier2=%d Tier3=%d)",
         len(pool),
@@ -481,8 +558,8 @@ def analyze_hot_issues_domestic(
 
     for attempt in range(2):
         try:
-            # 수혜주 추론 작업 → Opus + thinking 유지로 품질 사수 (단독 ~136s · 동시 2개 ~110s, timeout 420s)
-            raw = _call_claude(prompt, timeout=420, model="opus").strip()
+            # 수혜주 추론(5이슈) → Opus + thinking 유지로 품질 사수. 출력이 길어 timeout 600s.
+            raw = _call_claude(prompt, timeout=600, model="opus").strip()
             result = _parse_issues(raw)
             log.info("hot_issues(domestic): %d개 이슈 선정", len(result))
             return result

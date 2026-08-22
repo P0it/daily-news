@@ -3,6 +3,7 @@
 언론 보도보다 24~72시간 앞서 수주 정보를 포착할 수 있는 선행 지표.
 https://api.usaspending.gov/
 """
+
 from __future__ import annotations
 
 import logging
@@ -33,6 +34,7 @@ _TARGET_NAICS = {
     "928110",  # National Security
 }
 
+
 # 점수 기준 — 계약 금액 기반
 def _score_contract(amount_usd: float) -> int:
     if amount_usd >= 1_000_000_000:
@@ -62,7 +64,9 @@ def fetch_gov_contracts(
 
     payload = {
         "filters": {
-            "time_period": [{"start_date": start_date, "end_date": end_date, "date_type": "action_date"}],
+            "time_period": [
+                {"start_date": start_date, "end_date": end_date, "date_type": "action_date"}
+            ],
             "award_type_codes": ["A", "B", "C", "D"],  # 계약 유형만 (그랜트 제외)
             "naics_codes": list(_TARGET_NAICS),
         },
@@ -121,9 +125,7 @@ def fetch_gov_contracts(
             action_date = now
 
         amount_m = amount / 1_000_000
-        headline = (
-            f"[정부계약] {recipient} — ${amount_m:,.0f}M {naics_desc} 계약 수주 ({agency})"
-        )
+        headline = f"[정부계약] {recipient} — ${amount_m:,.0f}M {naics_desc} 계약 수주 ({agency})"
         summary = desc[:300] if desc else f"{agency} 발주, {naics_desc} 분야"
 
         items.append(

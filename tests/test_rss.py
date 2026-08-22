@@ -41,7 +41,6 @@ def test_ai_feeds_include_key_sources() -> None:
     """Week 5b: AI 탭 핵심 소스 등록 확인."""
     sources = {f.source for f in RSS_FEEDS if f.category == "ai"}
     assert "rss:geeknews" in sources
-    assert "rss:anthropic" in sources
     assert "rss:openai" in sources
     assert "rss:hn-ai" in sources
     yt_count = sum(1 for s in sources if s.startswith("rss:yt-"))

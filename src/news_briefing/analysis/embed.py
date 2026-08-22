@@ -2,6 +2,7 @@
 
 P2 원칙 준수: OpenAI/기타 유료 embedding API 미사용.
 """
+
 from __future__ import annotations
 
 import hashlib

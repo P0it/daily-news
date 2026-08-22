@@ -138,8 +138,12 @@ def _call_claude(prompt: str, timeout: int = 45, model: str | None = None) -> st
                 cwd=tmpdir,
             )
         if result.returncode != 0:
+            # Claude CLI 는 사용량 한도 같은 오류를 stdout 으로 내보낸다. stderr 만
+            # 남기면 rc=1 stderr= (빈 문자열) 로만 기록돼 원인을 영영 못 본다.
+            # (실제 사고: 08-21 실패율 100% 의 원인을 로그로 특정할 수 없었다.)
             raise RuntimeError(
-                f"claude cli returncode={result.returncode} stderr={result.stderr[:500]}"
+                f"claude cli returncode={result.returncode} "
+                f"stderr={result.stderr[:500]} stdout={result.stdout[:500]}"
             )
         output = (result.stdout or "").strip()
         if not output:

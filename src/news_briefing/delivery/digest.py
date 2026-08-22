@@ -1,4 +1,5 @@
 """브리핑 텍스트 백업 생성 (`data/digests/YYYY-MM-DD.txt`)."""
+
 from __future__ import annotations
 
 from datetime import datetime

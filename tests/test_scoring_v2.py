@@ -28,12 +28,8 @@ def test_self_stock_buyback_scaled_by_amount() -> None:
 
 
 def test_self_stock_buyback_market_purchase_bonus() -> None:
-    tr = score_with_context(
-        "자기주식취득결정", ScoringContext(acquisition_method="신탁")
-    )
-    mkt = score_with_context(
-        "자기주식취득결정", ScoringContext(acquisition_method="장내매수")
-    )
+    tr = score_with_context("자기주식취득결정", ScoringContext(acquisition_method="신탁"))
+    mkt = score_with_context("자기주식취득결정", ScoringContext(acquisition_method="장내매수"))
     assert mkt.score == tr.score + 5
 
 

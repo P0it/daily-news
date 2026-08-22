@@ -3,6 +3,7 @@
 psycopg2 직접 TCP 연결 대신 HTTPS REST API를 사용하여 IPv6 전용 환경에서도 동작한다.
 storage 모듈은 Connection 타입을 import해서 사용하며, 실제 구현은 supabase Client다.
 """
+
 from __future__ import annotations
 
 import logging

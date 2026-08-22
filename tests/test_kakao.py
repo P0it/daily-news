@@ -41,9 +41,7 @@ def test_send_text_posts_to_kakao_api(mocker) -> None:
     mock_resp = MagicMock()
     mock_resp.status_code = 200
     mock_resp.json.return_value = {"result_code": 0}
-    mock_post = mocker.patch(
-        "news_briefing.delivery.kakao.requests.post", return_value=mock_resp
-    )
+    mock_post = mocker.patch("news_briefing.delivery.kakao.requests.post", return_value=mock_resp)
     tokens = KakaoTokens(access_token="abc", refresh_token="r", expires_at=None)
     payload = compose_text_template("hi", "https://x.com", "열기")
     ok = send_text(tokens=tokens, rest_api_key="", payload=payload)
