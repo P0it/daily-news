@@ -21,7 +21,9 @@ const FRONTEND_ROOT = join(__dirname, '..')
 const REPO_ROOT = join(FRONTEND_ROOT, '..')
 const PUBLIC_DIR = join(FRONTEND_ROOT, 'public')
 const BRIEFINGS_DIR = join(PUBLIC_DIR, 'briefings')
-const KEEP_DAYS = 30
+// 달력에 노출할 과거 브리핑 일수. 파이프라인의 BRIEFINGS_KEEP_DAYS(90)와 맞춘다 —
+// 여기가 실제로 사이트 달력을 만드는 지점이라, 한쪽만 올리면 설정이 무효가 된다.
+const KEEP_DAYS = 90
 
 /** 저장소 루트 .env 를 파싱해 process.env 에 없으면 채운다(로컬 dev 폴백). */
 async function loadRootEnv() {

@@ -28,14 +28,19 @@ def export_briefings_to_local(
     conn: Connection,
     briefings_dir: Path,
     *,
-    keep_days: int = 30,
+    keep_days: int = 90,
 ) -> list[str]:
     """Supabase briefings 테이블의 최근 keep_days 일치를 로컬 정적 파일로 내보낸다.
 
     프론트엔드(정적 호스팅)는 frontend/public/briefings/*.json 만 읽으므로,
     cleanup으로 지워진 과거 브리핑을 DB(원본)에서 복원해 달력에서 다시 볼 수 있게
-    한다. index.json 도 내보낸 날짜로 갱신한다. 보관 기간은 성과탭(picks_history,
-    MAX_TRACK_DAYS=30)과 맞춰 달력·성과 범위가 어긋나지 않게 한다.
+    한다. index.json 도 내보낸 날짜로 갱신한다.
+
+    기본값은 cleanup.BRIEFINGS_KEEP_DAYS(90)와 같게 둔다. 성과탭
+    (picks_history, MAX_TRACK_DAYS=30)과는 일부러 다르다 — 성과 추적과 달력
+    열람은 목적이 다르다. 배포 사이트의 달력 범위는 결국
+    frontend/scripts/export-from-supabase.mjs 의 KEEP_DAYS 가 정하므로
+    셋을 함께 봐야 한다.
 
     Returns:
         내보낸 날짜 목록 (최신순).
